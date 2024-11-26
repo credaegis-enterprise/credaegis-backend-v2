@@ -34,4 +34,9 @@ public class InitializerController {
          System.out.println(role.getRole());
          return ResponseEntity.status(HttpStatus.OK).body(role);
    }
+
+   @GetMapping (path = "/check")
+   public ResponseEntity<String> check(){
+      return ResponseEntity.status(HttpStatus.OK).body("OK CHECKED");
+   }
 }

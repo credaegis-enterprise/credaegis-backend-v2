@@ -10,20 +10,28 @@ import java.util.List;
 
 public class CustomUser implements UserDetails {
 
+    private String email;
+    private String password;
+    private List<GrantedAuthority> grantedAuthorities;
 
+    public CustomUser(String email, String password, List<GrantedAuthority> grantedAuthorities){
+        this.email = email;
+        this.password = password;
+        this.grantedAuthorities = grantedAuthorities;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return grantedAuthorities;
     }
 
     @Override
     public String getPassword() {
-        return "";
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return email;
     }
 
 }
