@@ -44,7 +44,7 @@ public class Approvals {
 
 
     @CreationTimestamp
-    @Column(name = "created_on")
+    @Column(name = "created_on",updatable = false)
     private Timestamp createdOn;
 
     @CreationTimestamp

@@ -1,4 +1,4 @@
-package com.credaegis.backend.configuration;
+package com.credaegis.backend.configuration.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +24,8 @@ public class HttpSecurityConfig {
         return http.build();
 
     }
+
+
 
 
     @Bean

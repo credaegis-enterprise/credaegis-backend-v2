@@ -24,7 +24,7 @@ public class Clusters {
     private Boolean deactivated;
 
     @CreationTimestamp
-    @Column(name = "created_on")
+    @Column(name = "created_on",updatable = false)
     private Timestamp createdOn;
 
     @UpdateTimestamp

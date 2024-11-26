@@ -24,9 +24,6 @@ public class Events {
 
     private Boolean deactivated;
 
-    @CreationTimestamp
-    @Column(name = "created_on")
-    private Timestamp createdOn;
 
     @OneToMany(mappedBy = "event")
     List<Approvals> approvals = new ArrayList<>();
@@ -39,6 +36,10 @@ public class Events {
     @UpdateTimestamp
     @Column(name = "updated_on")
     private Timestamp updatedOn;
+
+    @CreationTimestamp
+    @Column(name = "created_on",updatable = false)
+    private Timestamp createdOn;
 
     @ManyToOne
     @JoinColumn(name = "cluster_id")

@@ -49,7 +49,7 @@ public class Certificates {
     private Events event;
 
     @CreationTimestamp
-    @Column(name = "created_on")
+    @Column(name = "created_on",updatable = false)
     private Timestamp createdOn;
 
     @CreationTimestamp

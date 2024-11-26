@@ -25,7 +25,7 @@ public class Users {
     private String email;
 
     @Column(name = "mfa_enabled")
-    private Boolean mfaEnabled;
+    private Boolean mfaEnabled = false;
 
     @Column(name = "profile_url")
     private String profileUrl;
