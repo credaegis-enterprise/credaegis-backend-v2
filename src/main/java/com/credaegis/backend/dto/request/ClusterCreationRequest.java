@@ -1,4 +1,4 @@
-package com.credaegis.backend.dto;
+package com.credaegis.backend.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,10 +9,10 @@ import lombok.Data;
 @AllArgsConstructor
 public class ClusterCreationRequest {
 
-    @NotBlank
+    @NotBlank(message = "name cannot be empty")
     private String clusterName;
 
-    @NotBlank
+    @NotBlank(message = "name cannot be empty")
     private String adminName;
 
     @Email(message = "Please enter a valid email")

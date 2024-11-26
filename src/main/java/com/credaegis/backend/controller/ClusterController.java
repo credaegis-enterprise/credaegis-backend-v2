@@ -1,6 +1,6 @@
 package com.credaegis.backend.controller;
 
-import com.credaegis.backend.dto.ClusterCreationRequest;
+import com.credaegis.backend.dto.request.ClusterCreationRequest;
 import com.credaegis.backend.service.ClusterService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
