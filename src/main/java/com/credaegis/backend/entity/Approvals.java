@@ -1,6 +1,5 @@
 package com.credaegis.backend.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,21 +8,20 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Date;
 import java.sql.Timestamp;
 
-@Entity
-@Table(name = "certificates")
 @Data
 @NoArgsConstructor
-public class Certificates {
-
+@Entity
+@Table(name = "approvals")
+public class Approvals {
 
     @Id
     private String id;
 
-    @Column(name = "certificate_name")
-    private String certificateName;
+    @Column(name = "approval_certificate_id")
+    private String approvalCertificateId;
 
-    @Column(name = "certificate_hash")
-    private String certificateHash;
+    @Column(name = "approval_certificate_name")
+    private String approvalCertificateName;
 
     @Column(name = "issued_to_name")
     private String issuedToName;
@@ -31,22 +29,19 @@ public class Certificates {
     @Column(name = "issued_to_email")
     private String issuedToEmail;
 
-    @Column(name = "issued_date")
-    private Date issuedDate;
-
     @Column(name = "expiry_date")
     private Date ExpiryDate;
 
-    private Boolean revoked;
-
-    @Column(name = "revoked_date")
-    private Date revokedDate;
-
     private String comments;
+
+    @Column(name = "approval_status")
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Events event;
+
 
     @CreationTimestamp
     @Column(name = "created_on")
@@ -56,6 +51,10 @@ public class Certificates {
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 
+}
 
-
+enum Status{
+    pending,
+    approved,
+    rejected
 }

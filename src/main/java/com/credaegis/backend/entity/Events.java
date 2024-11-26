@@ -7,6 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,6 +27,14 @@ public class Events {
     @CreationTimestamp
     @Column(name = "created_on")
     private Timestamp createdOn;
+
+    @OneToMany(mappedBy = "event")
+    List<Approvals> approvals = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "event")
+    List<Certificates> certificates = new ArrayList<>();
+
 
     @UpdateTimestamp
     @Column(name = "updated_on")
