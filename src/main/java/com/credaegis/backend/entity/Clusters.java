@@ -7,34 +7,21 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
-
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
-@Table (name = "users")
-public class Users {
+@Table (name = "clusters")
+public class Clusters {
 
     @Id
     private String id;
 
-    private String username;
+    private String name;
 
-    private String password;
-
-    private String email;
-
-    @Column(name = "mfa_enabled")
-    private Boolean mfaEnabled;
-
-    @Column(name = "profile_url")
-    private String profileUrl;
-
-    @OneToOne(mappedBy = "user")
-    private Roles role;
-
-    @OneToOne(mappedBy = "user")
-    private Clusters cluster;
+    private Boolean deactivated;
 
     @CreationTimestamp
     @Column(name = "created_on")
@@ -44,5 +31,12 @@ public class Users {
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 
+
+    @OneToOne
+    @JoinColumn(name = "admin_id")
+    private Users user;
+
+    @OneToMany(mappedBy = "cluster")
+    private List<Events> events = new ArrayList<>();
 
 }

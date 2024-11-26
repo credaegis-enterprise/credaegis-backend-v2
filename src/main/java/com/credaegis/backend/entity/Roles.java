@@ -20,7 +20,7 @@ public class Roles {
 
     private String role;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     private Users user;
 
