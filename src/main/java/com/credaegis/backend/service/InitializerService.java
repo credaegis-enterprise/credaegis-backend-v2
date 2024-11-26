@@ -1,11 +1,10 @@
 package com.credaegis.backend.service;
 
 
-import com.credaegis.backend.entity.Roles;
-import com.credaegis.backend.entity.Users;
-import com.credaegis.backend.repository.RolesRepository;
-import com.credaegis.backend.repository.UsersRepository;
-import com.github.f4b6a3.ulid.Ulid;
+import com.credaegis.backend.entity.Role;
+import com.credaegis.backend.entity.User;
+import com.credaegis.backend.repository.RoleRepository;
+import com.credaegis.backend.repository.UserRepository;
 import com.github.f4b6a3.ulid.UlidCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,30 +18,30 @@ public class InitializerService {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    UsersRepository usersRepository;
+    UserRepository userRepository;
 
     @Autowired
-    RolesRepository rolesRepository;
+    RoleRepository roleRepository;
 
 
-    public void  addUserService(Users user){
+    public void  addUserService(User user){
 
         user.setId(UlidCreator.getUlid().toString());
         user.setEmail("sgce@saintgits.org");
         user.setMfaEnabled(false);
         user.setPassword(passwordEncoder.encode("sgce"));
-        usersRepository.save(user);
+        userRepository.save(user);
 
-        Roles role = new Roles();
+        Role role = new Role();
         role.setId(UlidCreator.getUlid().toString());
         role.setRole("ROLE_ADMIN");
         role.setAuthority("ADMIN");
         role.setUser(user);
-        rolesRepository.save(role);
+        roleRepository.save(role);
 
 
 
-        usersRepository.save(user);
+        userRepository.save(user);
 
 
     }

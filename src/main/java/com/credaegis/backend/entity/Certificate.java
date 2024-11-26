@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Table(name = "certificates")
 @Data
 @NoArgsConstructor
-public class Certificates {
+public class Certificate {
 
 
     @Id
@@ -46,7 +46,7 @@ public class Certificates {
 
     @ManyToOne
     @JoinColumn(name = "event_id")
-    private Events event;
+    private Event event;
 
     @CreationTimestamp
     @Column(name = "created_on",updatable = false)

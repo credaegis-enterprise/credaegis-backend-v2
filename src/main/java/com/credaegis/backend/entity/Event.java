@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table (name = "events")
-public class Events {
+public class Event {
 
     @Id
     private String id;
@@ -26,11 +26,11 @@ public class Events {
 
 
     @OneToMany(mappedBy = "event")
-    List<Approvals> approvals = new ArrayList<>();
+    List<Approval> approvals = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "event")
-    List<Certificates> certificates = new ArrayList<>();
+    List<Certificate> certificates = new ArrayList<>();
 
 
     @UpdateTimestamp
@@ -43,5 +43,5 @@ public class Events {
 
     @ManyToOne
     @JoinColumn(name = "cluster_id")
-    private Clusters cluster;
+    private Cluster cluster;
 }

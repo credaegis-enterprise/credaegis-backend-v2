@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Entity
 @Table(name = "approvals")
-public class Approvals {
+public class Approval {
 
     @Id
     private String id;
@@ -40,7 +40,7 @@ public class Approvals {
 
     @ManyToOne
     @JoinColumn(name = "event_id")
-    private Events event;
+    private Event event;
 
 
     @CreationTimestamp
