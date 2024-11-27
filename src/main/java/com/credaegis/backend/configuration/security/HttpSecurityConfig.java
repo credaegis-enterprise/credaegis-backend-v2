@@ -1,5 +1,6 @@
 package com.credaegis.backend.configuration.security;
 
+import com.credaegis.backend.Constants;
 import com.credaegis.backend.configuration.security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -33,11 +34,11 @@ public class HttpSecurityConfig {
 
         http.
                 authorizeHttpRequests(request->request.requestMatchers
-                                ("/api/v1/auth/**","/api/v1/admin/cluster/create").
-                permitAll().anyRequest().authenticated()).
-                        logout((logout)->logout.logoutUrl("/api/v1/auth/logout").
+                                (Constants.ROUTEV1+"/auth/**",Constants.ROUTEV1+"/test/**").
+                permitAll().requestMatchers(Constants.ROUTEV1+"/admin/**").hasAuthority("ADMIN").
+                        anyRequest().authenticated()).
+                        logout((logout)->logout.logoutUrl(Constants.ROUTEV1+"/auth/logout").
                                 logoutSuccessHandler(customLogoutSuccessHandler));
-
 
 
         return http.build();

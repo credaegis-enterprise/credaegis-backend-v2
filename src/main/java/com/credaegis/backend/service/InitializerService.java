@@ -27,8 +27,8 @@ public class InitializerService {
     public void  addUserService(User user){
 
         user.setId(UlidCreator.getUlid().toString());
+        user.setUsername("SAINTGITS COLLEGE OF ENGINEERING");
         user.setEmail("sgce@saintgits.org");
-        user.setMfaEnabled(false);
         user.setPassword(passwordEncoder.encode("sgce"));
         userRepository.save(user);
 

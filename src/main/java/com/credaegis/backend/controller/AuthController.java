@@ -1,5 +1,6 @@
 package com.credaegis.backend.controller;
 
+import com.credaegis.backend.Constants;
 import com.credaegis.backend.dto.request.LoginRequest;
 import com.credaegis.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v1/auth")
+@RequestMapping(value = Constants.ROUTEV1+"/auth")
 public class AuthController {
 
     @Autowired
