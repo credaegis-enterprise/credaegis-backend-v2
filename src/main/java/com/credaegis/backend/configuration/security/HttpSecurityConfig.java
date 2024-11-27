@@ -35,7 +35,7 @@ public class HttpSecurityConfig {
         http.
                 authorizeHttpRequests(request->request.requestMatchers
                                 (Constants.ROUTEV1+"/auth/**",Constants.ROUTEV1+"/test/**").
-                permitAll().requestMatchers(Constants.ROUTEV1+"/admin/**").hasAuthority("ADMIN").
+                permitAll().requestMatchers(Constants.ROUTEV1+"/admin/**").hasRole(Constants.SUPERADMIN).
                         anyRequest().authenticated()).
                         logout((logout)->logout.logoutUrl(Constants.ROUTEV1+"/auth/logout").
                                 logoutSuccessHandler(customLogoutSuccessHandler));

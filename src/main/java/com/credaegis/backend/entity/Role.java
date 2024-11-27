@@ -18,9 +18,6 @@ public class Role {
     private String id;
 
     @Column(nullable = false)
-    private String authority;
-
-    @Column(nullable = false)
     private String role;
 
     @OneToOne

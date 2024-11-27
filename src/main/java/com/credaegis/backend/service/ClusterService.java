@@ -48,7 +48,6 @@ public class ClusterService {
 
         role.setId(UlidCreator.getUlid().toString());
         role.setRole("ROLE_CLUSTERADMIN");
-        role.setAuthority("MEMBER");
         role.setUser(user);
 
 
@@ -66,15 +65,30 @@ public class ClusterService {
 
     public void deactivateCluster(String clusterId,String userOrganizationId){
 
-        System.out.println("reached");
             Cluster cluster = clusterRepository.findById(clusterId).
                     orElseThrow(()-> new RuntimeException("doesnt exist"));
 
             if(cluster.getDeactivated()) throw  new RuntimeException("Already deactivated");
             if(cluster.getOrganization().getId().equals(userOrganizationId)){
                 clusterRepository.deactivateCluster(clusterId);
+                userRepository.deactivateUser(userRepository.findAllUserIdByClusterId(clusterId));
+
             }
             else throw new RuntimeException("You dont have access");
+    }
+
+
+    public  void activateCluster(String clusterId, String userOrganizationId){
+        Cluster cluster = clusterRepository.findById(clusterId).
+                orElseThrow(()-> new RuntimeException("doesnt exist"));
+
+        if(!cluster.getDeactivated()) throw  new RuntimeException("Already activated");
+        if(cluster.getOrganization().getId().equals(userOrganizationId)){
+            clusterRepository.activateCluster(clusterId);
+            userRepository.activateUser(userRepository.findAllUserIdByClusterId(clusterId));
+
+        }
+        else throw new RuntimeException("You dont have access");
 
     }
 }

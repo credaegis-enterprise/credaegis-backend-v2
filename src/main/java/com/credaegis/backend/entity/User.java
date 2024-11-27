@@ -35,6 +35,9 @@ public class User {
     @Column(name = "profile_url")
     private String profileUrl;
 
+    @Column(nullable = false)
+    private Boolean deactivated = false;
+
     @ManyToOne
     @JoinColumn(name = "organization_id",nullable = false)
     @JsonBackReference
