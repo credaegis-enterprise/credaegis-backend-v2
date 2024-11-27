@@ -43,5 +43,13 @@ public class ClusterController {
 
     }
 
+    @PutMapping(path = "/change-admin/{clusterId}/{newAdminId}")
+    public void changeAdmin(@PathVariable String clusterId, @PathVariable String newAdminId,
+                            Authentication authentication){
+
+        CustomUser customUser = (CustomUser) authentication.getPrincipal();
+        clusterService.changeAdmin(clusterId,newAdminId,customUser.getOrganizationId());
+    }
+
 
 }

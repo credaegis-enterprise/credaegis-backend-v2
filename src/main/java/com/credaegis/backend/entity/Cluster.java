@@ -45,7 +45,7 @@ public class Cluster {
     @OneToOne
     @JsonBackReference
     @JoinColumn(name = "admin_id",nullable = false)
-    private User user;
+    private User admin;
 
     @OneToMany(mappedBy = "cluster")
     @JsonManagedReference

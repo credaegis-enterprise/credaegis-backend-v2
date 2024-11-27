@@ -55,7 +55,7 @@ public class ClusterService {
         cluster.setId(UlidCreator.getUlid().toString());
         cluster.setDeactivated(false);
         cluster.setName(clusterCreationRequest.getClusterName());
-        cluster.setUser(user);
+        cluster.setAdmin(user);
         cluster.setOrganization(organization);
 
         userRepository.save(user);
@@ -64,19 +64,19 @@ public class ClusterService {
     }
 
     public void renameCluster(String clusterId,String userOrganizationId, String newName)  {
-        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::insufficentPermission);
+        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
 
         if(cluster.getOrganization().getId().equals(userOrganizationId)){
             clusterRepository.renameCluster(clusterId,newName);
         }
-        else  throw ExceptionFactory.resourceNotFound();
+        else  throw ExceptionFactory.insufficentPermission();
     }
 
 
     public void deactivateCluster(String clusterId,String userOrganizationId){
 
             Cluster cluster = clusterRepository.findById(clusterId).
-                    orElseThrow(ExceptionFactory::insufficentPermission);
+                    orElseThrow(ExceptionFactory::resourceNotFound);
 
             if(cluster.getDeactivated()) throw ExceptionFactory.customValidationError("Cluster already deactivated");
             if(cluster.getOrganization().getId().equals(userOrganizationId)){
@@ -84,13 +84,13 @@ public class ClusterService {
                 userRepository.deactivateUser(userRepository.findAllUserIdByClusterId(clusterId));
 
             }
-            else   throw ExceptionFactory.resourceNotFound();
+            else   throw ExceptionFactory.insufficentPermission();
     }
 
 
     public  void activateCluster(String clusterId, String userOrganizationId){
         Cluster cluster = clusterRepository.findById(clusterId).
-                orElseThrow(ExceptionFactory::insufficentPermission);
+                orElseThrow(ExceptionFactory::resourceNotFound);
 
         if(!cluster.getDeactivated())  throw ExceptionFactory.customValidationError("Cluster already activated");
         if(cluster.getOrganization().getId().equals(userOrganizationId)){
@@ -98,7 +98,25 @@ public class ClusterService {
             userRepository.activateUser(userRepository.findAllUserIdByClusterId(clusterId));
 
         }
-        else throw  ExceptionFactory.resourceNotFound(); ;
+        else throw  ExceptionFactory.insufficentPermission(); ;
+
+    }
+
+    public void changeAdmin(String clusterId,String newAdminId, String userOrganizationId){
+        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
+        User user = userRepository.findById(newAdminId).orElseThrow(ExceptionFactory::resourceNotFound);
+
+        if(!user.getCluster().getId().equals(clusterId)) throw
+                ExceptionFactory.customValidationError("New Admin must of from the same cluster");
+        if(cluster.getAdmin().getId().equals(newAdminId)) throw
+                ExceptionFactory.customValidationError("User is already admin of the specified cluster");
+
+        if(cluster.getOrganization().getId().equals(userOrganizationId)){
+            clusterRepository.changeAdmin(newAdminId,clusterId);
+        }
+
+        else throw ExceptionFactory.insufficentPermission();
+
 
     }
 }

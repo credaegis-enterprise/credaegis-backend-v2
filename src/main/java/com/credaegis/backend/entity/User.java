@@ -47,7 +47,7 @@ public class User {
     @JsonManagedReference
     private Role role;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "admin")
     @JsonManagedReference
     private Cluster cluster;
 
