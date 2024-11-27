@@ -3,6 +3,7 @@ package com.credaegis.backend.service;
 import com.credaegis.backend.dto.request.LoginRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,11 +15,11 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class AuthService {
 
-    @Autowired
-    private AuthenticationManager customAuthenticationManager;
 
+    private final AuthenticationManager customAuthenticationManager;
 
     public void login(LoginRequest loginRequest, HttpServletRequest
             request, HttpServletResponse response) {

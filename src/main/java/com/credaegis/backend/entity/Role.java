@@ -17,12 +17,14 @@ public class Role {
     @Id
     private String id;
 
+    @Column(nullable = false)
     private String authority;
 
+    @Column(nullable = false)
     private String role;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id",nullable = false)
     @JsonBackReference
     private User user;
 

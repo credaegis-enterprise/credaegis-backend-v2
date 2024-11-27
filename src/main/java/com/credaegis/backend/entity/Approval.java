@@ -1,5 +1,7 @@
 package com.credaegis.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,16 +19,16 @@ public class Approval {
     @Id
     private String id;
 
-    @Column(name = "approval_certificate_id")
+    @Column(name = "approval_certificate_id", nullable = false)
     private String approvalCertificateId;
 
-    @Column(name = "approval_certificate_name")
+    @Column(name = "approval_certificate_name", nullable = false)
     private String approvalCertificateName;
 
-    @Column(name = "issued_to_name")
+    @Column(name = "issued_to_name", nullable = false)
     private String issuedToName;
 
-    @Column(name = "issued_to_email")
+    @Column(name = "issued_to_email", nullable = false)
     private String issuedToEmail;
 
     @Column(name = "expiry_date")
@@ -34,12 +36,13 @@ public class Approval {
 
     private String comments;
 
-    @Column(name = "approval_status")
+    @Column(name = "approval_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
 
     @ManyToOne
-    @JoinColumn(name = "event_id")
+    @JoinColumn(name = "event_id", nullable = false)
+    @JsonBackReference
     private Event event;
 
 

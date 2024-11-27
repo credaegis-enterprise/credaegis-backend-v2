@@ -5,6 +5,7 @@ import com.credaegis.backend.entity.Role;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.repository.RoleRepository;
 import com.credaegis.backend.repository.UserRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,13 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     private List<GrantedAuthority> getAuthoritesAndRoles(String userId){
         Role role = roleRepository.findByUser_id(userId);
@@ -40,7 +40,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Username not found");
 
         return new CustomUser(user.getEmail(),
-                user.getPassword(),
+                user.getPassword(),user.getOrganization().getId(),
                 getAuthoritesAndRoles(user.getId()));
     }
 

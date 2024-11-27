@@ -12,11 +12,13 @@ public class CustomUser implements UserDetails {
 
     private String email;
     private String password;
+    private String organizationId;
     private List<GrantedAuthority> grantedAuthorities;
 
-    public CustomUser(String email, String password, List<GrantedAuthority> grantedAuthorities){
+    public CustomUser(String email, String password, String organizationId, List<GrantedAuthority> grantedAuthorities){
         this.email = email;
         this.password = password;
+        this.organizationId = organizationId;
         this.grantedAuthorities = grantedAuthorities;
     }
     @Override
@@ -34,4 +36,12 @@ public class CustomUser implements UserDetails {
         return email;
     }
 
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
 }

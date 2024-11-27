@@ -1,5 +1,7 @@
 package com.credaegis.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,17 +21,20 @@ public class Event {
     @Id
     private String id;
 
-    @Column(name = "event_name")
+    @Column(name = "event_name",nullable = false)
     private String eventName;
 
-    private Boolean deactivated;
+    @Column(nullable = false)
+    private Boolean deactivated = false;
 
 
     @OneToMany(mappedBy = "event")
+    @JsonManagedReference
     List<Approval> approvals = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "event")
+    @JsonManagedReference
     List<Certificate> certificates = new ArrayList<>();
 
 
@@ -42,6 +47,7 @@ public class Event {
     private Timestamp createdOn;
 
     @ManyToOne
-    @JoinColumn(name = "cluster_id")
+    @JoinColumn(name = "cluster_id",nullable = false)
+    @JsonBackReference
     private Cluster cluster;
 }

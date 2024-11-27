@@ -1,5 +1,7 @@
 package com.credaegis.backend.controller;
 
+import com.credaegis.backend.Constants;
+import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.entity.Role;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.repository.RoleRepository;
@@ -7,10 +9,11 @@ import com.credaegis.backend.service.InitializerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/api/v1/test")
+@RequestMapping(value = Constants.ROUTEV1+"/test")
 public class InitializerController {
 
    @Autowired
@@ -22,8 +25,8 @@ public class InitializerController {
 
 
    @PostMapping (path = "/add/admin")
-    public ResponseEntity<String> addUser(@RequestBody User user){
-       initializerService.addUserService(user);
+    public ResponseEntity<String> addUser(){
+       initializerService.addUserService();
        return ResponseEntity.status(HttpStatus.OK).body("hey");
    }
 
@@ -35,8 +38,12 @@ public class InitializerController {
          return ResponseEntity.status(HttpStatus.OK).body(role);
    }
 
-   @GetMapping (path = "/check")
-   public ResponseEntity<String> check(){
+   @PostMapping (path = "/check")
+   public ResponseEntity<String> check(Authentication authentication){
+       CustomUser user = (CustomUser) authentication.getPrincipal();
+       System.out.println(user.getOrganizationId());
+       System.out.println(user.getPassword());
+       System.out.println(user.getUsername());
       return ResponseEntity.status(HttpStatus.OK).body("OK CHECKED");
    }
 }

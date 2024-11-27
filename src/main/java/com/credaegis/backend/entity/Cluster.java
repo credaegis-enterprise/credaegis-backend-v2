@@ -1,5 +1,7 @@
 package com.credaegis.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,9 +21,12 @@ public class Cluster {
     @Id
     private String id;
 
+    @Column(nullable = false)
     private String name;
 
-    private Boolean deactivated;
+
+    @Column(nullable = false)
+    private Boolean deactivated = false;
 
     @CreationTimestamp
     @Column(name = "created_on",updatable = false)
@@ -32,11 +37,18 @@ public class Cluster {
     private Timestamp updatedOn;
 
 
+    @ManyToOne
+    @JsonBackReference
+    @JoinColumn(name = "organization_id",nullable = false)
+    private Organization organization;
+
     @OneToOne
-    @JoinColumn(name = "admin_id")
+    @JsonBackReference
+    @JoinColumn(name = "admin_id",nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "cluster")
+    @JsonManagedReference
     private List<Event> events = new ArrayList<>();
 
 }

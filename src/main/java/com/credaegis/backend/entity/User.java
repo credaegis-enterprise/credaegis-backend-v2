@@ -20,20 +20,23 @@ public class User {
     @Id
     private String id;
 
+    @Column(nullable = false)
     private String username;
 
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String email;
 
-    @Column(name = "mfa_enabled")
+    @Column(name = "mfa_enabled", nullable = false)
     private Boolean mfaEnabled = false;
 
     @Column(name = "profile_url")
     private String profileUrl;
 
     @ManyToOne
-    @JoinColumn(name = "organization_id")
+    @JoinColumn(name = "organization_id",nullable = false)
     @JsonBackReference
     private Organization organization;
 
@@ -42,6 +45,7 @@ public class User {
     private Role role;
 
     @OneToOne(mappedBy = "user")
+    @JsonManagedReference
     private Cluster cluster;
 
     @CreationTimestamp
