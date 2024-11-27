@@ -6,8 +6,6 @@ import com.credaegis.backend.dto.request.RenameRequest;
 import com.credaegis.backend.service.ClusterService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/admin/cluster")
 @AllArgsConstructor
 public class ClusterController {
-
-
 
     private final ClusterService clusterService;
 

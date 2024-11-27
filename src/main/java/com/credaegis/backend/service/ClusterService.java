@@ -5,6 +5,8 @@ import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Organization;
 import com.credaegis.backend.entity.Role;
 import com.credaegis.backend.entity.User;
+import com.credaegis.backend.exception.custom.CustomException;
+import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.repository.ClusterRepository;
 
 import com.credaegis.backend.repository.OrganizationRepository;
@@ -31,9 +33,10 @@ public class ClusterService {
     private final OrganizationRepository organizationRepository;
 
 
-    public void createCluster(ClusterCreationRequest clusterCreationRequest,String organizationId){
+    public void createCluster(ClusterCreationRequest clusterCreationRequest,String userOrganizationId){
 
-        Organization organization = organizationRepository.findById(organizationId).orElseThrow(()->new RuntimeException("d"));
+        Organization organization = organizationRepository.findById(userOrganizationId).
+                orElseThrow(ExceptionFactory::resourceNotFound);
 
         User user = new User();
         Cluster cluster = new Cluster();
@@ -60,43 +63,42 @@ public class ClusterService {
         clusterRepository.save(cluster);
     }
 
-    public void renameCluster(String clusterId,String userOrganizationId, String newName){
-        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(()->
-                new RuntimeException("doesnt exist"));
+    public void renameCluster(String clusterId,String userOrganizationId, String newName)  {
+        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::insufficentPermission);
 
         if(cluster.getOrganization().getId().equals(userOrganizationId)){
             clusterRepository.renameCluster(clusterId,newName);
         }
-        else throw new RuntimeException("you dont have access");
+        else  throw ExceptionFactory.resourceNotFound();
     }
 
 
     public void deactivateCluster(String clusterId,String userOrganizationId){
 
             Cluster cluster = clusterRepository.findById(clusterId).
-                    orElseThrow(()-> new RuntimeException("doesnt exist"));
+                    orElseThrow(ExceptionFactory::insufficentPermission);
 
-            if(cluster.getDeactivated()) throw  new RuntimeException("Already deactivated");
+            if(cluster.getDeactivated()) throw ExceptionFactory.customValidationError("Cluster already deactivated");
             if(cluster.getOrganization().getId().equals(userOrganizationId)){
                 clusterRepository.deactivateCluster(clusterId);
                 userRepository.deactivateUser(userRepository.findAllUserIdByClusterId(clusterId));
 
             }
-            else throw new RuntimeException("You dont have access");
+            else   throw ExceptionFactory.resourceNotFound();
     }
 
 
     public  void activateCluster(String clusterId, String userOrganizationId){
         Cluster cluster = clusterRepository.findById(clusterId).
-                orElseThrow(()-> new RuntimeException("doesnt exist"));
+                orElseThrow(ExceptionFactory::insufficentPermission);
 
-        if(!cluster.getDeactivated()) throw  new RuntimeException("Already activated");
+        if(!cluster.getDeactivated())  throw ExceptionFactory.customValidationError("Cluster already activated");
         if(cluster.getOrganization().getId().equals(userOrganizationId)){
             clusterRepository.activateCluster(clusterId);
             userRepository.activateUser(userRepository.findAllUserIdByClusterId(clusterId));
 
         }
-        else throw new RuntimeException("You dont have access");
+        else throw  ExceptionFactory.resourceNotFound(); ;
 
     }
 }
