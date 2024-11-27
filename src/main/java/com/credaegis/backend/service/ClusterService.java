@@ -13,8 +13,6 @@ import com.credaegis.backend.repository.UserRepository;
 import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,6 +58,16 @@ public class ClusterService {
         userRepository.save(user);
         roleRepository.save(role);
         clusterRepository.save(cluster);
+    }
+
+    public void renameCluster(String clusterId,String userOrganizationId, String newName){
+        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(()->
+                new RuntimeException("doesnt exist"));
+
+        if(cluster.getOrganization().getId().equals(userOrganizationId)){
+            clusterRepository.renameCluster(clusterId,newName);
+        }
+        else throw new RuntimeException("you dont have access");
     }
 
 

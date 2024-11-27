@@ -15,4 +15,8 @@ public interface ClusterRepository extends JpaRepository<Cluster,String> {
         @Modifying
         @Query("UPDATE  Cluster c SET c.deactivated = false WHERE c.id = :id ")
         int activateCluster(@Param("id") String clusterId);
+
+        @Modifying
+        @Query("UPDATE Cluster c SET c.name = :name WHERE c.id = :id")
+        int renameCluster(@Param("id") String clusterId, @Param("name") String newName);
 }
