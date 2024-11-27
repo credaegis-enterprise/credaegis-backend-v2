@@ -19,7 +19,7 @@ public class ClusterController {
 
     @PostMapping(path = "/create")
     public void clusterCreationController(@Valid @RequestBody ClusterCreationRequest clusterCreationRequest){
-        clusterService.CreateCluster(clusterCreationRequest);
+        clusterService.createCluster(clusterCreationRequest);
     }
 
 

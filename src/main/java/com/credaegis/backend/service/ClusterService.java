@@ -30,7 +30,7 @@ public class ClusterService {
     ClusterRepository clusterRepository;
 
     @Transactional
-    public void CreateCluster(ClusterCreationRequest clusterCreationRequest){
+    public void createCluster(ClusterCreationRequest clusterCreationRequest){
 
         User user = new User();
         Cluster cluster = new Cluster();
