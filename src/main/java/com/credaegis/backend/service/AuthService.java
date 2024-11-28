@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class AuthService {
+public class  AuthService {
 
 
     private final AuthenticationManager customAuthenticationManager;

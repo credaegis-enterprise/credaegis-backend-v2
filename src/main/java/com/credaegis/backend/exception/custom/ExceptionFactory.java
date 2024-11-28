@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 public  class ExceptionFactory {
 
 
-    public static RuntimeException customValidationError(String message) throws CustomException{
+    public  static RuntimeException customValidationError(String message) throws CustomException{
         return new CustomException(message, HttpStatus.BAD_REQUEST);
     }
 

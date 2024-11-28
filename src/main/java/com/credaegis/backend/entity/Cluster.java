@@ -29,7 +29,7 @@ public class Cluster {
     private Boolean deactivated = false;
 
     @CreationTimestamp
-    @Column(name = "created_on",updatable = false)
+    @Column(name = "created_on", updatable = false)
     private Timestamp createdOn;
 
     @UpdateTimestamp

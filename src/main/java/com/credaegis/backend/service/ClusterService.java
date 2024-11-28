@@ -33,7 +33,7 @@ public class ClusterService {
     private final OrganizationRepository organizationRepository;
 
 
-    public void createCluster(ClusterCreationRequest clusterCreationRequest,String userOrganizationId){
+    public  void createCluster(ClusterCreationRequest clusterCreationRequest,String userOrganizationId){
 
         Organization organization = organizationRepository.findById(userOrganizationId).
                 orElseThrow(ExceptionFactory::resourceNotFound);

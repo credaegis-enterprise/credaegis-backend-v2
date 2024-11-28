@@ -15,7 +15,7 @@ import java.sql.Timestamp;
 @Data
 @NoArgsConstructor
 @Table (name = "users")
-public class User {
+public class  User {
 
     @Id
     private String id;

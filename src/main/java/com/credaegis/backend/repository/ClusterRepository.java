@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ClusterRepository extends JpaRepository<Cluster,String> {
+public interface  ClusterRepository extends JpaRepository<Cluster,String> {
 
         @Modifying
         @Query("UPDATE Cluster c SET c.deactivated = true WHERE c.id = :id ")

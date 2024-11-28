@@ -40,7 +40,7 @@ public class Event {
 
     @UpdateTimestamp
     @Column(name = "updated_on")
-    private Timestamp updatedOn;
+    private Timestamp  updatedOn;
 
     @CreationTimestamp
     @Column(name = "created_on",updatable = false)

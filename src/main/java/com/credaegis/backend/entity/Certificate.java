@@ -47,7 +47,7 @@ public class Certificate {
     private String comments;
 
     @ManyToOne
-    @JoinColumn(name = "event_id",nullable = false)
+    @JoinColumn(name  = "event_id",nullable = false)
     @JsonBackReference
     private Event event;
 

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
+public class  CustomLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {

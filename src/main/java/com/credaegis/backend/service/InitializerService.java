@@ -35,7 +35,7 @@ public class InitializerService {
 
 
 
-        User user = new User();
+        User  user = new User();
         user.setId("1");
         user.setUsername("saintgits");
         user.setEmail("sgce@saintgits.org");

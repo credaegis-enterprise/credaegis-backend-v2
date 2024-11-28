@@ -26,7 +26,7 @@ public class Organization {
     @Column(nullable = false)
     private String pincode;
 
-    @OneToMany(mappedBy = "organization")
+    @OneToMany(mappedBy =  "organization")
     @JsonManagedReference
     private List<User> users;
 

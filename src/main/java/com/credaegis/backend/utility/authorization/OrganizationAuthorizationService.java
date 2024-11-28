@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class OrganizationAuthorizationService {
     
-    private final ClusterRepository clusterRepository;
+    private final  ClusterRepository clusterRepository;
 
 
     public Boolean isClusterUnderOrganization(String clusterId, String userOrganizationId){

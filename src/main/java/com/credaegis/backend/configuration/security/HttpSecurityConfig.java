@@ -18,7 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-public class HttpSecurityConfig {
+public class  HttpSecurityConfig {
 
 
     @Autowired

@@ -34,7 +34,7 @@ public class Approval {
     @Column(name = "expiry_date")
     private Date ExpiryDate;
 
-    private String comments;
+    private String  comments;
 
     @Column(name = "approval_status", nullable = false)
     @Enumerated(EnumType.STRING)
