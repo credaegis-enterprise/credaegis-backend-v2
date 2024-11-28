@@ -25,7 +25,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-    private List<GrantedAuthority> getAuthoritesAndRoles(String userId){
+
+    private List<GrantedAuthority> getAuthoritesAndRoles(String userId) {
         Role role = roleRepository.findByUser_id(userId);
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole()));

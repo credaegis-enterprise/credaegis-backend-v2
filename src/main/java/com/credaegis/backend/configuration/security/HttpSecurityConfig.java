@@ -24,11 +24,13 @@ public class  HttpSecurityConfig {
     @Autowired
     CustomUserDetailsService customUserDetailsService;
 
+
     @Autowired
     CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
+
     @Bean
-    public SecurityFilterChain configure(HttpSecurity http) throws Exception{
+    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         http.formLogin(customizer->customizer.disable());
         http.httpBasic(customizer->customizer.disable());
@@ -38,16 +40,17 @@ public class  HttpSecurityConfig {
                                 (Constants.ROUTEV1+"/auth/**",Constants.ROUTEV1+"/test/**").
                 permitAll().requestMatchers(Constants.ROUTEV1+"/admin/**").hasRole(Constants.ADMIN).
                         anyRequest().authenticated()).
-                        logout((logout)->logout.logoutUrl(Constants.ROUTEV1+"/auth/logout").
+                        logout((logout)->
+                                logout.logoutUrl(Constants.ROUTEV1+"/auth/logout").
                                 logoutSuccessHandler(customLogoutSuccessHandler));
 
-
         return http.build();
-
     }
 
+
+
     @Bean
-    public AuthenticationManager authenticationManager(){
+    public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(customUserDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
@@ -56,9 +59,8 @@ public class  HttpSecurityConfig {
 
 
 
-
     @Bean
-    PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 }
