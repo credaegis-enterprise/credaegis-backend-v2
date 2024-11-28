@@ -7,6 +7,7 @@ import com.credaegis.backend.service.ClusterService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,36 +19,32 @@ public class ClusterController {
 
     @PostMapping(path = "/create")
     public void clusterCreationController(@Valid @RequestBody ClusterCreationRequest clusterCreationRequest,
-                                          Authentication authentication){
-
-        CustomUser customUser = (CustomUser) authentication.getPrincipal();
+                                          @AuthenticationPrincipal CustomUser customUser){
         clusterService.createCluster(clusterCreationRequest,customUser.getOrganizationId());
     }
 
     @PutMapping(path = "/activate/{id}")
-    public void  activateClusterController(@PathVariable  String id, Authentication authentication){
-        CustomUser user = (CustomUser) authentication.getPrincipal();
-        clusterService.activateCluster(id,user.getOrganizationId());
+    public void  activateClusterController(@PathVariable  String id,
+                                           @AuthenticationPrincipal CustomUser customUser){
+        clusterService.activateCluster(id,customUser.getOrganizationId());
     }
 
     @PutMapping(path = "/deactivate/{id}")
-    public void  deactivateClusterController(@PathVariable  String id, Authentication authentication){
-        CustomUser user = (CustomUser) authentication.getPrincipal();
-        clusterService.deactivateCluster(id,user.getOrganizationId());
+    public void  deactivateClusterController(@PathVariable  String id, @AuthenticationPrincipal CustomUser customUser){
+        clusterService.deactivateCluster(id,customUser.getOrganizationId());
     }
 
     @PutMapping(path = "/rename/{id}")
-    public void renameCluster(@PathVariable String id, @RequestBody RenameRequest renameRequest, Authentication authentication){
-        CustomUser customUser = (CustomUser) authentication.getPrincipal();
+    public void renameCluster(@PathVariable String id, @RequestBody RenameRequest renameRequest,
+                              @AuthenticationPrincipal CustomUser customUser){
         clusterService.renameCluster(id,customUser.getOrganizationId(),renameRequest.getNewName());
 
     }
 
     @PutMapping(path = "/change-admin/{clusterId}/{newAdminId}")
     public void changeAdmin(@PathVariable String clusterId, @PathVariable String newAdminId,
-                            Authentication authentication){
+                            @AuthenticationPrincipal CustomUser customUser){
 
-        CustomUser customUser = (CustomUser) authentication.getPrincipal();
         clusterService.changeAdmin(clusterId,newAdminId,customUser.getOrganizationId());
     }
 
