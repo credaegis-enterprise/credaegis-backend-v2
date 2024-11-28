@@ -67,4 +67,11 @@ public class MemberService {
             userRepository.deactivateUser(new ArrayList<>(List.of(memberId)));
         else throw ExceptionFactory.insufficientPermission();
     }
+
+    public void DeleteMember(String memberId, String userOrganizationId){
+        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if(user.getOrganization().getId().equals(userOrganizationId) && ! user.isDeleted()){
+            userRepository.deleteUser(memberId);
+        }
+    }
 }

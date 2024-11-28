@@ -24,4 +24,8 @@ public interface UserRepository extends JpaRepository<User,String> {
     @Modifying
     @Query("UPDATE User u SET u.deactivated = false WHERE u.id in :ids")
     void activateUser(@Param("ids") List<String> ids);
+
+    @Modifying
+    @Query("UPDATE User u SET u.deleted = true WHERE u.id = :id")
+    void deleteUser(@Param("id") String memberId);
 }

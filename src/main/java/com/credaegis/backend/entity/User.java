@@ -38,6 +38,9 @@ public class  User {
     @Column(nullable = false)
     private Boolean deactivated = false;
 
+    @Column(nullable = false)
+    private boolean deleted = false;
+
     @ManyToOne
     @JoinColumn(name = "organization_id",nullable = false)
     @JsonBackReference
