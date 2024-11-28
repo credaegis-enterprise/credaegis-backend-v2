@@ -26,13 +26,13 @@ public class  User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(name = "mfa_enabled", nullable = false)
     private Boolean mfaEnabled = false;
 
-    @Column(name = "profile_url")
+    @Column(name = "profile_url", unique = true)
     private String profileUrl;
 
     @Column(nullable = false)

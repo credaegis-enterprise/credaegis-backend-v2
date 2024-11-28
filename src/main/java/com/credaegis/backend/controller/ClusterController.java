@@ -1,5 +1,6 @@
 package com.credaegis.backend.controller;
 
+import com.credaegis.backend.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.dto.request.ClusterCreationRequest;
 import com.credaegis.backend.dto.request.RenameRequest;
@@ -11,7 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/admin/cluster")
+@RequestMapping(value = Constants.ROUTEV1+"/cluster")
 @AllArgsConstructor
 public class ClusterController {
 

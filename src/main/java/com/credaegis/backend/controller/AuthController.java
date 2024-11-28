@@ -23,6 +23,7 @@ public class AuthController {
     @PostMapping(path = "/login")
     public void loginController(@Valid @RequestBody LoginRequest loginRequest,
                                 HttpServletRequest request, HttpServletResponse response){
+        System.out.println("sssss");
         authService.login(loginRequest,request,response);
     }
 }

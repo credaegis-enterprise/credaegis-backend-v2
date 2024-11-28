@@ -45,7 +45,7 @@ public class InitializerService {
 
         Role role = new Role();
         role.setId("1");
-        role.setRole("ROLE_SUPERADMIN");
+        role.setRole("ROLE_ADMIN");
         role.setUser(user);
         roleRepository.save(role);
         userRepository.save(user);

@@ -34,10 +34,9 @@ public class  HttpSecurityConfig {
         http.httpBasic(customizer->customizer.disable());
         http.csrf(customizer->customizer.disable());
 
-        http.
-                authorizeHttpRequests(request->request.requestMatchers
+        http.authorizeHttpRequests(request->request.requestMatchers
                                 (Constants.ROUTEV1+"/auth/**",Constants.ROUTEV1+"/test/**").
-                permitAll().requestMatchers(Constants.ROUTEV1+"/admin/**").hasRole(Constants.SUPERADMIN).
+                permitAll().requestMatchers(Constants.ROUTEV1+"/admin/**").hasRole(Constants.ADMIN).
                         anyRequest().authenticated()).
                         logout((logout)->logout.logoutUrl(Constants.ROUTEV1+"/auth/logout").
                                 logoutSuccessHandler(customLogoutSuccessHandler));

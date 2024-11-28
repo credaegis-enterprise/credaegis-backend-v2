@@ -38,8 +38,12 @@ public class CustomUserDetailsService implements UserDetailsService {
         if(user==null)
             throw new UsernameNotFoundException("Username not found");
 
+        System.out.println(user.getEmail());
+        System.out.println(user.getPassword());
+        System.out.println(user.getRole().getRole());
         return new CustomUser(user.getEmail(),
                 user.getPassword(),user.getOrganization().getId(),
+                user.getId(),
                 getAuthoritesAndRoles(user.getId()));
     }
 
