@@ -9,7 +9,7 @@ public  class ExceptionFactory {
         return new CustomException(message, HttpStatus.BAD_REQUEST);
     }
 
-    public static RuntimeException insufficentPermission() throws CustomException{
+    public static RuntimeException insufficientPermission() throws CustomException{
         return new CustomException("You have insufficient permission, access denied",HttpStatus.UNAUTHORIZED);
     }
 

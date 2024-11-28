@@ -10,17 +10,17 @@ public interface  ClusterRepository extends JpaRepository<Cluster,String> {
 
         @Modifying
         @Query("UPDATE Cluster c SET c.deactivated = true WHERE c.id = :id ")
-        int deactivateCluster(@Param("id") String clusterId);
+        void deactivateCluster(@Param("id") String clusterId);
 
         @Modifying
         @Query("UPDATE  Cluster c SET c.deactivated = false WHERE c.id = :id ")
-        int activateCluster(@Param("id") String clusterId);
+        void activateCluster(@Param("id") String clusterId);
 
         @Modifying
         @Query("UPDATE Cluster c SET c.name = :name WHERE c.id = :id")
-        int renameCluster(@Param("id") String clusterId, @Param("name") String newName);
+        void renameCluster(@Param("id") String clusterId, @Param("name") String newName);
 
         @Modifying
         @Query("UPDATE Cluster c SET c.admin.id = :adminId WHERE c.id = :id")
-        int changeAdmin(@Param("adminId") String newAdminId, @Param("id") String clusterId);
+        void changeAdmin(@Param("adminId") String newAdminId, @Param("id") String clusterId);
 }

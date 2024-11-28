@@ -13,6 +13,9 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Transactional
 @Service
@@ -43,9 +46,25 @@ public class MemberService {
             userRepository.save(user);
 
         }
-        else throw ExceptionFactory.insufficentPermission();
+        else throw ExceptionFactory.insufficientPermission();
 
+    }
 
+    public void activateMember(String memberId, String userOrganizationId){
 
+        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (!user.getDeactivated()) throw ExceptionFactory.customValidationError("User already activated");
+        if (user.getOrganization().getId().equals(userOrganizationId))
+            userRepository.activateUser(new ArrayList<>(List.of(memberId)));
+        else throw ExceptionFactory.insufficientPermission();
+
+    }
+
+    public void deactivateMember(String memberId, String userOrganizationId){
+        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (!user.getDeactivated()) throw ExceptionFactory.customValidationError("User already deactivated");
+        if (user.getOrganization().getId().equals(userOrganizationId))
+            userRepository.deactivateUser(new ArrayList<>(List.of(memberId)));
+        else throw ExceptionFactory.insufficientPermission();
     }
 }

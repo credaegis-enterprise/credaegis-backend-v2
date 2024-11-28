@@ -5,7 +5,6 @@ import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Organization;
 import com.credaegis.backend.entity.Role;
 import com.credaegis.backend.entity.User;
-import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.repository.ClusterRepository;
 
@@ -17,8 +16,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -69,7 +66,7 @@ public class ClusterService {
         if(cluster.getOrganization().getId().equals(userOrganizationId)){
             clusterRepository.renameCluster(clusterId,newName);
         }
-        else  throw ExceptionFactory.insufficentPermission();
+        else  throw ExceptionFactory.insufficientPermission();
     }
 
 
@@ -84,7 +81,7 @@ public class ClusterService {
                 userRepository.deactivateUser(userRepository.findAllUserIdByClusterId(clusterId));
 
             }
-            else   throw ExceptionFactory.insufficentPermission();
+            else   throw ExceptionFactory.insufficientPermission();
     }
 
 
@@ -98,7 +95,7 @@ public class ClusterService {
             userRepository.activateUser(userRepository.findAllUserIdByClusterId(clusterId));
 
         }
-        else throw  ExceptionFactory.insufficentPermission(); ;
+        else throw  ExceptionFactory.insufficientPermission(); ;
 
     }
 
@@ -115,7 +112,7 @@ public class ClusterService {
             clusterRepository.changeAdmin(newAdminId,clusterId);
         }
 
-        else throw ExceptionFactory.insufficentPermission();
+        else throw ExceptionFactory.insufficientPermission();
 
 
     }
