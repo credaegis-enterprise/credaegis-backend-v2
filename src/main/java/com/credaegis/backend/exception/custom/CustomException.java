@@ -1,18 +1,22 @@
 package com.credaegis.backend.exception.custom;
 
+import org.springframework.http.HttpStatus;
+
 public class CustomException  extends RuntimeException {
 
-    private Integer errorCode;
-    public CustomException(String message,Integer errorCode){
+    private HttpStatus httpStatus;
+    public CustomException(String message,HttpStatus httpStatus){
         super(message);
-        this.errorCode = errorCode;
+        this.httpStatus = httpStatus;
     }
 
-    public Integer getErrorCode() {
-        return errorCode;
+
+
+    public void setHttpStatus(HttpStatus httpStatus) {
+        this.httpStatus = httpStatus;
     }
 
-    public void setErrorCode(Integer errorCode) {
-        this.errorCode = errorCode;
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
     }
 }

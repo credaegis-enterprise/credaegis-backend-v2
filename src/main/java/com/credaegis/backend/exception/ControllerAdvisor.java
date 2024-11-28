@@ -40,6 +40,6 @@ public class ControllerAdvisor {
         throws CustomException{
 
         CustomExceptionResponse response = new CustomExceptionResponse(exception.getMessage());
-        return ResponseEntity.status(exception.getErrorCode()).body(response);
+        return ResponseEntity.status(exception.getHttpStatus()).body(response);
     }
 }
