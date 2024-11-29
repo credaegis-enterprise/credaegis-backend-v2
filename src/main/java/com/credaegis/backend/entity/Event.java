@@ -21,8 +21,8 @@ public class Event {
     @Id
     private String id;
 
-    @Column(name = "event_name",nullable = false)
-    private String eventName;
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false)
     private Boolean deactivated = false;
