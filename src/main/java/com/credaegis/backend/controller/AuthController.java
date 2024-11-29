@@ -1,6 +1,7 @@
 package com.credaegis.backend.controller;
 
 import com.credaegis.backend.Constants;
+import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.dto.request.LoginRequest;
 import com.credaegis.backend.dto.response.custom.api.CustomApiResponse;
 import com.credaegis.backend.service.AuthService;
@@ -10,10 +11,9 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = Constants.ROUTEV1+"/auth")
@@ -29,5 +29,16 @@ public class AuthController {
         authService.login(loginRequest,request,response);
         return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>
                 (null,"Successfully logged in",true));
+    }
+
+
+    @GetMapping(path = "/session-check")
+    public ResponseEntity<CustomApiResponse<Void>> sessionCheckController(Authentication authentication){
+        if(authentication.isAuthenticated())
+            return ResponseEntity.status(HttpStatus.OK).
+                    body(new CustomApiResponse<>(null,null,true));
+        else
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
+                    body(new CustomApiResponse<>(null,null,false));
     }
 }

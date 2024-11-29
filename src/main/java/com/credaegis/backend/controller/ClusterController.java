@@ -24,7 +24,7 @@ public class ClusterController {
     public ResponseEntity<CustomApiResponse<Void>> clusterCreationController(@Valid @RequestBody ClusterCreationRequest clusterCreationRequest,
                                                                              @AuthenticationPrincipal CustomUser customUser) {
         clusterService.createCluster(clusterCreationRequest, customUser.getOrganizationId());
-        return ResponseEntity.status(HttpStatus.OK).body(
+        return ResponseEntity.status(HttpStatus.CREATED).body(
                 new CustomApiResponse<>(null, "Cluster Successfully created", true)
         );
     }

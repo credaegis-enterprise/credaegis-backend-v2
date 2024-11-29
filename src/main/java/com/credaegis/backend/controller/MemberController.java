@@ -5,54 +5,71 @@ import com.credaegis.backend.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.dto.request.MemberCreationRequest;
 import com.credaegis.backend.dto.request.RenameRequest;
+import com.credaegis.backend.dto.response.custom.api.CustomApiResponse;
 import com.credaegis.backend.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(value = Constants.ROUTEV1+"/member")
+@RequestMapping(value = Constants.ROUTEV1 + "/member")
 public class MemberController {
 
     private final MemberService memberService;
 
     @PostMapping(path = "/create")
-    public void createMember(@RequestBody MemberCreationRequest memberCreationRequest,
-                             @AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<Void>> createMember(@RequestBody MemberCreationRequest memberCreationRequest,
+                                                                @AuthenticationPrincipal CustomUser customUser) {
 
-        memberService.createMember(memberCreationRequest,customUser.getOrganizationId());
+        memberService.createMember(memberCreationRequest, customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new CustomApiResponse<>(null, "Member created Successfully", true)
+        );
 
     }
 
     @PutMapping(path = "/deactivate/{id}")
-    public void deactivateMember(@PathVariable String id,
-                                 @AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<Void>> deactivateMember(@PathVariable String id,
+                                                                    @AuthenticationPrincipal CustomUser customUser) {
 
-        memberService.deactivateMember(id,customUser.getUserId(),customUser.getOrganizationId());
+        memberService.deactivateMember(id, customUser.getUserId(), customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Member deactivated successfully", true)
+        );
     }
 
     @PutMapping(path = "/activate/{id}")
-    public void activateMember(@PathVariable String id,
-                               @AuthenticationPrincipal CustomUser customUser) {
-        memberService.activateMember(id,customUser.getUserId(),customUser.getOrganizationId());
+    public ResponseEntity<CustomApiResponse<Void>> activateMember(@PathVariable String id,
+                                                                  @AuthenticationPrincipal CustomUser customUser) {
+        memberService.activateMember(id, customUser.getUserId(), customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Member activated successfully", true)
+        );
 
     }
 
     @PutMapping(path = "/delete/{id}")
-    public void deleteMember(@PathVariable String id,
-                             @AuthenticationPrincipal CustomUser customUser) {
-        memberService.deleteMember(id,customUser.getUserId(),customUser.getOrganizationId());
+    public ResponseEntity<CustomApiResponse<Void>> deleteMember(@PathVariable String id,
+                                                                @AuthenticationPrincipal CustomUser customUser) {
+        memberService.deleteMember(id, customUser.getUserId(), customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Member deleted successfully", true)
+        );
     }
 
-    @PutMapping(path="/rename/{id}")
-    public void renameMember(@PathVariable String id, @Valid @RequestBody RenameRequest renameRequest,
-                             @AuthenticationPrincipal CustomUser customUser) {
+    @PutMapping(path = "/rename/{id}")
+    public ResponseEntity<CustomApiResponse<Void>> renameMember(@PathVariable String id, @Valid @RequestBody RenameRequest renameRequest,
+                                                                @AuthenticationPrincipal CustomUser customUser) {
 
-        memberService.renameUser(id,renameRequest.getNewName(),customUser.getOrganizationId());
+        memberService.renameUser(id, renameRequest.getNewName(), customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Member renamed successfully", true)
+        );
     }
-
 
 
 }
