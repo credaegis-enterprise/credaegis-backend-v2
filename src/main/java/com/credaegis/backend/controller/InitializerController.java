@@ -8,6 +8,7 @@ import com.credaegis.backend.entity.User;
 import com.credaegis.backend.repository.RoleRepository;
 import com.credaegis.backend.service.InitializerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = Constants.ROUTEV1+"/test")
@@ -57,8 +60,9 @@ public class InitializerController {
                                                                          String toParse) throws JsonProcessingException {
 
        ObjectMapper objectMapper = new ObjectMapper();
-       FileTest fileTest = objectMapper.readValue(toParse, FileTest.class);
-       System.out.println(fileTest.getName()+"\t"+fileTest.getTest());
+       List<FileTest> fileTest = objectMapper.readValue(toParse,new TypeReference<List<FileTest>>(){});
+       System.out.println("Name of the parsed=\t"+fileTest.getFirst().getName());
+       System.out.println("Name of the parsed=\t"+fileTest.get(1).getName());
        System.out.println(file.getOriginalFilename());
        System.out.println(toParse);
        return ResponseEntity.status(HttpStatus.OK).body(file.getOriginalFilename());
