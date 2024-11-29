@@ -45,6 +45,13 @@ public class MemberController {
         memberService.deleteMember(id,customUser.getUserId(),customUser.getOrganizationId());
     }
 
+    @PutMapping(path="/rename/{id}/{newName}")
+    public void renameMember(@PathVariable String id, @PathVariable String newName,
+                             @AuthenticationPrincipal CustomUser customUser) {
+
+        memberService.renameUser(id,newName,customUser.getOrganizationId());
+    }
+
 
 
 }

@@ -19,7 +19,7 @@ public class ControllerAdvisor {
             throws MethodArgumentNotValidException{
 
         String message = exception.getBindingResult().getAllErrors().getFirst().getDefaultMessage();
-        CustomExceptionResponse response = new CustomExceptionResponse(message);
+        CustomExceptionResponse response = new CustomExceptionResponse(message,false);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -28,7 +28,7 @@ public class ControllerAdvisor {
             throws ConstraintViolationException{
 
         String message = new ArrayList<>(exception.getConstraintViolations()).getFirst().getMessage();
-        CustomExceptionResponse response = new CustomExceptionResponse(message);
+        CustomExceptionResponse response = new CustomExceptionResponse(message,false);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -36,7 +36,7 @@ public class ControllerAdvisor {
     public ResponseEntity<CustomExceptionResponse> customException(CustomException exception)
         throws CustomException{
 
-        CustomExceptionResponse response = new CustomExceptionResponse(exception.getMessage());
+        CustomExceptionResponse response = new CustomExceptionResponse(exception.getMessage(),false);
         return ResponseEntity.status(exception.getHttpStatus()).body(response);
     }
 }

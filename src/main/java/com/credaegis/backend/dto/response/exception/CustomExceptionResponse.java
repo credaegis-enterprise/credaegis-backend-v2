@@ -10,5 +10,6 @@ import org.springframework.stereotype.Component;
 public class CustomExceptionResponse {
 
     private String message;
+    private Boolean success;
 
 }

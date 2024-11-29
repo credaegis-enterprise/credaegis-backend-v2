@@ -96,4 +96,11 @@ public class MemberService {
         } else throw ExceptionFactory.insufficientPermission();
     }
 
+    public void renameUser(String memberId, String newName, String userOrganizationId) {
+        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (user.getOrganization().getId().equals(userOrganizationId)) {
+            userRepository.renameUser(user.getId(), newName);
+        } else throw ExceptionFactory.insufficientPermission();
+
+    }
 }
