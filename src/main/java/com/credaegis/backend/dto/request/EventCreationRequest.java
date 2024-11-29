@@ -13,7 +13,7 @@ public class EventCreationRequest {
     private String eventName;
 
     @NotBlank(message = "Description should not be blank")
-    private string description;
+    private String description;
 
     @NotBlank(message = "Cluster Id should not be blank")
     private String clusterId;

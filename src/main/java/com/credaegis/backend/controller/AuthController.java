@@ -25,7 +25,6 @@ public class AuthController {
     @PostMapping(path = "/login")
     public ResponseEntity<CustomApiResponse<Void>> loginController(@Valid @RequestBody LoginRequest loginRequest,
                                                              HttpServletRequest request, HttpServletResponse response){
-        System.out.println("sssss");
         authService.login(loginRequest,request,response);
         return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>
                 (null,"Successfully logged in",true));

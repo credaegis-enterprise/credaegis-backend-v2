@@ -23,5 +23,4 @@ public interface  EventRepository extends JpaRepository<Event,String> {
     void renameEvent(@Param("name") String name, @Param("id") String id);
 
 
-
 }
