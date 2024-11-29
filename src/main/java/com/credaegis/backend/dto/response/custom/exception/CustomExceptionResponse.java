@@ -1,9 +1,7 @@
-package com.credaegis.backend.dto.response.exception;
+package com.credaegis.backend.dto.response.custom.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @Data
 @AllArgsConstructor

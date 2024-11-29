@@ -1,6 +1,6 @@
 package com.credaegis.backend.exception;
 
-import com.credaegis.backend.dto.response.exception.CustomExceptionResponse;
+import com.credaegis.backend.dto.response.custom.exception.CustomExceptionResponse;
 import com.credaegis.backend.exception.custom.CustomException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
