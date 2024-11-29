@@ -2,6 +2,7 @@ package com.credaegis.backend.configuration.security;
 
 import com.credaegis.backend.Constants;
 import com.credaegis.backend.configuration.security.service.CustomUserDetailsService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,15 +20,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
+@AllArgsConstructor
 public class  HttpSecurityConfig {
 
 
-    @Autowired
-    CustomUserDetailsService customUserDetailsService;
 
-
-    @Autowired
-    CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
 
     @Bean
@@ -39,7 +38,7 @@ public class  HttpSecurityConfig {
 
         http.authorizeHttpRequests(request->request.requestMatchers
                                 (Constants.ROUTEV1+"/auth/**",Constants.ROUTEV1+"/test/**").
-                permitAll().requestMatchers(Constants.ROUTEV1+"/admin/**").hasRole(Constants.ADMIN).
+                permitAll().requestMatchers(Constants.ROUTEV1+"/**").hasRole(Constants.ADMIN).
                         anyRequest().authenticated()).
                         logout((logout)->
                                 logout.logoutUrl(Constants.ROUTEV1+"/auth/logout").
