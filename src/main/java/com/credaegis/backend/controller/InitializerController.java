@@ -9,6 +9,7 @@ import com.credaegis.backend.repository.RoleRepository;
 import com.credaegis.backend.service.InitializerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,12 @@ import org.springframework.web.multipart.MultipartRequest;
 
 @RestController
 @RequestMapping(value = Constants.ROUTEV1+"/test")
+@AllArgsConstructor
 public class InitializerController {
 
-   @Autowired
-   InitializerService initializerService;
 
-   @Autowired
-   RoleRepository roleRepository;
+   private final InitializerService initializerService;
+   private final RoleRepository roleRepository;
 
 
 
