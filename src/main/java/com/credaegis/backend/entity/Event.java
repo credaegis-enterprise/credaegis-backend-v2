@@ -28,9 +28,19 @@ public class Event {
     private Boolean deactivated = false;
 
 
+    @Column(nullable = false)
+    private String description;
+
+
     @OneToMany(mappedBy = "event")
     @JsonManagedReference
     List<Approval> approvals = new ArrayList<>();
+
+
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    @JsonBackReference
+    private User user;
 
 
     @OneToMany(mappedBy = "event")
