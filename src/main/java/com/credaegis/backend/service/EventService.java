@@ -1,7 +1,7 @@
 package com.credaegis.backend.service;
 
 
-import com.credaegis.backend.dto.request.EventCreationRequest;
+import com.credaegis.backend.http.request.EventCreationRequest;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Event;
 import com.credaegis.backend.exception.custom.ExceptionFactory;

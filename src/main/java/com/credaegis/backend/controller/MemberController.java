@@ -3,9 +3,9 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
-import com.credaegis.backend.dto.request.MemberCreationRequest;
-import com.credaegis.backend.dto.request.RenameRequest;
-import com.credaegis.backend.dto.response.custom.api.CustomApiResponse;
+import com.credaegis.backend.http.request.MemberCreationRequest;
+import com.credaegis.backend.http.request.RenameRequest;
+import com.credaegis.backend.http.response.custom.api.CustomApiResponse;
 import com.credaegis.backend.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

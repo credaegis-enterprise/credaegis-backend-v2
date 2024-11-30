@@ -2,7 +2,7 @@ package com.credaegis.backend.service;
 
 
 import com.credaegis.backend.Constants;
-import com.credaegis.backend.dto.request.MemberCreationRequest;
+import com.credaegis.backend.http.request.MemberCreationRequest;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.ExceptionFactory;

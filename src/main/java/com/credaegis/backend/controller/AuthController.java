@@ -1,9 +1,8 @@
 package com.credaegis.backend.controller;
 
 import com.credaegis.backend.Constants;
-import com.credaegis.backend.configuration.security.principal.CustomUser;
-import com.credaegis.backend.dto.request.LoginRequest;
-import com.credaegis.backend.dto.response.custom.api.CustomApiResponse;
+import com.credaegis.backend.http.request.LoginRequest;
+import com.credaegis.backend.http.response.custom.api.CustomApiResponse;
 import com.credaegis.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

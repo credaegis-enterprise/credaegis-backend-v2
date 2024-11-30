@@ -1,4 +1,4 @@
-package com.credaegis.backend.dto.request;
+package com.credaegis.backend.http.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,6 +1,6 @@
 package com.credaegis.backend.service;
 
-import com.credaegis.backend.dto.request.ClusterCreationRequest;
+import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Organization;
 import com.credaegis.backend.entity.Role;

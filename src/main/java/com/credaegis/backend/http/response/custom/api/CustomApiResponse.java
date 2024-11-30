@@ -1,4 +1,4 @@
-package com.credaegis.backend.dto.response.custom.api;
+package com.credaegis.backend.http.response.custom.api;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

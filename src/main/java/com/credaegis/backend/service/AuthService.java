@@ -1,6 +1,6 @@
 package com.credaegis.backend.service;
 
-import com.credaegis.backend.dto.request.LoginRequest;
+import com.credaegis.backend.http.request.LoginRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;

@@ -2,9 +2,9 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
-import com.credaegis.backend.dto.request.EventCreationRequest;
-import com.credaegis.backend.dto.request.RenameRequest;
-import com.credaegis.backend.dto.response.custom.api.CustomApiResponse;
+import com.credaegis.backend.http.request.EventCreationRequest;
+import com.credaegis.backend.http.request.RenameRequest;
+import com.credaegis.backend.http.response.custom.api.CustomApiResponse;
 import com.credaegis.backend.service.EventService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

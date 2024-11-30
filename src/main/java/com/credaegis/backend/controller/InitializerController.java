@@ -2,7 +2,7 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
-import com.credaegis.backend.dto.FileTest;
+import com.credaegis.backend.dto.FileMetaInfoDTO;
 import com.credaegis.backend.entity.Role;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.repository.RoleRepository;
@@ -60,11 +60,13 @@ public class InitializerController {
                                                                          String toParse) throws JsonProcessingException {
 
        ObjectMapper objectMapper = new ObjectMapper();
-       List<FileTest> fileTest = objectMapper.readValue(toParse,new TypeReference<List<FileTest>>(){});
-       System.out.println("Name of the parsed=\t"+fileTest.getFirst().getName());
-       System.out.println("Name of the parsed=\t"+fileTest.get(1).getName());
-       System.out.println(file.getOriginalFilename());
-       System.out.println(toParse);
+       List<FileMetaInfoDTO> fileMetaInfoDTOS = objectMapper.readValue(toParse,new TypeReference<List<FileMetaInfoDTO>>(){});
+
+       for (FileMetaInfoDTO fileMetaInfoDTO : fileMetaInfoDTOS) {
+           System.out.println(fileMetaInfoDTO.getFileName());
+           System.out.println(fileMetaInfoDTO.getRecipientEmail());
+           System.out.println(fileMetaInfoDTO.getFileName());
+       }
        return ResponseEntity.status(HttpStatus.OK).body(file.getOriginalFilename());
    }
 }
