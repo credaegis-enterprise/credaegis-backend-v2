@@ -28,6 +28,10 @@ public class Cluster {
     @Column(nullable = false)
     private Boolean deactivated = false;
 
+
+    @Column(nullable = false)
+    private Boolean locked = false; //disable privileges of cluster admin to a normal user.
+
     @CreationTimestamp
     @Column(name = "created_on", updatable = false)
     private Timestamp createdOn;
@@ -35,6 +39,8 @@ public class Cluster {
     @UpdateTimestamp
     @Column(name = "updated_on")
     private Timestamp updatedOn;
+
+
 
 
     @ManyToOne

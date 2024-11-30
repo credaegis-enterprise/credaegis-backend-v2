@@ -14,6 +14,7 @@ import com.credaegis.backend.repository.UserRepository;
 import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ public class ClusterService {
     private final RoleRepository roleRepository;
     private final ClusterRepository clusterRepository;
     private final OrganizationRepository organizationRepository;
+
 
 
     public void createCluster(ClusterCreationRequest clusterCreationRequest, String userOrganizationId) {
@@ -114,6 +116,25 @@ public class ClusterService {
             clusterRepository.changeAdmin(newAdminId, clusterId);
         } else throw ExceptionFactory.insufficientPermission();
 
+
+    }
+
+    public void lockPermissions(String clusterId, String userOrganizationId) {
+        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if(cluster.getLocked()) throw ExceptionFactory.customValidationError("Cluster already locked");
+        if (cluster.getOrganization().getId().equals(userOrganizationId))
+            clusterRepository.lockPermissions(clusterId);
+        else throw ExceptionFactory.insufficientPermission();
+
+    }
+
+    public void unlockPermissions(String clusterId, String userOrganizationId) {
+        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(
+                ExceptionFactory::resourceNotFound );
+        if(!cluster.getLocked()) throw ExceptionFactory.customValidationError("Cluster already unlocked");
+        if (cluster.getOrganization().getId().equals(userOrganizationId))
+            clusterRepository.unlockPermissions(clusterId);
+        else throw ExceptionFactory.insufficientPermission();
 
     }
 }

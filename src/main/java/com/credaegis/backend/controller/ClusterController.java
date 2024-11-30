@@ -68,4 +68,23 @@ public class ClusterController {
     }
 
 
+    @PutMapping(path = "/permissions/lock/{id}")
+    public ResponseEntity<CustomApiResponse<Void>> lockClusterController(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
+
+        clusterService.lockPermissions(id, customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Cluster Locked", true)
+        );
+    }
+
+
+    @PutMapping(path = "/permissions/unlock/{id}")
+    public ResponseEntity<CustomApiResponse<Void>> unlockClusterController(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
+        clusterService.unlockPermissions(id, customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Cluster Unlocked", true)
+        );
+    }
+
+
 }
