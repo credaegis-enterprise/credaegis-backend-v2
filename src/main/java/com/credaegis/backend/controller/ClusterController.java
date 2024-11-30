@@ -73,7 +73,7 @@ public class ClusterController {
 
         clusterService.lockPermissions(id, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null, "Cluster Locked", true)
+                new CustomApiResponse<>(null, "Cluster admin Locked", true)
         );
     }
 
@@ -82,7 +82,7 @@ public class ClusterController {
     public ResponseEntity<CustomApiResponse<Void>> unlockClusterController(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
         clusterService.unlockPermissions(id, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null, "Cluster Unlocked", true)
+                new CustomApiResponse<>(null, "Cluster admin Unlocked", true)
         );
     }
 

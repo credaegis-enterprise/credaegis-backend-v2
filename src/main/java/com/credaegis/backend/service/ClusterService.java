@@ -1,5 +1,6 @@
 package com.credaegis.backend.service;
 
+import com.credaegis.backend.Constants;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Organization;
@@ -122,8 +123,11 @@ public class ClusterService {
     public void lockPermissions(String clusterId, String userOrganizationId) {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
         if(cluster.getLocked()) throw ExceptionFactory.customValidationError("Cluster already locked");
-        if (cluster.getOrganization().getId().equals(userOrganizationId))
+        if (cluster.getOrganization().getId().equals(userOrganizationId)) {
+
             clusterRepository.lockPermissions(clusterId);
+            roleRepository.updateRole(Constants.LOCKED_CLUSTER_ADMIN, cluster.getAdmin().getId());
+        }
         else throw ExceptionFactory.insufficientPermission();
 
     }
@@ -132,8 +136,11 @@ public class ClusterService {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(
                 ExceptionFactory::resourceNotFound );
         if(!cluster.getLocked()) throw ExceptionFactory.customValidationError("Cluster already unlocked");
-        if (cluster.getOrganization().getId().equals(userOrganizationId))
+        if (cluster.getOrganization().getId().equals(userOrganizationId)) {
+
             clusterRepository.unlockPermissions(clusterId);
+            roleRepository.updateRole(Constants.CLUSTER_ADMIN, cluster.getAdmin().getId());
+        }
         else throw ExceptionFactory.insufficientPermission();
 
     }

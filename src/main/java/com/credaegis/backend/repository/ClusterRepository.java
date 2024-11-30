@@ -31,4 +31,5 @@ public interface  ClusterRepository extends JpaRepository<Cluster,String> {
         @Modifying
         @Query("UPDATE Cluster c SET c.locked = false WHERE c.id = :id")
         void unlockPermissions(@Param("id") String clusterId);
+
 }
