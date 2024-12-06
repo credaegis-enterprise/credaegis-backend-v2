@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 
 @Entity
@@ -53,6 +54,10 @@ public class  User {
     @OneToOne(mappedBy = "admin")
     @JsonManagedReference
     private Cluster cluster;
+
+    @OneToMany(mappedBy = "createdBy")
+    @JsonManagedReference
+    private List<Event> events;
 
     @CreationTimestamp
     @Column(name = "created_on",updatable = false)

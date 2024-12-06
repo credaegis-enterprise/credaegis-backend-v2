@@ -34,13 +34,13 @@ public class Event {
 
     @OneToMany(mappedBy = "event")
     @JsonManagedReference
-    List<Approval> approvals = new ArrayList<>();
+    private List<Approval> approvals = new ArrayList<>();
 
 
     @ManyToOne
-    @JoinColumn(name = "created_by")
+    @JoinColumn(name = "created_by",nullable = false)
     @JsonBackReference
-    private User user;
+    private User createdBy;
 
 
     @OneToMany(mappedBy = "event")

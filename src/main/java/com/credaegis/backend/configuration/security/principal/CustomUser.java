@@ -21,6 +21,10 @@ public class CustomUser implements UserDetails {
 
     @Getter
     @Setter
+    private User user;
+
+    @Getter
+    @Setter
     private String organizationId;
 
     @Getter
@@ -29,13 +33,14 @@ public class CustomUser implements UserDetails {
     private List<GrantedAuthority> grantedAuthorities;
 
     public CustomUser(String email, String password, String organizationId, String userId,
-                      List<GrantedAuthority> grantedAuthorities){
+                      List<GrantedAuthority> grantedAuthorities,User user) {
 
         this.email = email;
         this.password = password;
         this.organizationId = organizationId;
         this.userId = userId;
         this.grantedAuthorities = grantedAuthorities;
+        this.user = user;
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

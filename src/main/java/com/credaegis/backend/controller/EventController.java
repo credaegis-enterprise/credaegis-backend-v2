@@ -14,47 +14,20 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = Constants.ROUTEV1 + "/event")
+@RequestMapping(value = Constants.ROUTEV1 + "/event-control")
 @AllArgsConstructor
 public class EventController {
-
 
     private final EventService eventService;
 
     @PostMapping(path = "/create")
-    public void createEvent(@RequestBody EventCreationRequest eventCreationRequest,
-                            @AuthenticationPrincipal CustomUser customUser) {
-
-    }
-
-
-    @PutMapping(path = "/rename/{id}")
-    public ResponseEntity<CustomApiResponse<Void>> renameEvent(@PathVariable String id,
-                                                               @Valid @RequestBody RenameRequest renameRequest,
+    public ResponseEntity<CustomApiResponse<Void>> createEvent(@RequestBody @Valid  EventCreationRequest eventCreationRequest,
                                                                @AuthenticationPrincipal CustomUser customUser) {
 
-        eventService.renameEvent(id, renameRequest.getNewName(), customUser.getOrganizationId());
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null, "Event Successfully Renamed", true)
-        );
-    }
 
-    @PutMapping(path = "/activate/{id}")
-    public ResponseEntity<CustomApiResponse<Void>> activateEvent(@PathVariable String id,
-                                                                 @AuthenticationPrincipal CustomUser customUser) {
-        eventService.activateEvent(id, customUser.getOrganizationId());
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null, "Event Successfully Activated", true)
-        );
-    }
+        eventService.createEvent(eventCreationRequest,customUser.getUser());
+        return ResponseEntity.status(HttpStatus.CREATED).body(new CustomApiResponse<>(null,
+                "Event Successfully created",true));
 
-    @PutMapping(path = "/deactivate/{id}")
-    public ResponseEntity<CustomApiResponse<Void>> deactivateEvent(@PathVariable String id,
-                                                                   @AuthenticationPrincipal CustomUser customUser) {
-        eventService.deactivateEvent(id, customUser.getOrganizationId());
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null, "Event Successfully Deactivated", true)
-        );
     }
-
 }

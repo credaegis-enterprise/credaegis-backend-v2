@@ -32,7 +32,6 @@ public class ClusterService {
     private final OrganizationRepository organizationRepository;
 
 
-
     public void createCluster(ClusterCreationRequest clusterCreationRequest, String userOrganizationId) {
 
         Organization organization = organizationRepository.findById(userOrganizationId).
@@ -42,7 +41,7 @@ public class ClusterService {
         if (admin == null || admin.isDeleted()) {
 
             if (clusterRepository.findByNameAndOrganization(clusterCreationRequest.getClusterName(),
-                    organization)!= null) {
+                    organization) != null) {
                 throw ExceptionFactory.customValidationError("Name already exists," +
                         "Choose a different cluster name");
             }
@@ -77,14 +76,13 @@ public class ClusterService {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
 
 
-
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
 
-            if(clusterRepository.findByNameAndOrganization(newName,cluster.getOrganization())!=null)
+            if (clusterRepository.findByNameAndOrganization(newName, cluster.getOrganization()) != null)
                 throw ExceptionFactory.customValidationError("Name already exists, " +
                         "Choose a different cluster name");
 
-                 clusterRepository.renameCluster(clusterId, newName);
+            clusterRepository.renameCluster(clusterId, newName);
         } else throw ExceptionFactory.insufficientPermission();
     }
 
@@ -135,26 +133,24 @@ public class ClusterService {
 
     public void lockPermissions(String clusterId, String userOrganizationId) {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if(cluster.getLocked()) throw ExceptionFactory.customValidationError("Cluster already locked");
+        if (cluster.getLocked()) throw ExceptionFactory.customValidationError("Cluster already locked");
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
 
             clusterRepository.lockPermissions(clusterId);
             roleRepository.updateRole(Constants.LOCKED_CLUSTER_ADMIN, cluster.getAdmin().getId());
-        }
-        else throw ExceptionFactory.insufficientPermission();
+        } else throw ExceptionFactory.insufficientPermission();
 
     }
 
     public void unlockPermissions(String clusterId, String userOrganizationId) {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(
-                ExceptionFactory::resourceNotFound );
-        if(!cluster.getLocked()) throw ExceptionFactory.customValidationError("Cluster already unlocked");
+                ExceptionFactory::resourceNotFound);
+        if (!cluster.getLocked()) throw ExceptionFactory.customValidationError("Cluster already unlocked");
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
 
             clusterRepository.unlockPermissions(clusterId);
             roleRepository.updateRole(Constants.CLUSTER_ADMIN, cluster.getAdmin().getId());
-        }
-        else throw ExceptionFactory.insufficientPermission();
+        } else throw ExceptionFactory.insufficientPermission();
 
     }
 }
