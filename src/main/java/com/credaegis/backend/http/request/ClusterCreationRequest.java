@@ -16,5 +16,6 @@ public class ClusterCreationRequest {
     private String adminName;
 
     @Email(message = "Please enter a valid email")
+    @NotBlank(message = "email cannot be empty")
     private String adminEmail;
 }

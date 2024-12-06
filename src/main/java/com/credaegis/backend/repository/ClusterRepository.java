@@ -1,12 +1,17 @@
 package com.credaegis.backend.repository;
 
 import com.credaegis.backend.entity.Cluster;
+import com.credaegis.backend.entity.Organization;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface  ClusterRepository extends JpaRepository<Cluster,String> {
+
+        Cluster findByNameAndOrganization(String name, Organization organization);
 
         @Modifying
         @Query("UPDATE Cluster c SET c.deactivated = true WHERE c.id = :id ")

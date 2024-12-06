@@ -32,7 +32,7 @@ public class InitializerController {
 
 
 
-   @PostMapping (path = "/add/admin")
+   @PostMapping (path = "/add/organization")
     public ResponseEntity<String> addUser(){
        initializerService.addUserService();
        return ResponseEntity.status(HttpStatus.OK).body("hey");

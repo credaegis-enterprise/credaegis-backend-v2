@@ -41,6 +41,12 @@ public class ClusterService {
         User admin = userRepository.findByEmail(clusterCreationRequest.getAdminEmail());
         if (admin == null || admin.isDeleted()) {
 
+            if (clusterRepository.findByNameAndOrganization(clusterCreationRequest.getClusterName(),
+                    organization)!= null) {
+                throw ExceptionFactory.customValidationError("Name already exists," +
+                        "Choose a different cluster name");
+            }
+
             User user = new User();
             Cluster cluster = new Cluster();
             Role role = new Role();
@@ -70,8 +76,15 @@ public class ClusterService {
     public void renameCluster(String clusterId, String userOrganizationId, String newName) {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
 
+
+
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
-            clusterRepository.renameCluster(clusterId, newName);
+
+            if(clusterRepository.findByNameAndOrganization(newName,cluster.getOrganization())!=null)
+                throw ExceptionFactory.customValidationError("Name already exists, " +
+                        "Choose a different cluster name");
+
+                 clusterRepository.renameCluster(clusterId, newName);
         } else throw ExceptionFactory.insufficientPermission();
     }
 

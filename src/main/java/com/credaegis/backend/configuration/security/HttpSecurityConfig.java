@@ -35,13 +35,15 @@ public class HttpSecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable);
         http.csrf(AbstractHttpConfigurer::disable);
 
-        http.authorizeHttpRequests(request -> request.requestMatchers
-                                (Constants.ROUTEV1 + "/auth/**", Constants.ROUTEV1 + "/test/**").
-                        permitAll().requestMatchers(Constants.ROUTEV1 + "/**").hasRole(Constants.ADMIN).
-                        anyRequest().authenticated()).
-                logout((logout) ->
-                        logout.logoutUrl(Constants.ROUTEV1 + "/auth/logout").
-                                logoutSuccessHandler(customLogoutSuccessHandler));
+        http.authorizeHttpRequests(request -> request.anyRequest().permitAll());
+
+//        http.authorizeHttpRequests(request -> request.requestMatchers
+//                                (Constants.ROUTEV1 + "/auth/**", Constants.ROUTEV1 + "/test/**").
+//                        permitAll().requestMatchers(Constants.ROUTEV1 + "/**").hasRole(Constants.ADMIN).
+//                        anyRequest().authenticated()).
+//                logout((logout) ->
+//                        logout.logoutUrl(Constants.ROUTEV1 + "/auth/logout").
+//                                logoutSuccessHandler(customLogoutSuccessHandler));
 
         return http.build();
     }

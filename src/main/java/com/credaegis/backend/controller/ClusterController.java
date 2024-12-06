@@ -14,7 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = Constants.ROUTEV1 + "/cluster")
+@RequestMapping(value = Constants.ROUTEV1 + "/cluster-control")
 @AllArgsConstructor
 public class ClusterController {
 
@@ -48,7 +48,7 @@ public class ClusterController {
     }
 
     @PutMapping(path = "/rename/{id}")
-    public ResponseEntity<CustomApiResponse<Void>> renameCluster(@PathVariable String id, @RequestBody RenameRequest renameRequest,
+    public ResponseEntity<CustomApiResponse<Void>> renameCluster(@PathVariable String id,@Valid @RequestBody RenameRequest renameRequest,
                               @AuthenticationPrincipal CustomUser customUser) {
         clusterService.renameCluster(id, customUser.getOrganizationId(), renameRequest.getNewName());
         return ResponseEntity.status(HttpStatus.OK).body(
