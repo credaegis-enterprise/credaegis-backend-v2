@@ -27,11 +27,11 @@ public class Certificate {
     @Column(name = "certificate_hash" , nullable = false)
     private String certificateHash;
 
-    @Column(name = "issued_to_name", nullable = false)
-    private String issuedToName;
+    @Column(name = "recipient_name", nullable = false)
+    private String recipientName;
 
-    @Column(name = "issued_to_email", nullable = false)
-    private String issuedToEmail;
+    @Column(name = "recipient_email", nullable = false)
+    private String recipientEmail;
 
     @Column(name = "issued_date", nullable = false)
     private Date issuedDate;

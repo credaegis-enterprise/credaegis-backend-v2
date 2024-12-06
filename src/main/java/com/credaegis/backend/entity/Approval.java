@@ -25,11 +25,11 @@ public class Approval {
     @Column(name = "approval_certificate_name", nullable = false)
     private String approvalCertificateName;
 
-    @Column(name = "issued_to_name", nullable = false)
-    private String issuedToName;
+    @Column(name = "recipient_name", nullable = false)
+    private String recipientName;
 
-    @Column(name = "issued_to_email", nullable = false)
-    private String issuedToEmail;
+    @Column(name = "recipient_email", nullable = false)
+    private String recipientEmail;
 
     @Column(name = "expiry_date")
     private Date ExpiryDate;
