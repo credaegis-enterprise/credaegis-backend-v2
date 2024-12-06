@@ -34,8 +34,9 @@ public class MemberService {
 
         User member = userRepository.findByEmail(memberCreationRequest.getEmail());
 
-        if (member == null || member.isDeleted()) {
+
             if (cluster.getOrganization().getId().equals(userOrganizationId)) {
+                if (member == null || member.isDeleted()) {
                 User user = new User();
                 user.setId(UlidCreator.getUlid().toString());
                 user.setPassword("sgce");
@@ -45,40 +46,47 @@ public class MemberService {
                 user.setOrganization(organizationRepository.findById(userOrganizationId).orElseThrow(ExceptionFactory::resourceNotFound));
 
                 userRepository.save(user);
+                } else throw ExceptionFactory.customValidationError("Member already exists, try another email");
 
             } else throw ExceptionFactory.insufficientPermission();
-        } else throw ExceptionFactory.customValidationError("Member already exists, try another email");
+
 
     }
 
     public void activateMember(String memberId, String userId, String userOrganizationId) {
+        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (!(user.getOrganization().getId().equals(userOrganizationId)))
+            throw  ExceptionFactory.insufficientPermission();
         if (userId.equals(memberId)) {
             throw ExceptionFactory.customValidationError("You cannot activate yourself");
         }
-        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (user.getRole().getRole().equals("ROLE_" + Constants.CLUSTER_ADMIN))
             throw ExceptionFactory.customValidationError("The member is an  cluster admin, you cannot perform this operation");
         if (!user.getDeactivated()) throw ExceptionFactory.customValidationError("User already activated");
-        if (user.getOrganization().getId().equals(userOrganizationId))
-            userRepository.activateUser(new ArrayList<>(List.of(memberId)));
-        else throw ExceptionFactory.insufficientPermission();
+
+        //checks whether admin and the said member are in same organization
+
+        userRepository.activateUser(new ArrayList<>(List.of(memberId)));
+
 
     }
 
 
     public void deactivateMember(String memberId, String userId, String userOrganizationId) {
 
+        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (!user.getOrganization().getId().equals(userOrganizationId))
+            throw  ExceptionFactory.insufficientPermission();
         if (userId.equals(memberId)) {
             throw ExceptionFactory.customValidationError("You cannot deactivate yourself");
         }
-        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
+
         if (user.getRole().getRole().equals("ROLE_" + Constants.CLUSTER_ADMIN))
             throw ExceptionFactory.customValidationError("The member is an  cluster admin, you cannot perform this operation");
 
         if (!user.getDeactivated()) throw ExceptionFactory.customValidationError("User already deactivated");
-        if (user.getOrganization().getId().equals(userOrganizationId))
-            userRepository.deactivateUser(new ArrayList<>(List.of(memberId)));
-        else throw ExceptionFactory.insufficientPermission();
+
+        userRepository.deactivateUser(new ArrayList<>(List.of(memberId)));
     }
 
 

@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(value = Constants.ROUTEV1 + "/member")
+@RequestMapping(value = Constants.ROUTEV1 + "/member-control")
 public class MemberController {
 
     private final MemberService memberService;
 
     @PostMapping(path = "/create")
-    public ResponseEntity<CustomApiResponse<Void>> createMember(@RequestBody MemberCreationRequest memberCreationRequest,
+    public ResponseEntity<CustomApiResponse<Void>> createMember(@RequestBody @Valid MemberCreationRequest memberCreationRequest,
                                                                 @AuthenticationPrincipal CustomUser customUser) {
 
         memberService.createMember(memberCreationRequest, customUser.getOrganizationId());
