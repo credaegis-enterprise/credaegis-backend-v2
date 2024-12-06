@@ -35,8 +35,8 @@ public class MemberService {
         User member = userRepository.findByEmail(memberCreationRequest.getEmail());
 
 
-            if (cluster.getOrganization().getId().equals(userOrganizationId)) {
-                if (member == null || member.isDeleted()) {
+        if (cluster.getOrganization().getId().equals(userOrganizationId)) {
+            if (member == null || member.isDeleted()) {
                 User user = new User();
                 user.setId(UlidCreator.getUlid().toString());
                 user.setPassword("sgce");
@@ -46,9 +46,9 @@ public class MemberService {
                 user.setOrganization(organizationRepository.findById(userOrganizationId).orElseThrow(ExceptionFactory::resourceNotFound));
 
                 userRepository.save(user);
-                } else throw ExceptionFactory.customValidationError("Member already exists, try another email");
+            } else throw ExceptionFactory.customValidationError("Member already exists, try another email");
 
-            } else throw ExceptionFactory.insufficientPermission();
+        } else throw ExceptionFactory.insufficientPermission();
 
 
     }
@@ -56,7 +56,7 @@ public class MemberService {
     public void activateMember(String memberId, String userId, String userOrganizationId) {
         User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!(user.getOrganization().getId().equals(userOrganizationId)))
-            throw  ExceptionFactory.insufficientPermission();
+            throw ExceptionFactory.insufficientPermission();
         if (userId.equals(memberId)) {
             throw ExceptionFactory.customValidationError("You cannot activate yourself");
         }
@@ -76,7 +76,7 @@ public class MemberService {
 
         User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!user.getOrganization().getId().equals(userOrganizationId))
-            throw  ExceptionFactory.insufficientPermission();
+            throw ExceptionFactory.insufficientPermission();
         if (userId.equals(memberId)) {
             throw ExceptionFactory.customValidationError("You cannot deactivate yourself");
         }
@@ -91,24 +91,27 @@ public class MemberService {
 
 
     public void deleteMember(String memberId, String userId, String userOrganizationId) {
-
+        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (!user.getOrganization().getId().equals(userOrganizationId))
+            throw ExceptionFactory.insufficientPermission();
         if (userId.equals(memberId)) {
             throw ExceptionFactory.customValidationError("You cannot delete yourself");
         }
 
-        User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
+
         if (user.getRole().getRole().equals("ROLE_" + Constants.CLUSTER_ADMIN))
             throw ExceptionFactory.customValidationError("The member is an  cluster admin, you cannot perform this operation");
-        if (user.getOrganization().getId().equals(userOrganizationId) && !user.isDeleted()) {
-            userRepository.deleteUser(memberId);
-        } else throw ExceptionFactory.insufficientPermission();
+
+        userRepository.deleteUser(memberId);
+
     }
 
     public void renameUser(String memberId, String newName, String userOrganizationId) {
         User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if (user.getOrganization().getId().equals(userOrganizationId)) {
-            userRepository.renameUser(user.getId(), newName);
-        } else throw ExceptionFactory.insufficientPermission();
+        if (!user.getOrganization().getId().equals(userOrganizationId))
+            throw ExceptionFactory.insufficientPermission();
+        userRepository.renameUser(user.getId(), newName);
+
 
     }
 }
