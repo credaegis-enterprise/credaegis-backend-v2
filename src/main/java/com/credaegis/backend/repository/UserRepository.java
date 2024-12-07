@@ -19,6 +19,10 @@ public interface UserRepository extends JpaRepository<User,String> {
     List<String> findAllUserIdByClusterId(@Param("id") String clusterId);
 
     @Modifying
+    @Query("UPDATE User u SET u.password =:newPassword WHERE u.id = :id")
+    void updatePassword(@Param("id") String id, @Param("newPassword") String newPassword);
+
+    @Modifying
     @Query("UPDATE User u SET u.deactivated = true WHERE u.id in :ids")
     void deactivateUser(@Param("ids") List<String> ids);
 
