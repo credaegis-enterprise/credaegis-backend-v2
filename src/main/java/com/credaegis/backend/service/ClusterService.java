@@ -120,7 +120,7 @@ public class ClusterService {
 
         if (!user.getCluster().getId().equals(clusterId)) throw
                 ExceptionFactory.customValidationError("New Admin must of from the same cluster");
-        if (cluster.getAdmin().getId().equals(newAdminId)) throw
+        if (cluster.getAdmin().getUser().getId().equals(newAdminId)) throw
                 ExceptionFactory.customValidationError("User is already admin of the specified cluster");
 
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {

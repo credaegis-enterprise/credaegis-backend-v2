@@ -42,6 +42,11 @@ public class  User {
     @Column(nullable = false)
     private boolean deleted = false;
 
+
+    @OneToOne(mappedBy = "user")
+    private Admin admin;
+
+
     @ManyToOne
     @JoinColumn(name = "organization_id",nullable = false)
     @JsonBackReference

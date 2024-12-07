@@ -40,6 +40,9 @@ public class Cluster {
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 
+    @OneToOne
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
 
     @ManyToOne
     @JsonBackReference
