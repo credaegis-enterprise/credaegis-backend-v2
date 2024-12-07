@@ -67,7 +67,7 @@ public class ClusterController {
 
         clusterService.changeAdmin(clusterId, newAdminId, customUser.getUser().getOrganization().getId());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null, "Cluster Admin Changed", true)
+                new CustomApiResponse<>(null, "Cluster AdminCluster Changed", true)
         );
     }
 

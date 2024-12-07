@@ -1,18 +1,12 @@
 package com.credaegis.backend.service;
 
 import com.credaegis.backend.Constants;
+import com.credaegis.backend.entity.*;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
-import com.credaegis.backend.entity.Cluster;
-import com.credaegis.backend.entity.Organization;
-import com.credaegis.backend.entity.Role;
-import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.response.custom.AllClustersResponse;
-import com.credaegis.backend.repository.ClusterRepository;
+import com.credaegis.backend.repository.*;
 
-import com.credaegis.backend.repository.OrganizationRepository;
-import com.credaegis.backend.repository.RoleRepository;
-import com.credaegis.backend.repository.UserRepository;
 import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -31,7 +25,8 @@ public class ClusterService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ClusterRepository clusterRepository;
-    private final OrganizationRepository organizationRepository;
+    private final AdminClusterRepository adminClusterRepository;
+
 
 
     public void createCluster(ClusterCreationRequest clusterCreationRequest, Organization organization) {
@@ -49,6 +44,7 @@ public class ClusterService {
             User user = new User();
             Cluster cluster = new Cluster();
             Role role = new Role();
+            AdminCluster adminCluster = new AdminCluster();
             user.setId(UlidCreator.getUlid().toString());
             user.setEmail(clusterCreationRequest.getAdminEmail());
             user.setPassword(passwordEncoder.encode("sgce"));
@@ -56,18 +52,27 @@ public class ClusterService {
             user.setUsername(clusterCreationRequest.getAdminName());
 
             role.setId(UlidCreator.getUlid().toString());
-            role.setRole("ROLE_CLUSTERADMIN");
+            role.setRole("ROLE_CLUSTER_ADMIN");
             role.setUser(user);
-
 
             cluster.setId(UlidCreator.getUlid().toString());
             cluster.setDeactivated(false);
             cluster.setName(clusterCreationRequest.getClusterName());
             cluster.setOrganization(organization);
 
+
+            user.setCluster(cluster);
+
+            adminCluster.setId(UlidCreator.getUlid().toString());
+            adminCluster.setCluster(cluster);
+
+            adminCluster.setUser(user);
+
+            clusterRepository.save(cluster);
             userRepository.save(user);
             roleRepository.save(role);
-            clusterRepository.save(cluster);
+            adminClusterRepository.save(adminCluster);
+
         } else throw ExceptionFactory.customValidationError("The user already exists, try another email");
     }
 
@@ -119,8 +124,8 @@ public class ClusterService {
         User user = userRepository.findById(newAdminId).orElseThrow(ExceptionFactory::resourceNotFound);
 
         if (!user.getCluster().getId().equals(clusterId)) throw
-                ExceptionFactory.customValidationError("New Admin must of from the same cluster");
-        if (cluster.getAdmin().getUser().getId().equals(newAdminId)) throw
+                ExceptionFactory.customValidationError("New AdminCluster must of from the same cluster");
+        if (cluster.getAdminCluster().getUser().getId().equals(newAdminId)) throw
                 ExceptionFactory.customValidationError("User is already admin of the specified cluster");
 
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
@@ -137,7 +142,7 @@ public class ClusterService {
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
 
             clusterRepository.lockPermissions(clusterId);
-            roleRepository.updateRole(Constants.LOCKED_CLUSTER_ADMIN, cluster.getAdmin().getId());
+            roleRepository.updateRole(Constants.LOCKED_CLUSTER_ADMIN, cluster.getAdminCluster().getId());
         } else throw ExceptionFactory.insufficientPermission();
 
     }
@@ -149,7 +154,7 @@ public class ClusterService {
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
 
             clusterRepository.unlockPermissions(clusterId);
-            roleRepository.updateRole(Constants.CLUSTER_ADMIN, cluster.getAdmin().getId());
+            roleRepository.updateRole(Constants.CLUSTER_ADMIN, cluster.getAdminCluster().getId());
         } else throw ExceptionFactory.insufficientPermission();
 
     }

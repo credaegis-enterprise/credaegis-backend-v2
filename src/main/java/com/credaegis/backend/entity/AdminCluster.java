@@ -8,15 +8,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Table(name = "admins")
-public class Admin {
+public class AdminCluster {
 
     @Id
     private String id;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "admin_id",nullable = false)
     private User user;
 
-    @OneToOne(mappedBy = "admin")
+    @OneToOne
+    @JoinColumn(name = "cluster_id",nullable = false)
     private Cluster cluster;
+
+
 }

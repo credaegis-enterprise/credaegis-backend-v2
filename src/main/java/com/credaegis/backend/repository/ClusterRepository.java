@@ -33,7 +33,7 @@ public interface  ClusterRepository extends JpaRepository<Cluster,String> {
         void renameCluster(@Param("id") String clusterId, @Param("name") String newName);
 
         @Modifying
-        @Query("UPDATE Cluster c SET c.admin.id = :adminId WHERE c.id = :id")
+        @Query("UPDATE Cluster c SET c.id = :adminId WHERE c.id = :id")
         void changeAdmin(@Param("adminId") String newAdminId, @Param("id") String clusterId);
 
         @Modifying

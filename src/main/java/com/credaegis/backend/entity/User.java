@@ -43,9 +43,6 @@ public class  User {
     private boolean deleted = false;
 
 
-    @OneToOne(mappedBy = "user")
-    private Admin admin;
-
 
     @ManyToOne
     @JoinColumn(name = "organization_id",nullable = false)
@@ -54,9 +51,12 @@ public class  User {
 
 
     @ManyToOne
-    @JoinColumn(name="cluster_id",nullable = false)
+    @JoinColumn(name="cluster_id")
     @JsonBackReference
     private Cluster cluster;
+
+    @OneToOne(mappedBy = "user")
+    private AdminCluster adminCluster;
 
     @OneToOne(mappedBy = "user")
     @JsonManagedReference

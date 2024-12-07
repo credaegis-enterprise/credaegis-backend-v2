@@ -30,7 +30,7 @@ public class Cluster {
 
 
     @Column(nullable = false)
-    private Boolean locked = false; //disable privileges of cluster admin to a normal user.
+    private Boolean locked = false; //disable privileges of cluster adminCluster to a normal user.
 
     @CreationTimestamp
     @Column(name = "created_on", updatable = false)
@@ -40,14 +40,13 @@ public class Cluster {
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 
-    @OneToOne
-    @JoinColumn(name = "admin_id")
-    private Admin admin;
-
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "organization_id",nullable = false)
     private Organization organization;
+
+    @OneToOne(mappedBy = "cluster")
+    private AdminCluster adminCluster;
 
 
     @OneToMany(mappedBy = "cluster")
