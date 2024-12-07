@@ -3,6 +3,9 @@ package com.credaegis.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.sql.Timestamp;
 
 @Entity
 @NoArgsConstructor
@@ -20,6 +23,10 @@ public class AdminCluster {
     @OneToOne
     @JoinColumn(name = "cluster_id",nullable = false)
     private Cluster cluster;
+
+    @UpdateTimestamp
+    @Column(name = "last_modified")
+    private Timestamp lastModified;
 
 
 }

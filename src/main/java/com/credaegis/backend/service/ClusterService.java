@@ -129,7 +129,7 @@ public class ClusterService {
                 ExceptionFactory.customValidationError("User is already admin of the specified cluster");
 
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
-            clusterRepository.changeAdmin(newAdminId, clusterId);
+            adminClusterRepository.updateAdminCluster(newAdminId, clusterId);
         } else throw ExceptionFactory.insufficientPermission();
 
 
