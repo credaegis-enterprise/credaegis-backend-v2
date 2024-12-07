@@ -2,7 +2,7 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.Constants;
 import com.credaegis.backend.http.request.LoginRequest;
-import com.credaegis.backend.http.response.custom.api.CustomApiResponse;
+import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

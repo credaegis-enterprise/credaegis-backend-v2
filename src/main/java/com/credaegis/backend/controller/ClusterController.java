@@ -2,9 +2,11 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
+import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.http.request.RenameRequest;
-import com.credaegis.backend.http.response.custom.api.CustomApiResponse;
+import com.credaegis.backend.http.response.api.CustomApiResponse;
+import com.credaegis.backend.http.response.custom.AllClustersResponse;
 import com.credaegis.backend.service.ClusterService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -12,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = Constants.ROUTEV1 + "/cluster-control")
@@ -85,6 +89,16 @@ public class ClusterController {
         clusterService.unlockPermissions(id, customUser.getUser().getOrganization().getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Cluster admin Unlocked", true)
+        );
+    }
+
+    @GetMapping(path = "/get-clusters")
+    public ResponseEntity<CustomApiResponse<List<AllClustersResponse>>> getClusters(@AuthenticationPrincipal CustomUser customUser) {
+
+        //DI at runtime
+        List<AllClustersResponse> clusters = clusterService.getAllClusters(customUser.getUser().getOrganization());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(clusters,"Cluster List", true)
         );
     }
 

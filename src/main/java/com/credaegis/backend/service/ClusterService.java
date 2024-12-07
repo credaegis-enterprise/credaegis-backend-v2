@@ -7,6 +7,7 @@ import com.credaegis.backend.entity.Organization;
 import com.credaegis.backend.entity.Role;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
+import com.credaegis.backend.http.response.custom.AllClustersResponse;
 import com.credaegis.backend.repository.ClusterRepository;
 
 import com.credaegis.backend.repository.OrganizationRepository;
@@ -18,6 +19,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -129,6 +132,7 @@ public class ClusterService {
 
     }
 
+
     public void lockPermissions(String clusterId, String userOrganizationId) {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (cluster.getLocked()) throw ExceptionFactory.customValidationError("Cluster already locked");
@@ -150,5 +154,10 @@ public class ClusterService {
             roleRepository.updateRole(Constants.CLUSTER_ADMIN, cluster.getAdmin().getId());
         } else throw ExceptionFactory.insufficientPermission();
 
+    }
+
+
+    public List<AllClustersResponse> getAllClusters(Organization organization) {
+     return clusterRepository.getAllClustersByOrganization(organization.getId());
     }
 }

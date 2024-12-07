@@ -1,4 +1,4 @@
-package com.credaegis.backend.http.response.custom.exception;
+package com.credaegis.backend.http.response.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
