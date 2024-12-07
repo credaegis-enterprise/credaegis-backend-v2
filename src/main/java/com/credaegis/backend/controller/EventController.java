@@ -21,13 +21,32 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping(path = "/create")
-    public ResponseEntity<CustomApiResponse<Void>> createEvent(@RequestBody @Valid  EventCreationRequest eventCreationRequest,
+    public ResponseEntity<CustomApiResponse<Void>> createEvent(@RequestBody @Valid EventCreationRequest eventCreationRequest,
                                                                @AuthenticationPrincipal CustomUser customUser) {
 
 
-        eventService.createEvent(eventCreationRequest,customUser.getUser());
+        eventService.createEvent(eventCreationRequest, customUser.getUser());
         return ResponseEntity.status(HttpStatus.CREATED).body(new CustomApiResponse<>(null,
-                "Event Successfully created",true));
+                "Event Successfully created", true));
 
+    }
+
+    @PutMapping(path = "/activate/{id}")
+    public ResponseEntity<CustomApiResponse<Void>> activateEvent(@PathVariable String id,
+                                                                 @AuthenticationPrincipal CustomUser customUser) {
+
+        eventService.activateEvent(id, customUser.getUser().getOrganization().getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Event Successfully activated", true)
+        );
+    }
+
+    @PutMapping(path = "/deactivate/{id}")
+    public ResponseEntity<CustomApiResponse<Void>> deactivateEvent(@PathVariable String id,
+                                                                   @AuthenticationPrincipal CustomUser customUser) {
+        eventService.deactivateEvent(id, customUser.getUser().getOrganization().getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Event Successfully deactivated", true)
+        );
     }
 }
