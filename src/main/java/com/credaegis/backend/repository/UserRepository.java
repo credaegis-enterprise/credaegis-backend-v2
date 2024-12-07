@@ -15,6 +15,7 @@ public interface UserRepository extends JpaRepository<User,String> {
     User findByEmail(String email);
 
 
+
     @Query("SELECT u.id FROM User u WHERE u.cluster.id = :id")
     List<String> findAllUserIdByClusterId(@Param("id") String clusterId);
 
