@@ -2,6 +2,7 @@ package com.credaegis.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,11 +47,13 @@ public class Cluster {
     private Organization organization;
 
     @OneToOne(mappedBy = "cluster")
+    @JsonManagedReference
     private AdminCluster adminCluster;
 
 
     @OneToMany(mappedBy = "cluster")
     @JsonManagedReference
+    @JsonProperty("members")
     private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "cluster")

@@ -43,5 +43,5 @@ public interface  ClusterRepository extends JpaRepository<Cluster,String> {
         void unlockPermissions(@Param("id") String clusterId);
 
 
-
+        Cluster findByIdAndOrganization(String id, Organization organization);
 }

@@ -111,4 +111,13 @@ public class ClusterController {
         );
     }
 
+
+    @GetMapping(path = "/get-one/{id}")
+    public ResponseEntity<CustomApiResponse<Cluster>> getOneCluster(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
+        Cluster cluster = clusterService.getOneCluster(customUser.getUser().getOrganization(),id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(cluster,"details of cluster "+cluster.getName()+" fetched", true)
+        );
+    }
+
 }

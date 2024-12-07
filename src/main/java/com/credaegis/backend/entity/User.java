@@ -1,6 +1,7 @@
 package com.credaegis.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class  User {
     private String username;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(nullable = false, unique = true)
@@ -56,6 +58,7 @@ public class  User {
     private Cluster cluster;
 
     @OneToOne(mappedBy = "user")
+    @JsonManagedReference
     private AdminCluster adminCluster;
 
     @OneToOne(mappedBy = "user")

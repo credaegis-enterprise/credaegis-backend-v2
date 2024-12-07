@@ -167,4 +167,8 @@ public class ClusterService {
     public List<Cluster> getAllClusters(Organization organization) {
         return clusterRepository.findByOrganization(organization);
     }
+
+    public Cluster getOneCluster(Organization organization,String clusterId) {
+        return clusterRepository.findByIdAndOrganization(clusterId, organization);
+    }
 }

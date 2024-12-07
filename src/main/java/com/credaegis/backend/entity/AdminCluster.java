@@ -1,5 +1,6 @@
 package com.credaegis.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,10 +19,12 @@ public class AdminCluster {
 
     @OneToOne
     @JoinColumn(name = "admin_id",nullable = false)
+    @JsonBackReference
     private User user;
 
     @OneToOne
     @JoinColumn(name = "cluster_id",nullable = false)
+    @JsonBackReference
     private Cluster cluster;
 
     @UpdateTimestamp
