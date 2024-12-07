@@ -3,11 +3,13 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.http.request.EventCreationRequest;
+import com.credaegis.backend.http.request.EventModificationRequest;
 import com.credaegis.backend.http.request.RenameRequest;
 import com.credaegis.backend.http.response.custom.api.CustomApiResponse;
 import com.credaegis.backend.service.EventService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -47,6 +49,17 @@ public class EventController {
         eventService.deactivateEvent(id, customUser.getUser().getOrganization().getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Event Successfully deactivated", true)
+        );
+    }
+
+    @PutMapping(path = "/update/{id}")
+    public ResponseEntity<CustomApiResponse<Void>> updateEvent(@PathVariable  String id, @RequestBody @Valid
+                                                               EventModificationRequest eventModificationRequest,
+                                                               @AuthenticationPrincipal CustomUser customUser) {
+        eventService.updateEvent(eventModificationRequest, customUser.getUser().getOrganization().getId(),
+                id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Event Successfully updated", true)
         );
     }
 }

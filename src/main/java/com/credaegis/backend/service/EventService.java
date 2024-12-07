@@ -7,6 +7,7 @@ import com.credaegis.backend.http.request.EventCreationRequest;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Event;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
+import com.credaegis.backend.http.request.EventModificationRequest;
 import com.credaegis.backend.repository.ClusterRepository;
 import com.credaegis.backend.repository.EventRepository;
 import com.credaegis.backend.repository.UserRepository;
@@ -66,5 +67,19 @@ public class EventService {
            throw ExceptionFactory.insufficientPermission();
        if(event.getDeactivated()) throw ExceptionFactory.customValidationError("Event is already deactivated");
        eventRepository.deactivateEvent(eventId);
+   }
+
+   public void updateEvent(EventModificationRequest eventModificationRequest, String userOrganizationId,
+                           String eventId){
+       Event event = eventRepository.findById(eventId).orElseThrow(
+               ExceptionFactory::resourceNotFound
+       );
+
+       if(!event.getCluster().getOrganization().getId().equals(userOrganizationId))
+           throw ExceptionFactory.insufficientPermission();
+
+       eventRepository.updateEvent(eventModificationRequest.getEventName(),
+               eventModificationRequest.getEventDescription(),eventId);
+
    }
 }

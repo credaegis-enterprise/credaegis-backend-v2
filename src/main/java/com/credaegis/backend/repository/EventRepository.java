@@ -23,6 +23,10 @@ public interface  EventRepository extends JpaRepository<Event,String> {
     @Query("UPDATE Event e SET e.name = :name WHERE e.id = :id")
     void renameEvent(@Param("name") String name, @Param("id") String id);
 
+    @Modifying
+    @Query("UPDATE Event e SET e.name = :name, e.description = :description WHERE e.id = :id")
+    void updateEvent(@Param("name") String name, @Param("description") String description, @Param("id") String id);
+
 
     boolean existsByNameAndCluster(String eventName, Cluster cluster);
 }
