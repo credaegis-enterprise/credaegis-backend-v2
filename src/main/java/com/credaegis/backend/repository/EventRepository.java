@@ -1,5 +1,6 @@
 package com.credaegis.backend.repository;
 
+import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,4 +24,5 @@ public interface  EventRepository extends JpaRepository<Event,String> {
     void renameEvent(@Param("name") String name, @Param("id") String id);
 
 
+    boolean existsByNameAndCluster(String eventName, Cluster cluster);
 }

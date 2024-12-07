@@ -23,11 +23,16 @@ public class EventService {
     private final UserRepository userRepository;
 
 
+    //creates an event by organization if cluster and organization are same.
    public void createEvent(EventCreationRequest eventCreationRequest, User user){
           Cluster cluster = clusterRepository.findById(eventCreationRequest.getClusterId()).orElseThrow(
                   ExceptionFactory::resourceNotFound);
           if(!cluster.getOrganization().getId().equals(user.getOrganization().getId()))
               throw ExceptionFactory.insufficientPermission();
+
+          if(eventRepository.existsByNameAndCluster(eventCreationRequest.getEventName(),cluster))
+              throw ExceptionFactory.customValidationError("Event with same name already exists in the cluster");
+
 
       
           Event event = new Event();

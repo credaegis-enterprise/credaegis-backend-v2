@@ -49,9 +49,6 @@ public class InitializerController {
    @PostMapping (path = "/check")
    public ResponseEntity<String> check(Authentication authentication){
        CustomUser user = (CustomUser) authentication.getPrincipal();
-       System.out.println(user.getOrganizationId());
-       System.out.println(user.getPassword());
-       System.out.println(user.getUsername());
       return ResponseEntity.status(HttpStatus.OK).body("OK CHECKED");
    }
 
