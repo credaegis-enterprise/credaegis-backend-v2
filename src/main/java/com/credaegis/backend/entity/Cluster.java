@@ -41,17 +41,15 @@ public class Cluster {
     private Timestamp updatedOn;
 
 
-
-
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "organization_id",nullable = false)
     private Organization organization;
 
-    @OneToOne
-    @JsonBackReference
-    @JoinColumn(name = "admin_id",nullable = false)
-    private User admin;
+
+    @OneToMany(mappedBy = "cluster")
+    @JsonManagedReference
+    private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "cluster")
     @JsonManagedReference

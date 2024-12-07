@@ -14,10 +14,11 @@ import java.util.Optional;
 public interface  ClusterRepository extends JpaRepository<Cluster,String> {
 
         Cluster findByNameAndOrganization(String name, Organization organization);
+        List<Cluster> findByOrganization(Organization organization);
 
         //maps via alias (runtime)
         @Query("SELECT  c.id AS id ,c.name AS name from Cluster c WHERE c.organization.id =:id")
-        List<AllClustersResponse> getAllClustersByOrganization(@Param("id") String id);
+        List<AllClustersResponse> getAllNameAndId(@Param("id") String id);
 
         @Modifying
         @Query("UPDATE Cluster c SET c.deactivated = true WHERE c.id = :id ")
@@ -42,6 +43,7 @@ public interface  ClusterRepository extends JpaRepository<Cluster,String> {
         @Modifying
         @Query("UPDATE Cluster c SET c.locked = false WHERE c.id = :id")
         void unlockPermissions(@Param("id") String clusterId);
+
 
 
 }

@@ -16,7 +16,6 @@ import com.credaegis.backend.repository.UserRepository;
 import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,7 +63,6 @@ public class ClusterService {
             cluster.setId(UlidCreator.getUlid().toString());
             cluster.setDeactivated(false);
             cluster.setName(clusterCreationRequest.getClusterName());
-            cluster.setAdmin(user);
             cluster.setOrganization(organization);
 
             userRepository.save(user);
@@ -157,7 +155,11 @@ public class ClusterService {
     }
 
 
-    public List<AllClustersResponse> getAllClusters(Organization organization) {
-     return clusterRepository.getAllClustersByOrganization(organization.getId());
+    public List<AllClustersResponse> getAllNameAndId(Organization organization) {
+     return clusterRepository.getAllNameAndId(organization.getId());
+    }
+
+    public List<Cluster> getAllClusters(Organization organization) {
+        return clusterRepository.findByOrganization(organization);
     }
 }

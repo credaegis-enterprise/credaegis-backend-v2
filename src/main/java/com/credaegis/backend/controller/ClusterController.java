@@ -93,14 +93,22 @@ public class ClusterController {
     }
 
     @GetMapping(path = "/get-clusters")
-    public ResponseEntity<CustomApiResponse<List<AllClustersResponse>>> getClusters(@AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<AllClustersResponse>>> getClustersNameAndId(@AuthenticationPrincipal CustomUser customUser) {
 
         //DI at runtime
-        List<AllClustersResponse> clusters = clusterService.getAllClusters(customUser.getUser().getOrganization());
+        List<AllClustersResponse> clusters = clusterService.getAllNameAndId(customUser.getUser().getOrganization());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(clusters,"Cluster List", true)
         );
     }
 
+
+    @GetMapping(path = "/get-all")
+    public ResponseEntity<CustomApiResponse<List<Cluster>>> getAllClusters(@AuthenticationPrincipal CustomUser customUser) {
+        List<Cluster> clusters = clusterService.getAllClusters(customUser.getUser().getOrganization());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(clusters,"Cluster List", true)
+        );
+    }
 
 }

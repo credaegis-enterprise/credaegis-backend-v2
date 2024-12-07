@@ -47,17 +47,22 @@ public class  User {
     @JsonBackReference
     private Organization organization;
 
+
+    @ManyToOne
+    @JoinColumn(name="cluster_id",nullable = false)
+    @JsonBackReference
+    private Cluster cluster;
+
     @OneToOne(mappedBy = "user")
     @JsonManagedReference
     private Role role;
 
-    @OneToOne(mappedBy = "admin")
-    @JsonManagedReference
-    private Cluster cluster;
 
     @OneToMany(mappedBy = "createdBy")
     @JsonManagedReference
     private List<Event> events;
+
+
 
     @CreationTimestamp
     @Column(name = "created_on",updatable = false)
