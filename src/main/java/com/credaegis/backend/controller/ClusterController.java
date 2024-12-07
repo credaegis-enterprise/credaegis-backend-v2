@@ -23,7 +23,7 @@ public class ClusterController {
     @PostMapping(path = "/create")
     public ResponseEntity<CustomApiResponse<Void>> clusterCreationController(@Valid @RequestBody ClusterCreationRequest clusterCreationRequest,
                                                                              @AuthenticationPrincipal CustomUser customUser) {
-        clusterService.createCluster(clusterCreationRequest, customUser.getOrganizationId());
+        clusterService.createCluster(clusterCreationRequest, customUser.getUser().getOrganization());
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new CustomApiResponse<>(null, "Cluster Successfully created", true)
         );
@@ -32,7 +32,7 @@ public class ClusterController {
     @PutMapping(path = "/activate/{id}")
     public ResponseEntity<CustomApiResponse<Void>> activateClusterController(@PathVariable String id,
                                                                              @AuthenticationPrincipal CustomUser customUser) {
-        clusterService.activateCluster(id, customUser.getOrganizationId());
+        clusterService.activateCluster(id, customUser.getUser().getOrganization().getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Cluster Activated", true)
         );
@@ -41,16 +41,16 @@ public class ClusterController {
     @PutMapping(path = "/deactivate/{id}")
     public ResponseEntity<CustomApiResponse<Void>> deactivateClusterController(@PathVariable String id, @AuthenticationPrincipal
     CustomUser customUser) {
-        clusterService.deactivateCluster(id, customUser.getOrganizationId());
+        clusterService.deactivateCluster(id, customUser.getUser().getOrganization().getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Cluster Deactivated", true)
         );
     }
 
     @PutMapping(path = "/rename/{id}")
-    public ResponseEntity<CustomApiResponse<Void>> renameCluster(@PathVariable String id,@Valid @RequestBody RenameRequest renameRequest,
-                              @AuthenticationPrincipal CustomUser customUser) {
-        clusterService.renameCluster(id, customUser.getOrganizationId(), renameRequest.getNewName());
+    public ResponseEntity<CustomApiResponse<Void>> renameCluster(@PathVariable String id, @Valid @RequestBody RenameRequest renameRequest,
+                                                                 @AuthenticationPrincipal CustomUser customUser) {
+        clusterService.renameCluster(id, customUser.getUser().getOrganization().getId(), renameRequest.getNewName());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Cluster Renamed", true)
         );
@@ -59,9 +59,9 @@ public class ClusterController {
 
     @PutMapping(path = "/change-admin/{clusterId}/{newAdminId}")
     public ResponseEntity<CustomApiResponse<Void>> changeAdmin(@PathVariable String clusterId, @PathVariable String newAdminId,
-                            @AuthenticationPrincipal CustomUser customUser) {
+                                                               @AuthenticationPrincipal CustomUser customUser) {
 
-        clusterService.changeAdmin(clusterId, newAdminId, customUser.getOrganizationId());
+        clusterService.changeAdmin(clusterId, newAdminId, customUser.getUser().getOrganization().getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Cluster Admin Changed", true)
         );
@@ -69,9 +69,10 @@ public class ClusterController {
 
 
     @PutMapping(path = "/permissions/lock/{id}")
-    public ResponseEntity<CustomApiResponse<Void>> lockClusterController(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<Void>> lockClusterController(@PathVariable String id,
+                                                                         @AuthenticationPrincipal CustomUser customUser) {
 
-        clusterService.lockPermissions(id, customUser.getOrganizationId());
+        clusterService.lockPermissions(id, customUser.getUser().getOrganization().getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Cluster admin Locked", true)
         );
@@ -79,8 +80,9 @@ public class ClusterController {
 
 
     @PutMapping(path = "/permissions/unlock/{id}")
-    public ResponseEntity<CustomApiResponse<Void>> unlockClusterController(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
-        clusterService.unlockPermissions(id, customUser.getOrganizationId());
+    public ResponseEntity<CustomApiResponse<Void>> unlockClusterController(@PathVariable String id,
+                                                                           @AuthenticationPrincipal CustomUser customUser) {
+        clusterService.unlockPermissions(id, customUser.getUser().getOrganization().getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Cluster admin Unlocked", true)
         );

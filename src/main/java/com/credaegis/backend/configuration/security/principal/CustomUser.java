@@ -12,33 +12,15 @@ import java.util.List;
 
 public class CustomUser implements UserDetails {
 
-    @Getter
-    @Setter
-    private String  email;
 
-    @Setter
-    private String password;
 
     @Getter
-    @Setter
-    private User user;
+    private final User user;
 
-    @Getter
-    @Setter
-    private String organizationId;
+    private final List<GrantedAuthority> grantedAuthorities;
 
-    @Getter
-    @Setter
-    private String userId;
-    private List<GrantedAuthority> grantedAuthorities;
+    public CustomUser(List<GrantedAuthority> grantedAuthorities,User user) {
 
-    public CustomUser(String email, String password, String organizationId, String userId,
-                      List<GrantedAuthority> grantedAuthorities,User user) {
-
-        this.email = email;
-        this.password = password;
-        this.organizationId = organizationId;
-        this.userId = userId;
         this.grantedAuthorities = grantedAuthorities;
         this.user = user;
     }
@@ -49,12 +31,12 @@ public class CustomUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password;
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return email;
+        return user.getEmail();
     }
 
 

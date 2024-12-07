@@ -1,6 +1,7 @@
 package com.credaegis.backend.service;
 
 
+import com.credaegis.backend.entity.Organization;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.http.request.EventCreationRequest;
 import com.credaegis.backend.entity.Cluster;
@@ -28,7 +29,7 @@ public class EventService {
           if(!cluster.getOrganization().getId().equals(user.getOrganization().getId()))
               throw ExceptionFactory.insufficientPermission();
 
-
+      
           Event event = new Event();
           event.setId(UlidCreator.getUlid().toString());
           event.setName(eventCreationRequest.getEventName());

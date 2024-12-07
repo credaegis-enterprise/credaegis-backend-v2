@@ -31,7 +31,6 @@ public class MemberService {
     public void createMember(MemberCreationRequest memberCreationRequest, String userOrganizationId) {
 
         Cluster cluster = clusterRepository.findById(memberCreationRequest.getClusterId()).orElseThrow(ExceptionFactory::resourceNotFound);
-
         User member = userRepository.findByEmail(memberCreationRequest.getEmail());
 
 

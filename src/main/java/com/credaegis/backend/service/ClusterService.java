@@ -32,10 +32,8 @@ public class ClusterService {
     private final OrganizationRepository organizationRepository;
 
 
-    public void createCluster(ClusterCreationRequest clusterCreationRequest, String userOrganizationId) {
+    public void createCluster(ClusterCreationRequest clusterCreationRequest, Organization organization) {
 
-        Organization organization = organizationRepository.findById(userOrganizationId).
-                orElseThrow(ExceptionFactory::resourceNotFound);
 
         User admin = userRepository.findByEmail(clusterCreationRequest.getAdminEmail());
         if (admin == null || admin.isDeleted()) {
