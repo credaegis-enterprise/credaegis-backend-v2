@@ -19,4 +19,5 @@ public class FileMetaInfoDTO {
     @NotBlank(message = "Email of Recipient should not be empty")
     private String recipientEmail;
 
+
 }

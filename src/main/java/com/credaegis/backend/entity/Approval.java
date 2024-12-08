@@ -32,7 +32,7 @@ public class Approval {
     private String recipientEmail;
 
     @Column(name = "expiry_date")
-    private Date ExpiryDate;
+    private Date expiryDate;
 
     private String  comments;
 
