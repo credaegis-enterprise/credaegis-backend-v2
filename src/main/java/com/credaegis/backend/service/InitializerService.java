@@ -1,6 +1,7 @@
 package com.credaegis.backend.service;
 
 
+import com.credaegis.backend.Constants;
 import com.credaegis.backend.entity.Organization;
 import com.credaegis.backend.entity.Role;
 import com.credaegis.backend.entity.User;
@@ -45,7 +46,7 @@ public class InitializerService {
 
         Role role = new Role();
         role.setId("1");
-        role.setRole("ROLE_ADMIN");
+        role.setRole("ROLE_"+ Constants.ADMIN);
         role.setUser(user);
         roleRepository.save(role);
         userRepository.save(user);

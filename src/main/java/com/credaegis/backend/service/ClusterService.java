@@ -28,7 +28,6 @@ public class ClusterService {
     private final AdminClusterRepository adminClusterRepository;
 
 
-
     public void createCluster(ClusterCreationRequest clusterCreationRequest, Organization organization) {
 
 
@@ -88,6 +87,7 @@ public class ClusterService {
 
             clusterRepository.renameCluster(clusterId, newName);
         } else throw ExceptionFactory.insufficientPermission();
+
     }
 
 
@@ -161,14 +161,16 @@ public class ClusterService {
 
 
     public List<AllClustersResponse> getAllNameAndId(Organization organization) {
-     return clusterRepository.getAllNameAndId(organization.getId());
+        return clusterRepository.getAllNameAndId(organization.getId());
     }
 
     public List<Cluster> getAllClusters(Organization organization) {
         return clusterRepository.findByOrganization(organization);
     }
 
-    public Cluster getOneCluster(Organization organization,String clusterId) {
+    public Cluster getOneCluster(Organization organization, String clusterId) {
         return clusterRepository.findByIdAndOrganization(clusterId, organization);
     }
+
+
 }
