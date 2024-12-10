@@ -1,4 +1,4 @@
-package com.credaegis.backend;
+package com.credaegis.backend.constant;
 
 public class Constants {
 

@@ -1,6 +1,6 @@
 package com.credaegis.backend.service;
 
-import com.credaegis.backend.Constants;
+import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
@@ -115,13 +115,15 @@ public class ClusterService {
             userRepository.activateUser(userRepository.findAllUserIdByClusterId(clusterId));
 
         } else throw ExceptionFactory.insufficientPermission();
-        ;
-
     }
 
+
+    //can only be changed to a member of same cluster,
     public void changeAdmin(String clusterId, String newAdminId, String userOrganizationId) {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
-        User user = userRepository.findById(newAdminId).orElseThrow(ExceptionFactory::resourceNotFound);
+        User user = userRepository.findByIdAndDeleted(newAdminId,false).orElseThrow(
+                ExceptionFactory::resourceNotFound
+        );
 
         if (!user.getCluster().getId().equals(clusterId)) throw
                 ExceptionFactory.customValidationError("New AdminCluster must of from the same cluster");

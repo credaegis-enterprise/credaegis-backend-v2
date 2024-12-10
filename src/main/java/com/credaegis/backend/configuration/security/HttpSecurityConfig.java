@@ -1,9 +1,8 @@
 package com.credaegis.backend.configuration.security;
 
-import com.credaegis.backend.Constants;
+import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.service.CustomUserDetailsService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +34,7 @@ public class HttpSecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable);
         http.csrf(AbstractHttpConfigurer::disable);
 
-        http.authorizeHttpRequests(request -> request.anyRequest().permitAll());
+//        http.authorizeHttpRequests(request -> request.anyRequest().permitAll());
 
         http.authorizeHttpRequests(request -> request.requestMatchers
                                 (Constants.ROUTEV1 + "/auth/**", Constants.ROUTEV1 + "/test/**").

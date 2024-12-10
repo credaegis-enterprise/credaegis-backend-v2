@@ -1,7 +1,7 @@
 package com.credaegis.backend.service;
 
 
-import com.credaegis.backend.Constants;
+import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.entity.Role;
 import com.credaegis.backend.http.request.MemberCreationRequest;
 import com.credaegis.backend.entity.Cluster;

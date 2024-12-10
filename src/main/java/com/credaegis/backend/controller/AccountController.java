@@ -1,6 +1,6 @@
 package com.credaegis.backend.controller;
 
-import com.credaegis.backend.Constants;
+import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;

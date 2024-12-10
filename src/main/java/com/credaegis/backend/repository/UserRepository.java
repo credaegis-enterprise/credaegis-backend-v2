@@ -8,15 +8,17 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,String> {
 
     User findByEmail(String email);
+    Optional<User> findByIdAndDeleted(String id,Boolean deleted);
 
 
 
-    @Query("SELECT u.id FROM User u WHERE u.cluster.id = :id")
+    @Query("SELECT u.id FROM User u WHERE u.cluster.id = :id AND u.deleted = false ")
     List<String> findAllUserIdByClusterId(@Param("id") String clusterId);
 
     @Modifying

@@ -1,16 +1,14 @@
 package com.credaegis.backend.service;
 
 
-import com.credaegis.backend.Constants;
+import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.entity.Organization;
 import com.credaegis.backend.entity.Role;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.repository.OrganizationRepository;
 import com.credaegis.backend.repository.RoleRepository;
 import com.credaegis.backend.repository.UserRepository;
-import com.github.f4b6a3.ulid.UlidCreator;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

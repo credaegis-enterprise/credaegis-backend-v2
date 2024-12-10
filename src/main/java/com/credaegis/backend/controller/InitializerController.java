@@ -1,23 +1,20 @@
 package com.credaegis.backend.controller;
 
-import com.credaegis.backend.Constants;
+import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.dto.FileMetaInfoDTO;
 import com.credaegis.backend.entity.Role;
-import com.credaegis.backend.entity.User;
 import com.credaegis.backend.repository.RoleRepository;
 import com.credaegis.backend.service.InitializerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartRequest;
 
 import java.util.List;
 
