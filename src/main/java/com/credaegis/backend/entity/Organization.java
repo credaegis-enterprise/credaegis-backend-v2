@@ -6,13 +6,14 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table (name = "organizations")
 @Data
 @NoArgsConstructor
-public class Organization {
+public class Organization implements Serializable {
 
     @Id
     private String id;

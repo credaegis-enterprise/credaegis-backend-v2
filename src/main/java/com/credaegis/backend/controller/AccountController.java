@@ -29,7 +29,6 @@ public class AccountController {
                                                                   HttpServletRequest request,
                                                                   HttpServletResponse response) {
 
-
         accountService.changePassword(passwordChangeRequest,
                 customUser.getPassword(),
                 customUser.getUser().getId(),

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -15,7 +16,7 @@ import java.sql.Timestamp;
 @Table(name = "certificates")
 @Data
 @NoArgsConstructor
-public class Certificate {
+public class Certificate implements Serializable {
 
 
     @Id
