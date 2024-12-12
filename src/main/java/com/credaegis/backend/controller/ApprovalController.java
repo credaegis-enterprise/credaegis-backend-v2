@@ -29,14 +29,14 @@ public class ApprovalController {
 
     private final ApprovalService approvalService;
 
-    @PostMapping(path = "/upload/{clusterId}/{eventId}")
-    public ResponseEntity<CustomApiResponse<Void>> uploadCertificates(@PathVariable String clusterId,
+    @PostMapping(path = "/upload/{eventId}")
+    public ResponseEntity<CustomApiResponse<Void>> uploadCertificates(
                                                                       @PathVariable String eventId,
                                                                       @RequestParam("approvals") List<MultipartFile> approvalCertificates,
                                                                       @RequestParam("info") String approvalsInfo,
                                                                       @AuthenticationPrincipal CustomUser customUser) throws JsonProcessingException{
 
-        approvalService.uploadApprovals(eventId,clusterId,customUser.getId(),customUser.getOrganizationId(),
+        approvalService.uploadApprovals(eventId,customUser.getId(),customUser.getOrganizationId(),
                 approvalCertificates,approvalsInfo);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new CustomApiResponse<>(null,"certificates for approvals uploaded successfully",true)

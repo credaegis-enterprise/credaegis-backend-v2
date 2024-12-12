@@ -5,6 +5,7 @@ import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.entity.Event;
+import com.credaegis.backend.entity.Status;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.repository.ApprovalRepository;
 import com.credaegis.backend.repository.EventRepository;
@@ -35,63 +36,66 @@ public class ApprovalService {
     private final EventRepository eventRepository;
     private final MinioClient minioClient;
 
-    public void uploadApprovals(String eventId, String clusterId, String userId, String organizationId,
+    public void uploadApprovals(String eventId, String userId, String organizationId,
                                 List<MultipartFile> approvalsCertificates, String approvalsInfo) throws JsonProcessingException {
 
         Event event = eventRepository.findById(eventId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if(!event.getCluster().getOrganization().getId().equals(organizationId))
+        if (!event.getCluster().getOrganization().getId().equals(organizationId))
             throw ExceptionFactory.insufficientPermission();
-        if(!event.getCluster().getId().equals(clusterId))
-            throw ExceptionFactory.customValidationError("Event is not in the cluster");
 
-        String approvalPath=clusterId+"/"+eventId;
+        String clusterId = event.getCluster().getId();
+
+
+
         ObjectMapper objectMapper = new ObjectMapper();
         List<ApprovalsInfoDTO> approvalsInfoDTOS = objectMapper
                 .readValue(approvalsInfo, new TypeReference<List<ApprovalsInfoDTO>>() {
-        });
+                });
 
-//        for(ApprovalsInfoDTO test: approvalsInfoDTOS){
-//            System.out.println(test.getRecipientEmail());
-//            System.out.println(test.getFileName());
-//        }
-        Map<String,MultipartFile> approvalsCertificatesMap = new HashMap<>();
+        Map<String, MultipartFile> approvalsCertificatesMap = new HashMap<>();
 
         //checks for duplicate filenames
-        for(MultipartFile certificate: approvalsCertificates){
-            if(approvalsCertificatesMap.containsKey(certificate.getName()))
-                throw ExceptionFactory.customValidationError("Duplicate filename "+certificate.getOriginalFilename()+" found");
+
+
+        for (MultipartFile certificate : approvalsCertificates) {
+            if (approvalsCertificatesMap.containsKey(certificate.getName()))
+                throw ExceptionFactory.customValidationError("Duplicate filename " + certificate.getOriginalFilename() + " found");
             else
-                approvalsCertificatesMap.put(certificate.getOriginalFilename(),certificate);
+                approvalsCertificatesMap.put(certificate.getOriginalFilename(), certificate);
 
         }
 
-        for(ApprovalsInfoDTO info:approvalsInfoDTOS){
-            if(!approvalsCertificatesMap.containsKey(info.getFileName())){
-                //tobe done
-            }
+        String approvalPath = event.getCluster().getName()+"-"+clusterId +
+                "/" + event.getName()+"-"+eventId;
+        for (ApprovalsInfoDTO info : approvalsInfoDTOS) {
+//            if (!approvalsCertificatesMap.containsKey(info.getFileName())) {
+//                //tobe done
+//            }
             try {
+                String approvalCertificateId = UlidCreator.getUlid().toString();
                 MultipartFile uploadCertificate = approvalsCertificatesMap.get(info.getFileName());
                 minioClient.putObject(PutObjectArgs.builder().bucket("approvals")
-                        .object(approvalPath + "/" + info.getFileName())
+                        .object(approvalPath + "/" + info.getFileName()+"-"+approvalCertificateId)
                         .stream(uploadCertificate.getInputStream(), uploadCertificate.getSize(), -1)
                         .build());
 
 
                 Approval approval = new Approval();
                 approval.setId(UlidCreator.getUlid().toString());
+                approval.setApprovalCertificateId(approvalCertificateId);
+                approval.setApprovalCertificateName(info.getFileName());
                 approval.setRecipientEmail(info.getRecipientEmail());
                 approval.setRecipientName(info.getRecipientName());
-                approval.setFileName(info.getFileName());
                 approval.setEvent(event);
+                approval.setStatus(Status.pending);
                 approval.setComments(info.getComments());
                 approval.setExpiryDate(info.getExpiryDate());
-            }
-            catch (Exception e){
+                approvalRepository.save(approval);
+            } catch (Exception e) {
                 log.error(e.getMessage());
-                log.error("error uploading file {}",info.getFileName());
-                ExceptionFactory.customValidationError("Error uploading file "+info.getFileName());
+                log.error("error uploading file {}", info.getFileName());
+                throw ExceptionFactory.customValidationError("Error uploading file " + info.getFileName());
             }
-
 
 
         }

@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+
 @Data
 @NoArgsConstructor
 @Entity
@@ -31,9 +32,6 @@ public class Approval  {
 
     @Column(name = "recipient_email", nullable = false)
     private String recipientEmail;
-
-    @Column(name = "file_name", nullable = false)
-    private String fileName;
 
     @Column(name = "expiry_date")
     private Date expiryDate;
@@ -60,8 +58,3 @@ public class Approval  {
 
 }
 
-enum Status{
-    pending,
-    approved,
-    rejected
-}
