@@ -44,22 +44,7 @@ public class ApprovalService {
 
 
     public void rejectCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
-        for (String approvalId : approvalIdList) {
-            try {
-                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
-                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
-                    throw ExceptionFactory.insufficientPermission();
-                }
-                if(approval.getStatus().equals(Status.approved)){
-                    throw ExceptionFactory.customValidationError("Cannot reject an already approved certificate");
-                }
-                approval.setStatus(Status.rejected);
-                approvalRepository.save(approval);
-            } catch (Exception e) {
-                //error queue here
-                log.error(e.getMessage());
-            }
-        }
+        approvalRepository.rejectCertificates(userOrganizationId, approvalIdList);
     }
 
 
