@@ -4,7 +4,7 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
-import com.credaegis.backend.http.request.ApproveCertificatesRequest;
+import com.credaegis.backend.http.request.ApprovalsIdRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.service.ApprovalService;
 import com.credaegis.backend.utility.CheckSumUtility;
@@ -17,8 +17,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 
@@ -49,13 +47,24 @@ public class ApprovalController {
     }
 
     @PostMapping(path = "/approve")
-    public ResponseEntity<CustomApiResponse<Void>> approveCertificates(@Valid @RequestBody ApproveCertificatesRequest
-                                                                                   approveCertificatesRequest,
+    public ResponseEntity<CustomApiResponse<Void>> approveCertificates(@Valid @RequestBody ApprovalsIdRequest
+                                                                               approvalsIdRequest,
                                                                        @AuthenticationPrincipal CustomUser customUser) {
 
         approvalService.approveCertificates
-                (customUser.getId(),customUser.getOrganizationId(),approveCertificatesRequest.getApprovalCertificateIds());
+                (customUser.getId(),customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null, "check", true));
+                new CustomApiResponse<>(null, "Requests to approve are processing", true));
+    }
+
+    @PutMapping(path = "/reject")
+    public ResponseEntity<CustomApiResponse<Void>> rejectCertificates(@Valid @RequestBody ApprovalsIdRequest
+                                                                              approvalsIdRequest,
+                                                                      @AuthenticationPrincipal CustomUser customUser) {
+
+        approvalService.rejectCertificates
+                (customUser.getId(),customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Requests to reject are processing", true));
     }
 }

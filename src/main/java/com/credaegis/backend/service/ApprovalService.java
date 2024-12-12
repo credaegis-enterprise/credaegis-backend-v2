@@ -43,18 +43,40 @@ public class ApprovalService {
     private final CheckSumUtility checkSumUtility;
 
 
-    public void approveCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
+    public void rejectCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
         for (String approvalId : approvalIdList) {
             try {
                 Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
                 if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
                     throw ExceptionFactory.insufficientPermission();
                 }
+                if(approval.getStatus().equals(Status.approved)){
+                    throw ExceptionFactory.customValidationError("Cannot reject an already approved certificate");
+                }
+                approval.setStatus(Status.rejected);
+                approvalRepository.save(approval);
+            } catch (Exception e) {
+                //error queue here
+                log.error(e.getMessage());
+            }
+        }
+    }
+
+
+    public void approveCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
+        for (String approvalId : approvalIdList) {
+            try {
+                System.out.println(approvalId);
+                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
+                    throw ExceptionFactory.insufficientPermission();
+                }
+
+                //creating path to retrieve file
                 String approvalPath = approval.getEvent().getCluster().getName() + "-" + approval.getEvent().getCluster().getId() + "/"
                         + approval.getEvent().getName() + "-" + approval.getEvent().getId() + "/" + approval.getApprovalCertificateName()
                         + "-" + approval.getApprovalCertificateId();
 
-                System.out.println(approvalPath);
 
                 InputStream stream = minioClient.getObject(GetObjectArgs.builder()
                         .bucket("approvals")
@@ -62,6 +84,12 @@ public class ApprovalService {
                         .build());
 
                 String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
+
+                //checks whether the hash is already present in the database to correctly identify the certificate and add to error queue
+                if (certificateRepository.findByCertificateHash(hashedValue).isPresent()) {
+                    throw ExceptionFactory.customValidationError("Certificate hash already exists");
+                }
+
 
                 //creating new certificate approving them blockchain integration here(blockchain queue)
                 Certificate certificate = new Certificate();
@@ -73,8 +101,10 @@ public class ApprovalService {
                 certificate.setRecipientEmail(approval.getRecipientEmail());
                 certificate.setIssuedDate(new Date(System.currentTimeMillis()));
                 certificate.setEvent(approval.getEvent());
+                approval.setStatus(Status.approved);
 
                 //right now storing everything in off-chain database
+                approvalRepository.save(approval);
                 certificateRepository.save(certificate);
 
 
