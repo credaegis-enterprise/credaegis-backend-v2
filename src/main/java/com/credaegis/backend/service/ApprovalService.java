@@ -92,9 +92,10 @@ public class ApprovalService {
                 approval.setExpiryDate(info.getExpiryDate());
                 approvalRepository.save(approval);
             } catch (Exception e) {
+
+                //error queue here
                 log.error(e.getMessage());
                 log.error("error uploading file {}", info.getFileName());
-                throw ExceptionFactory.customValidationError("Error uploading file " + info.getFileName());
             }
 
 
