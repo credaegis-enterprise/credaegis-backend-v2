@@ -67,5 +67,13 @@ public class AccountController {
         }
     }
 
+    @PutMapping(path = "/mfa/disable")
+    public ResponseEntity<CustomApiResponse<Void>> disableMfa(@AuthenticationPrincipal CustomUser customUser){
+        accountService.disableMfa(customUser.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null,"Mfa disabled",true)
+        );
+    }
+
 
 }
