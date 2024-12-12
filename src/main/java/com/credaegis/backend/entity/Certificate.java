@@ -43,7 +43,7 @@ public class Certificate  {
     @Column(nullable = false)
     private Boolean revoked = false;
 
-    @Column(name = "revoked_date")
+    @Column(name = "revoked_date",nullable = true)
     private Date revokedDate;
 
     private String comments;

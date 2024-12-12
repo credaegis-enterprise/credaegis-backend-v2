@@ -3,6 +3,7 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.entity.Approval;
+import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.entity.Event;
 import com.credaegis.backend.entity.Status;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,20 @@ public class ApprovalService {
                         .build());
 
                 String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
-                System.out.println(hashedValue);
+
+                //creating new certificate approving them blockchain integration here(blockchain queue)
+                Certificate certificate = new Certificate();
+                certificate.setId(UlidCreator.getUlid().toString());
+                certificate.setCertificateName(approval.getApprovalCertificateName());
+                certificate.setCertificateHash(hashedValue);
+                certificate.setComments(approval.getComments());
+                certificate.setRecipientName(approval.getRecipientName());
+                certificate.setRecipientEmail(approval.getRecipientEmail());
+                certificate.setIssuedDate(new Date(System.currentTimeMillis()));
+                certificate.setEvent(approval.getEvent());
+
+                //right now storing everything in off-chain database
+                certificateRepository.save(certificate);
 
 
             } catch (Exception e) {
