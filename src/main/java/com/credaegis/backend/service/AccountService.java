@@ -2,6 +2,7 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.entity.User;
+import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.repository.UserRepository;
@@ -17,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,19 +57,25 @@ public class AccountService {
     }
 
 
-    public String generateQrCodeMfa(String email,String userId) throws QrGenerationException {
+    public String generateQrCodeMfa(String email,String userId) {
 
-        String secret = secretGenerator.generate();
-        QrData data = new QrData.Builder()
-                .label(email)
-                .secret(secret)
-                .digits(6)
-                .algorithm(HashingAlgorithm.SHA1)
-                .issuer(Constants.APP_NAME)
-                .build();
+        try {
+            String secret = secretGenerator.generate();
+            QrData data = new QrData.Builder()
+                    .label(email)
+                    .secret(secret)
+                    .digits(6)
+                    .algorithm(HashingAlgorithm.SHA1)
+                    .issuer(Constants.APP_NAME)
+                    .build();
 
-        userRepository.updateMfaSecret(secret,userId);
-        return getDataUriForImage(qrGenerator.generate(data),qrGenerator.getImageMimeType());
+            userRepository.updateMfaSecret(secret, userId);
+            return getDataUriForImage(qrGenerator.generate(data), qrGenerator.getImageMimeType());
+        }
+        catch (Exception e){
+            log.error(e.getMessage());
+            throw new CustomException("Error in generating QRcode", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
     }
 

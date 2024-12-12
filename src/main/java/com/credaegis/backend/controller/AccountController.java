@@ -6,6 +6,7 @@ import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.service.AccountService;
+import dev.samstevens.totp.exceptions.QrGenerationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -49,29 +50,27 @@ public class AccountController {
 
         Boolean success = accountService.registerMfa(code, customUser.getId());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null,"Mfa successfully registered",success)
+                new CustomApiResponse<>(null, "Mfa successfully registered", success)
         );
     }
 
     @PostMapping(path = "/mfa/generate-qr")
-    public ResponseEntity<CustomApiResponse<String>> generateQr(@AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<String>> generateQr(@AuthenticationPrincipal CustomUser customUser)
+            throws QrGenerationException {
 
-        try {
-            String imageUri = accountService.generateQrCodeMfa(customUser.getEmail(), customUser.getId());
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    new CustomApiResponse<>(imageUri, "QR code", true)
-            );
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new CustomException("Error in generating Qr code", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+        String imageUri = accountService.generateQrCodeMfa(customUser.getEmail(), customUser.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(imageUri, "QR code", true)
+        );
+
     }
 
     @PutMapping(path = "/mfa/disable")
-    public ResponseEntity<CustomApiResponse<Void>> disableMfa(@AuthenticationPrincipal CustomUser customUser){
+    public ResponseEntity<CustomApiResponse<Void>> disableMfa(@AuthenticationPrincipal CustomUser customUser) {
         accountService.disableMfa(customUser.getId());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null,"Mfa disabled",true)
+                new CustomApiResponse<>(null, "Mfa disabled", true)
         );
     }
 
