@@ -63,7 +63,7 @@ public class ApprovalController {
                                                                       @AuthenticationPrincipal CustomUser customUser) {
 
         approvalService.rejectCertificates
-                (customUser.getId(),customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
+                (customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Requests to reject are processing", true));
     }

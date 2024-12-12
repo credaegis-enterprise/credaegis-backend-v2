@@ -43,7 +43,8 @@ public class ApprovalService {
     private final CheckSumUtility checkSumUtility;
 
 
-    public void rejectCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
+    public void rejectCertificates(String userOrganizationId, List<String> approvalIdList) {
+        System.out.println(approvalIdList.getFirst());
         approvalRepository.rejectCertificates(userOrganizationId, approvalIdList);
     }
 
