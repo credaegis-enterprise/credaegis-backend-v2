@@ -38,13 +38,14 @@ public class AuthService {
         User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(
                 () -> ExceptionFactory.customValidationError("Invalid email")
         );
-        if (user.getMfaEnabled())
-            return true;
+
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
                 loginRequest.getEmail(),
                 loginRequest.getPassword()
         );
 
+        if (user.getMfaEnabled())
+            return true;
         securityContextRepository.saveContext(authenticator(authenticationRequest),request,response);
         return false;
 
@@ -72,6 +73,7 @@ public class AuthService {
 
     private SecurityContext authenticator(Authentication authenticationRequest) {
         Authentication authenticationResponse = customAuthenticationManager.authenticate(authenticationRequest);
+        System.out.println(authenticationResponse.isAuthenticated());
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authenticationResponse);
         return securityContext;

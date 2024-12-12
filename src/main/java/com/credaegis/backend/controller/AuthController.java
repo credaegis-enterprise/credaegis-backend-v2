@@ -34,7 +34,7 @@ public class AuthController {
     @PostMapping(path = "/mfa/login")
     public ResponseEntity<CustomApiResponse<Void>> mfaLoginController(@Valid @RequestBody MfaLoginRequest mfaLoginRequest,
                                                                       HttpServletRequest request, HttpServletResponse
-                                                                      response){
+                                                                                  response){
 
         authService.mfaLogin(mfaLoginRequest,request,response);
         return ResponseEntity.status(HttpStatus.OK).body(
