@@ -25,7 +25,7 @@ public class EventController {
                                                                @AuthenticationPrincipal CustomUser customUser) {
 
 
-        eventService.createEvent(eventCreationRequest, customUser.getUser());
+        eventService.createEvent(eventCreationRequest, customUser.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(new CustomApiResponse<>(null,
                 "Event Successfully created", true));
 
@@ -35,7 +35,7 @@ public class EventController {
     public ResponseEntity<CustomApiResponse<Void>> activateEvent(@PathVariable String id,
                                                                  @AuthenticationPrincipal CustomUser customUser) {
 
-        eventService.activateEvent(id, customUser.getUser().getOrganization().getId());
+        eventService.activateEvent(id, customUser.getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Event Successfully activated", true)
         );
@@ -44,7 +44,7 @@ public class EventController {
     @PutMapping(path = "/deactivate/{id}")
     public ResponseEntity<CustomApiResponse<Void>> deactivateEvent(@PathVariable String id,
                                                                    @AuthenticationPrincipal CustomUser customUser) {
-        eventService.deactivateEvent(id, customUser.getUser().getOrganization().getId());
+        eventService.deactivateEvent(id, customUser.getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Event Successfully deactivated", true)
         );
@@ -54,7 +54,7 @@ public class EventController {
     public ResponseEntity<CustomApiResponse<Void>> updateEvent(@PathVariable  String id, @RequestBody @Valid
                                                                EventModificationRequest eventModificationRequest,
                                                                @AuthenticationPrincipal CustomUser customUser) {
-        eventService.updateEvent(eventModificationRequest, customUser.getUser().getOrganization().getId(),
+        eventService.updateEvent(eventModificationRequest, customUser.getId(),
                 id);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Event Successfully updated", true)

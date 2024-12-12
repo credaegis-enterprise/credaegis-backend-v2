@@ -6,14 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
+
 import java.sql.Timestamp;
 
 @Entity
 @NoArgsConstructor
 @Data
 @Table(name = "admins")
-public class AdminCluster implements Serializable {
+public class AdminCluster  {
 
     @Id
     private String id;

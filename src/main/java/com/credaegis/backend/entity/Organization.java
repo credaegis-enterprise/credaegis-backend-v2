@@ -13,7 +13,7 @@ import java.util.List;
 @Table (name = "organizations")
 @Data
 @NoArgsConstructor
-public class Organization implements Serializable {
+public class Organization  {
 
     @Id
     private String id;

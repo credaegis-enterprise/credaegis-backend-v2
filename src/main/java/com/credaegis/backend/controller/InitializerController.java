@@ -4,7 +4,10 @@ import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.dto.FileMetaInfoDTO;
 import com.credaegis.backend.entity.Role;
+import com.credaegis.backend.entity.User;
+import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.repository.RoleRepository;
+import com.credaegis.backend.repository.UserRepository;
 import com.credaegis.backend.service.InitializerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,6 +29,7 @@ public class InitializerController {
 
    private final InitializerService initializerService;
    private final RoleRepository roleRepository;
+   private final UserRepository userRepository;
 
 
 
@@ -44,10 +48,12 @@ public class InitializerController {
    }
 
    @PostMapping (path = "/check")
-   public ResponseEntity<String> check(Authentication authentication){
+   public ResponseEntity<CustomApiResponse<List<User>>> check(Authentication authentication){
        CustomUser user = (CustomUser) authentication.getPrincipal();
 
-      return ResponseEntity.status(HttpStatus.OK).body("OK CHECKED");
+      return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>(
+              userRepository.findAll(),"sss",true
+      ));
    }
 
    @PostMapping (path = "/file")

@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 @Table(name = "certificates")
 @Data
 @NoArgsConstructor
-public class Certificate implements Serializable {
+public class Certificate  {
 
 
     @Id

@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table (name = "events")
-public class Event implements Serializable {
+public class Event {
 
     @Id
     private String id;

@@ -26,11 +26,14 @@ public class ClusterService {
     private final RoleRepository roleRepository;
     private final ClusterRepository clusterRepository;
     private final AdminClusterRepository adminClusterRepository;
+    private final OrganizationRepository organizationRepository;
 
 
-    public void createCluster(ClusterCreationRequest clusterCreationRequest, Organization organization) {
+    public void createCluster(ClusterCreationRequest clusterCreationRequest, String organizationId) {
 
-
+        Organization organization = organizationRepository.findById(organizationId).orElseThrow(
+                ExceptionFactory::resourceNotFound
+        );
         User admin = userRepository.findByEmail(clusterCreationRequest.getAdminEmail());
         if (admin == null || admin.isDeleted()) {
 
@@ -162,16 +165,20 @@ public class ClusterService {
     }
 
 
-    public List<AllClustersResponse> getAllNameAndId(Organization organization) {
-        return clusterRepository.getAllNameAndId(organization.getId());
+    public List<AllClustersResponse> getAllNameAndId(String organizationId) {
+        return clusterRepository.getAllNameAndId(organizationId);
     }
 
-    public List<Cluster> getAllClusters(Organization organization) {
-        return clusterRepository.findByOrganization(organization);
+    public List<Cluster> getAllClusters(String organizationId) {
+        return clusterRepository.findByOrganization(organizationRepository.findById(organizationId).orElseThrow(
+                ExceptionFactory::resourceNotFound
+        ));
     }
 
-    public Cluster getOneCluster(Organization organization, String clusterId) {
-        return clusterRepository.findByIdAndOrganization(clusterId, organization);
+    public Cluster getOneCluster(String organizationId, String clusterId) {
+        return clusterRepository.findByIdAndOrganization(clusterId, organizationRepository.findById(organizationId).orElseThrow(
+                ExceptionFactory::resourceNotFound
+        ));
     }
 
 

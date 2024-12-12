@@ -4,17 +4,17 @@ import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.repository.UserRepository;
 import com.credaegis.backend.utility.PasswordUtility;
+import dev.samstevens.totp.qr.QrDataFactory;
+import dev.samstevens.totp.qr.QrGenerator;
+import dev.samstevens.totp.secret.SecretGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,6 +25,9 @@ public class AccountService {
     private final UserRepository userRepository;
     private final PasswordUtility passwordUtility;
     private final PasswordEncoder passwordEncoder;
+//    private SecretGenerator secretGenerator;
+//    private QrDataFactory qrDataFactory;
+//    private QrGenerator qrGenerator;
 
     public void changePassword(PasswordChangeRequest passwordChangeRequest,
                                String oldPassword,
@@ -40,6 +43,11 @@ public class AccountService {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
             request.getSession().invalidate();
         }
+
+    }
+
+
+    public void registerQrCode(){
 
     }
 

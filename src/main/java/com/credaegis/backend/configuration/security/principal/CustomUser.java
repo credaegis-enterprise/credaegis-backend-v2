@@ -15,14 +15,28 @@ public class CustomUser implements UserDetails {
 
 
     @Getter
-    private final User user;
+    private final String id;
+
+    @Getter
+    private final String email;
+
+
+    private final String password;
+
+    @Getter
+    private final String organizationId;
+
 
     private final List<GrantedAuthority> grantedAuthorities;
 
-    public CustomUser(List<GrantedAuthority> grantedAuthorities,User user) {
+    public CustomUser(List<GrantedAuthority> grantedAuthorities,String id, String email,
+                      String organizationId,String password) {
 
         this.grantedAuthorities = grantedAuthorities;
-        this.user = user;
+        this.id=id;
+        this.email=email;
+        this.organizationId=organizationId;
+        this.password=password;
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -31,12 +45,12 @@ public class CustomUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return email;
     }
 
 

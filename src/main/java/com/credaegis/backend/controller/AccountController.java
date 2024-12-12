@@ -22,6 +22,7 @@ public class AccountController {
 
     private final AccountService accountService;
 
+
     @PostMapping(path = "/change-password")
     public ResponseEntity<CustomApiResponse<Void>> changePassword(@RequestBody @Valid
                                                                   PasswordChangeRequest passwordChangeRequest,
@@ -31,7 +32,7 @@ public class AccountController {
 
         accountService.changePassword(passwordChangeRequest,
                 customUser.getPassword(),
-                customUser.getUser().getId(),
+                customUser.getId(),
                 request, response);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Password changed successfully", true)

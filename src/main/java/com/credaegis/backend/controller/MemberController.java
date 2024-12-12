@@ -25,7 +25,7 @@ public class MemberController {
     public ResponseEntity<CustomApiResponse<Void>> createMember(@RequestBody @Valid MemberCreationRequest memberCreationRequest,
                                                                 @AuthenticationPrincipal CustomUser customUser) {
 
-        memberService.createMember(memberCreationRequest, customUser.getUser().getOrganization().getId());
+        memberService.createMember(memberCreationRequest, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new CustomApiResponse<>(null, "Member created Successfully", true)
         );
@@ -36,7 +36,7 @@ public class MemberController {
     public ResponseEntity<CustomApiResponse<Void>> deactivateMember(@PathVariable String id,
                                                                     @AuthenticationPrincipal CustomUser customUser) {
 
-        memberService.deactivateMember(id, customUser.getUser().getId(), customUser.getUser().getOrganization().getId());
+        memberService.deactivateMember(id, customUser.getId(), customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Member deactivated successfully", true)
         );
@@ -45,7 +45,7 @@ public class MemberController {
     @PutMapping(path = "/activate/{id}")
     public ResponseEntity<CustomApiResponse<Void>> activateMember(@PathVariable String id,
                                                                   @AuthenticationPrincipal CustomUser customUser) {
-        memberService.activateMember(id, customUser.getUser().getId(), customUser.getUser().getOrganization().getId());
+        memberService.activateMember(id, customUser.getId(), customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Member activated successfully", true)
         );
@@ -55,7 +55,7 @@ public class MemberController {
     @PutMapping(path = "/delete/{id}")
     public ResponseEntity<CustomApiResponse<Void>> deleteMember(@PathVariable String id,
                                                                 @AuthenticationPrincipal CustomUser customUser) {
-        memberService.deleteMember(id, customUser.getUser().getId(), customUser.getUser().getOrganization().getId());
+        memberService.deleteMember(id, customUser.getId(), customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Member deleted successfully", true)
         );
@@ -65,7 +65,7 @@ public class MemberController {
     public ResponseEntity<CustomApiResponse<Void>> renameMember(@PathVariable String id, @Valid @RequestBody RenameRequest renameRequest,
                                                                 @AuthenticationPrincipal CustomUser customUser) {
 
-        memberService.renameUser(id, renameRequest.getNewName(), customUser.getUser().getOrganization().getId());
+        memberService.renameUser(id, renameRequest.getNewName(), customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Member renamed successfully", true)
         );

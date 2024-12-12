@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @Table(name = "roles")
-public class Role implements Serializable {
+public class Role  {
 
 
     @Id

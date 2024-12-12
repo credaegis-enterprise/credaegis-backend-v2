@@ -3,6 +3,7 @@ package com.credaegis.backend.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table (name = "users")
-public class  User implements Serializable {
+public class  User {
 
     @Id
     private String id;
@@ -68,6 +69,7 @@ public class  User implements Serializable {
 
 
     @OneToMany(mappedBy = "createdBy")
+    @JsonProperty("created_events")
     @JsonManagedReference
     private List<Event> events;
 

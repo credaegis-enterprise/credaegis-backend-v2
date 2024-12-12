@@ -15,7 +15,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Entity
 @Table(name = "approvals")
-public class Approval implements Serializable {
+public class Approval  {
 
     @Id
     private String id;

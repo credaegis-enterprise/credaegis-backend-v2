@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table (name = "clusters")
-public class Cluster implements Serializable {
+public class Cluster  {
 
     @Id
     private String id;
