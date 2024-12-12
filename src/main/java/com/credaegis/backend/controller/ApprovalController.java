@@ -3,13 +3,13 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
-import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
+import com.credaegis.backend.http.request.ApproveCertificatesRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.service.ApprovalService;
+import com.credaegis.backend.utility.CheckSumUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +17,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 @RequestMapping(value = Constants.ROUTEV1 + "/approval-control")
@@ -28,19 +29,35 @@ public class ApprovalController {
 
 
     private final ApprovalService approvalService;
+    private final CheckSumUtility checkSumUtility;
 
     @PostMapping(path = "/upload/{eventId}")
     public ResponseEntity<CustomApiResponse<Void>> uploadCertificates(
                                                                       @PathVariable String eventId,
                                                                       @RequestParam("approvals") List<MultipartFile> approvalCertificates,
                                                                       @RequestParam("info") String approvalsInfo,
-                                                                      @AuthenticationPrincipal CustomUser customUser) throws JsonProcessingException{
+                                                                      @AuthenticationPrincipal CustomUser customUser) throws JsonProcessingException, IOException,
+            NoSuchAlgorithmException {
+        if(approvalCertificates.size()>10)
+            throw ExceptionFactory.customValidationError("Upload maximum upto 10 files");
 
+        System.out.println(approvalCertificates.size());
+        String test = checkSumUtility.hashCertificate(approvalCertificates.getFirst().getBytes());
+        System.out.println(checkSumUtility.isHashValid(approvalCertificates.getLast().getBytes(),test));
         approvalService.uploadApprovals(eventId,customUser.getId(),customUser.getOrganizationId(),
                 approvalCertificates,approvalsInfo);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new CustomApiResponse<>(null,"certificates for approvals uploaded successfully",true)
         );
 
+    }
+
+    @PostMapping(path = "/approve")
+    public ResponseEntity<CustomApiResponse<Void>> approveCertificates(@Valid @RequestBody ApproveCertificatesRequest approveCertificatesRequest,
+                                                                       @AuthenticationPrincipal CustomUser customUser) {
+
+        System.out.println(approveCertificatesRequest.getApprovalCertificateIds().getFirst());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null,"check",true));
     }
 }
