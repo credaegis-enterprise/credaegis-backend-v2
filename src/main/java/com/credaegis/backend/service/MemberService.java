@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Transactional
@@ -34,11 +35,15 @@ public class MemberService {
     public void createMember(MemberCreationRequest memberCreationRequest, String userOrganizationId) {
 
         Cluster cluster = clusterRepository.findById(memberCreationRequest.getClusterId()).orElseThrow(ExceptionFactory::resourceNotFound);
-        User member = userRepository.findByEmail(memberCreationRequest.getEmail());
+        Optional<User> optionalUser = userRepository.findByEmail(memberCreationRequest.getEmail());
+        if(optionalUser.isPresent()){
+            if(!optionalUser.get().isDeleted())
+                throw ExceptionFactory.customValidationError("User already exists, try another email");
+        }
 
 
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
-            if (member == null || member.isDeleted()) {
+
                 User user = new User();
                 Role role = new Role();
                 user.setId(UlidCreator.getUlid().toString());
@@ -53,7 +58,7 @@ public class MemberService {
 
                 userRepository.save(user);
                 roleRepository.save(role);
-            } else throw ExceptionFactory.customValidationError("Member already exists, try another email");
+
 
         } else throw ExceptionFactory.insufficientPermission();
 

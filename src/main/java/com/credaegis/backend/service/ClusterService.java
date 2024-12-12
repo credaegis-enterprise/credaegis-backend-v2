@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -34,48 +35,51 @@ public class ClusterService {
         Organization organization = organizationRepository.findById(organizationId).orElseThrow(
                 ExceptionFactory::resourceNotFound
         );
-        User admin = userRepository.findByEmail(clusterCreationRequest.getAdminEmail());
-        if (admin == null || admin.isDeleted()) {
+        Optional<User> optionalUser = userRepository.findByEmail(clusterCreationRequest.getAdminEmail());
 
-            if (clusterRepository.findByNameAndOrganization(clusterCreationRequest.getClusterName(),
-                    organization) != null) {
-                throw ExceptionFactory.customValidationError("Name already exists," +
-                        "Choose a different cluster name");
-            }
+        if (optionalUser.isPresent()) {
+            if (!optionalUser.get().isDeleted())
+                throw ExceptionFactory.customValidationError("User already exists, try another email");
+        }
 
-            User user = new User();
-            Cluster cluster = new Cluster();
-            Role role = new Role();
-            AdminCluster adminCluster = new AdminCluster();
-            user.setId(UlidCreator.getUlid().toString());
-            user.setEmail(clusterCreationRequest.getAdminEmail());
-            user.setPassword(passwordEncoder.encode("sgce"));
-            user.setOrganization(organization);
-            user.setUsername(clusterCreationRequest.getAdminName());
+        if (clusterRepository.findByNameAndOrganization(clusterCreationRequest.getClusterName(),
+                organization) != null) {
+            throw ExceptionFactory.customValidationError("Name already exists," +
+                    "Choose a different cluster name");
+        }
 
-            role.setId(UlidCreator.getUlid().toString());
-            role.setRole("ROLE_CLUSTER_ADMIN");
-            role.setUser(user);
+        User user = new User();
+        Cluster cluster = new Cluster();
+        Role role = new Role();
+        AdminCluster adminCluster = new AdminCluster();
+        user.setId(UlidCreator.getUlid().toString());
+        user.setEmail(clusterCreationRequest.getAdminEmail());
+        user.setPassword(passwordEncoder.encode("sgce"));
+        user.setOrganization(organization);
+        user.setUsername(clusterCreationRequest.getAdminName());
 
-            cluster.setId(UlidCreator.getUlid().toString());
-            cluster.setDeactivated(false);
-            cluster.setName(clusterCreationRequest.getClusterName());
-            cluster.setOrganization(organization);
+        role.setId(UlidCreator.getUlid().toString());
+        role.setRole("ROLE_CLUSTER_ADMIN");
+        role.setUser(user);
+
+        cluster.setId(UlidCreator.getUlid().toString());
+        cluster.setDeactivated(false);
+        cluster.setName(clusterCreationRequest.getClusterName());
+        cluster.setOrganization(organization);
 
 
-            user.setCluster(cluster);
+        user.setCluster(cluster);
 
-            adminCluster.setId(UlidCreator.getUlid().toString());
-            adminCluster.setCluster(cluster);
+        adminCluster.setId(UlidCreator.getUlid().toString());
+        adminCluster.setCluster(cluster);
 
-            adminCluster.setUser(user);
+        adminCluster.setUser(user);
 
-            clusterRepository.save(cluster);
-            userRepository.save(user);
-            roleRepository.save(role);
-            adminClusterRepository.save(adminCluster);
+        clusterRepository.save(cluster);
+        userRepository.save(user);
+        roleRepository.save(role);
+        adminClusterRepository.save(adminCluster);
 
-        } else throw ExceptionFactory.customValidationError("The user already exists, try another email");
     }
 
     public void renameCluster(String clusterId, String userOrganizationId, String newName) {
@@ -124,7 +128,7 @@ public class ClusterService {
     //can only be changed to a member of same cluster,
     public void changeAdmin(String clusterId, String newAdminId, String userOrganizationId) {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
-        User user = userRepository.findByIdAndDeleted(newAdminId,false).orElseThrow(
+        User user = userRepository.findByIdAndDeleted(newAdminId, false).orElseThrow(
                 ExceptionFactory::resourceNotFound
         );
 

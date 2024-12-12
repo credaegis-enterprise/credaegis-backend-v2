@@ -3,6 +3,7 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.http.request.LoginRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
+import com.credaegis.backend.http.response.custom.LoginResponse;
 import com.credaegis.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,11 +22,11 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(path = "/login")
-    public ResponseEntity<CustomApiResponse<Void>> loginController(@Valid @RequestBody LoginRequest loginRequest,
-                                                             HttpServletRequest request, HttpServletResponse response){
-        authService.login(loginRequest,request,response);
+    public ResponseEntity<CustomApiResponse<LoginResponse>> loginController(@Valid @RequestBody LoginRequest loginRequest,
+                                                                            HttpServletRequest request, HttpServletResponse response){
+       Boolean mfaEnabled = authService.login(loginRequest,request,response);
         return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>
-                (null,"Successfully logged in",true));
+                (new LoginResponse(mfaEnabled),"logging in",true));
     }
 
 

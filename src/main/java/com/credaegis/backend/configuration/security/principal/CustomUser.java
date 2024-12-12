@@ -26,17 +26,21 @@ public class CustomUser implements UserDetails {
     @Getter
     private final String organizationId;
 
+    @Getter
+    private final Boolean mfaEnabled;
+
 
     private final List<GrantedAuthority> grantedAuthorities;
 
     public CustomUser(List<GrantedAuthority> grantedAuthorities,String id, String email,
-                      String organizationId,String password) {
+                      String organizationId,String password,Boolean mfaEnabled) {
 
         this.grantedAuthorities = grantedAuthorities;
         this.id=id;
         this.email=email;
         this.organizationId=organizationId;
         this.password=password;
+        this.mfaEnabled=mfaEnabled;
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

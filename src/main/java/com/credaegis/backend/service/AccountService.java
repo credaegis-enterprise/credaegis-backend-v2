@@ -74,7 +74,7 @@ public class AccountService {
         }
         catch (Exception e){
             log.error(e.getMessage());
-            throw new CustomException("Error in generating QRcode", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("Error in generating qr-code", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
