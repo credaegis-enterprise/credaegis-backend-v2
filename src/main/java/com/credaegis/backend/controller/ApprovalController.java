@@ -33,31 +33,29 @@ public class ApprovalController {
 
     @PostMapping(path = "/upload/{eventId}")
     public ResponseEntity<CustomApiResponse<Void>> uploadCertificates(
-                                                                      @PathVariable String eventId,
-                                                                      @RequestParam("approvals") List<MultipartFile> approvalCertificates,
-                                                                      @RequestParam("info") String approvalsInfo,
-                                                                      @AuthenticationPrincipal CustomUser customUser) throws JsonProcessingException, IOException,
-            NoSuchAlgorithmException {
-        if(approvalCertificates.size()>10)
+            @PathVariable String eventId,
+            @RequestParam("approvals") List<MultipartFile> approvalCertificates,
+            @RequestParam("info") String approvalsInfo,
+            @AuthenticationPrincipal CustomUser customUser) throws JsonProcessingException {
+        if (approvalCertificates.size() > 10)
             throw ExceptionFactory.customValidationError("Upload maximum upto 10 files");
 
-        System.out.println(approvalCertificates.size());
-        String test = checkSumUtility.hashCertificate(approvalCertificates.getFirst().getBytes());
-        System.out.println(checkSumUtility.isHashValid(approvalCertificates.getLast().getBytes(),test));
-        approvalService.uploadApprovals(eventId,customUser.getId(),customUser.getOrganizationId(),
-                approvalCertificates,approvalsInfo);
+        approvalService.uploadApprovals(eventId, customUser.getId(), customUser.getOrganizationId(),
+                approvalCertificates, approvalsInfo);
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                new CustomApiResponse<>(null,"certificates for approvals uploaded successfully",true)
+                new CustomApiResponse<>(null, "certificates for approvals uploaded successfully", true)
         );
 
     }
 
     @PostMapping(path = "/approve")
-    public ResponseEntity<CustomApiResponse<Void>> approveCertificates(@Valid @RequestBody ApproveCertificatesRequest approveCertificatesRequest,
+    public ResponseEntity<CustomApiResponse<Void>> approveCertificates(@Valid @RequestBody ApproveCertificatesRequest
+                                                                                   approveCertificatesRequest,
                                                                        @AuthenticationPrincipal CustomUser customUser) {
 
-        System.out.println(approveCertificatesRequest.getApprovalCertificateIds().getFirst());
+        approvalService.approveCertificates
+                (customUser.getId(),customUser.getOrganizationId(),approveCertificatesRequest.getApprovalCertificateIds());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null,"check",true));
+                new CustomApiResponse<>(null, "check", true));
     }
 }

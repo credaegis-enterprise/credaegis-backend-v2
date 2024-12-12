@@ -25,7 +25,7 @@ public class Certificate  {
     @Column(name = "certificate_name",nullable = false)
     private String certificateName;
 
-    @Column(name = "certificate_hash" , nullable = false)
+    @Column(name = "certificate_hash" , nullable = false, unique = true)
     private String certificateHash;
 
     @Column(name = "recipient_name", nullable = false)
