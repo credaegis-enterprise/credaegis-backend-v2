@@ -2,6 +2,7 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
+import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.service.AccountService;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = Constants.ROUTEV1 + "/account")
 @AllArgsConstructor
+@Slf4j
 public class AccountController {
 
 
@@ -38,4 +41,31 @@ public class AccountController {
                 new CustomApiResponse<>(null, "Password changed successfully", true)
         );
     }
+
+    @PostMapping(path = "/mfa/register/{code}")
+    public ResponseEntity<CustomApiResponse<Void>> registerMfa(@AuthenticationPrincipal CustomUser
+                                                                       customUser, @PathVariable
+                                                               String code) {
+
+        Boolean success = accountService.registerMfa(code, customUser.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null,"Mfa successfully registered",success)
+        );
+    }
+
+    @PostMapping(path = "/mfa/generate-qr")
+    public ResponseEntity<CustomApiResponse<String>> generateQr(@AuthenticationPrincipal CustomUser customUser) {
+
+        try {
+            String imageUri = accountService.generateQrCodeMfa(customUser.getEmail(), customUser.getId());
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new CustomApiResponse<>(imageUri, "QR code", true)
+            );
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CustomException("Error in generating Qr code", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }

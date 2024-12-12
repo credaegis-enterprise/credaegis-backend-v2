@@ -37,6 +37,10 @@ public class  User {
     @Column(name = "mfa_enabled", nullable = false)
     private Boolean mfaEnabled = false;
 
+    @Column(name = "mfa_secret", nullable = true)
+    @JsonIgnore
+    private String mfaSecret;
+
     @Column(name = "profile_url", unique = true)
     private String profileUrl;
 

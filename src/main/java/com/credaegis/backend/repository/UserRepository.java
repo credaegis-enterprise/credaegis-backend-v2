@@ -17,13 +17,22 @@ public interface UserRepository extends JpaRepository<User,String> {
     Optional<User> findByIdAndDeleted(String id,Boolean deleted);
 
 
-
     @Query("SELECT u.id FROM User u WHERE u.cluster.id = :id AND u.deleted = false ")
     List<String> findAllUserIdByClusterId(@Param("id") String clusterId);
 
     @Modifying
     @Query("UPDATE User u SET u.password =:newPassword WHERE u.id = :id")
     void updatePassword(@Param("id") String id, @Param("newPassword") String newPassword);
+
+
+    @Modifying
+    @Query("UPDATE User u SET u.mfaSecret= :secret WHERE u.id =:id")
+    void updateMfaSecret(@Param("secret") String secret,@Param("id") String id);
+
+    @Modifying
+    @Query("UPDATE User u SET u.mfaEnabled = :enable WHERE u.id = :id")
+    void enableMfa(@Param("enable") Boolean enable,@Param("id") String id);
+
 
     @Modifying
     @Query("UPDATE User u SET u.deactivated = true WHERE u.id in :ids")
@@ -40,5 +49,4 @@ public interface UserRepository extends JpaRepository<User,String> {
     @Modifying
     @Query("UPDATE User u SET u.username = :name WHERE u.id = :id")
     void renameUser(@Param("name") String name, @Param("id") String userId);
-
 }

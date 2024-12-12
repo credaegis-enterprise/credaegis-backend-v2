@@ -7,5 +7,6 @@ public class Constants {
     public static final String MEMBER = "MEMBER";
     public static final String CLUSTER_ADMIN = "CLUSTER_ADMIN";
     public static final String LOCKED_CLUSTER_ADMIN = "LOCKED_CLUSTER_ADMIN";
+    public static  final String APP_NAME = "credaegis";
 
 }
