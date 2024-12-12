@@ -32,6 +32,9 @@ public class Approval  {
     @Column(name = "recipient_email", nullable = false)
     private String recipientEmail;
 
+    @Column(name = "file_name", nullable = false)
+    private String fileName;
+
     @Column(name = "expiry_date")
     private Date expiryDate;
 
