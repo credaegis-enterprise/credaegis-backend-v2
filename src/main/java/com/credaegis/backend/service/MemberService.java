@@ -117,6 +117,7 @@ public class MemberService {
         if (user.getRole().getRole().equals("ROLE_" + Constants.CLUSTER_ADMIN))
             throw ExceptionFactory.customValidationError("The member is an  cluster admin, you cannot perform this operation");
 
+        roleRepository.updateRole("ROLE_" + Constants.DELETED, user.getRole().getId());
         userRepository.deleteUser(memberId);
 
     }

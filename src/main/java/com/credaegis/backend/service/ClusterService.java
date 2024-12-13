@@ -89,7 +89,8 @@ public class ClusterService {
 
 
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
-
+            if(cluster.getName().equals(newName))
+                throw ExceptionFactory.customValidationError("Cannot enter the same name");
             if (clusterRepository.findByNameAndOrganization(newName, cluster.getOrganization()) != null)
                 throw ExceptionFactory.customValidationError("Name already exists, " +
                         "Choose a different cluster name");
@@ -140,7 +141,12 @@ public class ClusterService {
                 ExceptionFactory.customValidationError("User is already admin of the specified cluster");
 
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
+            cluster.getAdminCluster().getUser().getRole().setRole("ROLE"+Constants.MEMBER);
+            user.getRole().setRole("ROLE_"+Constants.CLUSTER_ADMIN);
+            userRepository.save(user);
+            clusterRepository.save(cluster);
             adminClusterRepository.updateAdminCluster(newAdminId, clusterId);
+
         } else throw ExceptionFactory.insufficientPermission();
 
 
@@ -153,7 +159,7 @@ public class ClusterService {
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
 
             clusterRepository.lockPermissions(clusterId);
-            roleRepository.updateRole(Constants.LOCKED_CLUSTER_ADMIN, cluster.getAdminCluster().getId());
+            roleRepository.updateRole("ROLE_"+Constants.LOCKED_CLUSTER_ADMIN, cluster.getAdminCluster().getId());
         } else throw ExceptionFactory.insufficientPermission();
 
     }
@@ -165,7 +171,7 @@ public class ClusterService {
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
 
             clusterRepository.unlockPermissions(clusterId);
-            roleRepository.updateRole(Constants.CLUSTER_ADMIN, cluster.getAdminCluster().getId());
+            roleRepository.updateRole("ROLE_"+Constants.CLUSTER_ADMIN, cluster.getAdminCluster().getId());
         } else throw ExceptionFactory.insufficientPermission();
 
     }

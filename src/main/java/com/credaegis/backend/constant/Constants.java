@@ -10,5 +10,6 @@ public class Constants {
     public static  final String APP_NAME = "credaegis";
     public static final String ORGANIZATION_ACCOUNT_TYPE="organization";
     public static final String MEMBER_ACCOUNT_TYPE="member";
+    public static final String DELETED = "DELETED";
 
 }
