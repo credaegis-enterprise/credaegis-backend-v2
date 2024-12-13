@@ -6,6 +6,7 @@ import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.http.request.RenameRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
+import com.credaegis.backend.http.response.custom.ClusterInfoResponse;
 import com.credaegis.backend.http.response.custom.ClusterNameAndIdResponse;
 import com.credaegis.backend.service.ClusterService;
 import jakarta.validation.Valid;
@@ -111,12 +112,13 @@ public class ClusterController {
         );
     }
 
-
+    //get all related info of one cluster
     @GetMapping(path = "/get-one/{id}")
-    public ResponseEntity<CustomApiResponse<Cluster>> getOneCluster(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
-        Cluster cluster = clusterService.getOneCluster(customUser.getOrganizationId(),id);
+    public ResponseEntity<CustomApiResponse<ClusterInfoResponse>> getOneCluster(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
+        ClusterInfoResponse clusterInfoResponse = clusterService.getOneCluster(customUser.getOrganizationId(), id);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(cluster,"details of cluster "+cluster.getName()+" fetched", true)
+                new CustomApiResponse<>(clusterInfoResponse,"details of cluster "+
+                        clusterInfoResponse.getClusterInfo().getName()+" fetched", true)
         );
     }
 

@@ -4,6 +4,7 @@ import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
+import com.credaegis.backend.http.response.custom.ClusterInfoResponse;
 import com.credaegis.backend.http.response.custom.ClusterNameAndIdResponse;
 import com.credaegis.backend.repository.*;
 
@@ -28,6 +29,7 @@ public class ClusterService {
     private final ClusterRepository clusterRepository;
     private final AdminClusterRepository adminClusterRepository;
     private final OrganizationRepository organizationRepository;
+    private final EventRepository eventRepository;
 
 
     public void createCluster(ClusterCreationRequest clusterCreationRequest, String organizationId) {
@@ -179,10 +181,17 @@ public class ClusterService {
         ));
     }
 
-    public Cluster getOneCluster(String organizationId, String clusterId) {
-        return clusterRepository.findByIdAndOrganization(clusterId, organizationRepository.findById(organizationId).orElseThrow(
-                ExceptionFactory::resourceNotFound
-        ));
+    public ClusterInfoResponse getOneCluster(String organizationId, String clusterId) {
+
+        System.out.println(clusterId);
+        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if(!cluster.getOrganization().getId().equals(organizationId)) throw ExceptionFactory.insufficientPermission();
+        ClusterInfoResponse clusterInfoResponse = new ClusterInfoResponse();
+        clusterInfoResponse.setAdminInfo(adminClusterRepository.getAdminClusterInfo(cluster));
+        clusterInfoResponse.setClusterInfo(clusterRepository.getClusterInfo(cluster));
+        clusterInfoResponse.setEvents(eventRepository.getEventInfo(cluster));
+        clusterInfoResponse.setMembers(userRepository.getMemberInfo(cluster));
+        return clusterInfoResponse;
     }
 
 

@@ -1,5 +1,6 @@
 package com.credaegis.backend.repository;
 
+import com.credaegis.backend.dto.ClusterInfoDTO;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Organization;
 import com.credaegis.backend.http.response.custom.ClusterInfoResponse;
@@ -44,8 +45,8 @@ public interface  ClusterRepository extends JpaRepository<Cluster,String> {
         void unlockPermissions(@Param("id") String clusterId);
 
         @Query("SELECT new com.credaegis.backend.dto.ClusterInfoDTO" +
-                "(c.id,c.name,c.locked,c.deactivated,c.createdOn) FROM Cluster c WHERE c.id = :id")
-        Optional<ClusterInfoResponse> getClusterInfo(@Param("id") String id);
+                "(c.id,c.name,c.locked,c.deactivated,c.createdOn) FROM Cluster c WHERE c = :cluster")
+        ClusterInfoDTO getClusterInfo(@Param("cluster") Cluster cluster);
 
 
 

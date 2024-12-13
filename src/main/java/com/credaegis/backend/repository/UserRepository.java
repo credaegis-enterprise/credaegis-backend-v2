@@ -1,5 +1,7 @@
 package com.credaegis.backend.repository;
 
+import com.credaegis.backend.dto.MemberInfoDTO;
+import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,6 +18,10 @@ public interface UserRepository extends JpaRepository<User,String> {
     Optional<User> findByEmail(String email);
     Optional<User> findByIdAndDeleted(String id,Boolean deleted);
 
+
+    @Query("SELECT new com.credaegis.backend.dto.MemberInfoDTO(u.id, u.username, u.email, u.deactivated, u.createdOn)" +
+            " FROM User u WHERE u.cluster = :cluster AND u.deleted = false")
+    List<MemberInfoDTO> getMemberInfo(@Param("cluster") Cluster cluster);
 
     @Query("SELECT u.id FROM User u WHERE u.cluster.id = :id AND u.deleted = false ")
     List<String> findAllUserIdByClusterId(@Param("id") String clusterId);
