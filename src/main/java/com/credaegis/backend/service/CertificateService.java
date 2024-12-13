@@ -3,6 +3,7 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.repository.CertificateRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,11 @@ import java.util.List;
 public class CertificateService {
 
     private final CertificateRepository certificateRepository;
+
+    @Transactional
+    public void revokeCertificates(List<String> certificateIds, String userOrganizationId){
+        certificateRepository.revokeCertificates(certificateIds,userOrganizationId);
+    }
 
     public Page<Certificate> getLatestCertificates(int page, int size, String userOrganizationId){
         Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Order.desc("issuedDate")));

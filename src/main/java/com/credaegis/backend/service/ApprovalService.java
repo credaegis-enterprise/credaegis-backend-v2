@@ -32,7 +32,6 @@ import java.util.Map;
 @Slf4j
 @Service
 @AllArgsConstructor
-@Transactional
 public class ApprovalService {
 
     private final ApprovalRepository approvalRepository;
@@ -89,11 +88,13 @@ public class ApprovalService {
 
     }
 
+    @Transactional
     public void rejectCertificates(String userOrganizationId, List<String> approvalIdList) {
         approvalRepository.rejectCertificates(userOrganizationId, approvalIdList);
     }
 
 
+    @Transactional
     public void approveCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
         for (String approvalId : approvalIdList) {
             try {
@@ -149,7 +150,7 @@ public class ApprovalService {
         }
     }
 
-
+    @Transactional
     public void uploadApprovals(String eventId, String userId, String userOrganizationId,
                                 List<MultipartFile> approvalsCertificates, String approvalsInfo) throws JsonProcessingException {
 
