@@ -2,7 +2,7 @@ package com.credaegis.backend.service;
 
 
 import com.credaegis.backend.entity.Certificate;
-import com.credaegis.backend.dto.CertificateVerificationResponse;
+import com.credaegis.backend.http.response.custom.CertificateVerificationResponse;
 import com.credaegis.backend.http.response.custom.CertificateVerificationInfo;
 import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.utility.CheckSumUtility;

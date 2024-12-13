@@ -6,7 +6,7 @@ import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.http.request.RenameRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
-import com.credaegis.backend.http.response.custom.AllClustersResponse;
+import com.credaegis.backend.http.response.custom.ClusterNameAndIdResponse;
 import com.credaegis.backend.service.ClusterService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -93,10 +93,10 @@ public class ClusterController {
     }
 
     @GetMapping(path = "/get-clusters")
-    public ResponseEntity<CustomApiResponse<List<AllClustersResponse>>> getClustersNameAndId(@AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<ClusterNameAndIdResponse>>> getClustersNameAndId(@AuthenticationPrincipal CustomUser customUser) {
 
         //DI at runtime
-        List<AllClustersResponse> clusters = clusterService.getAllNameAndId(customUser.getOrganizationId());
+        List<ClusterNameAndIdResponse> clusters = clusterService.getAllNameAndId(customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(clusters,"Cluster List", true)
         );

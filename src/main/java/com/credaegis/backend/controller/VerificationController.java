@@ -1,7 +1,7 @@
 package com.credaegis.backend.controller;
 
 import com.credaegis.backend.constant.Constants;
-import com.credaegis.backend.dto.CertificateVerificationResponse;
+import com.credaegis.backend.http.response.custom.CertificateVerificationResponse;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.service.VerificationService;

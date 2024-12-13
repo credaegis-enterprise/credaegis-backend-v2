@@ -4,7 +4,7 @@ import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
-import com.credaegis.backend.http.response.custom.AllClustersResponse;
+import com.credaegis.backend.http.response.custom.ClusterNameAndIdResponse;
 import com.credaegis.backend.repository.*;
 
 import com.github.f4b6a3.ulid.UlidCreator;
@@ -169,7 +169,7 @@ public class ClusterService {
     }
 
 
-    public List<AllClustersResponse> getAllNameAndId(String organizationId) {
+    public List<ClusterNameAndIdResponse> getAllNameAndId(String organizationId) {
         return clusterRepository.getAllNameAndId(organizationId);
     }
 
