@@ -4,6 +4,7 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ViewApprovalDTO;
+import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalsIdRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
@@ -32,6 +33,16 @@ public class ApprovalController {
 
     private final ApprovalService approvalService;
     private final CheckSumUtility checkSumUtility;
+
+    @GetMapping(path = "/event/get-all/{id}")
+    public ResponseEntity<CustomApiResponse<List<Approval>>> getAllApprovalsByEvent(@PathVariable String id,
+                                                                                    @AuthenticationPrincipal CustomUser customUser){
+
+        List<Approval> approvals = approvalService.getAllEventApprovals(id,customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(approvals,"approvals fetched",true)
+        );
+    }
 
 
     @GetMapping(path = "/view/{id}")

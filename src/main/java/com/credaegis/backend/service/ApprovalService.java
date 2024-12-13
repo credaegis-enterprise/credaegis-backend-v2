@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.InputStream;
 import java.sql.Date;
 import java.util.HashMap;
@@ -43,6 +44,14 @@ public class ApprovalService {
     private final CheckSumUtility checkSumUtility;
 
 
+    public List<Approval> getAllEventApprovals(String eventId, String userOrganizationId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
+            ExceptionFactory.insufficientPermission();
+
+        return approvalRepository.findByEventAndStatus(event,Status.pending);
+    }
+
     public ViewApprovalDTO viewApprovalCertificate(String approvalId, String userOrganizationId) {
         Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
@@ -58,11 +67,10 @@ public class ApprovalService {
                     .object(approvalPath)
                     .build());
 
-            ViewApprovalDTO viewApprovalDTO = new ViewApprovalDTO(stream,approval.getApprovalCertificateName());
+            ViewApprovalDTO viewApprovalDTO = new ViewApprovalDTO(stream, approval.getApprovalCertificateName());
             return viewApprovalDTO;
 
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw ExceptionFactory.internalError();
         }
