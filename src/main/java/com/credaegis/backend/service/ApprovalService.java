@@ -3,13 +3,11 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
-import com.credaegis.backend.entity.Approval;
-import com.credaegis.backend.entity.Certificate;
-import com.credaegis.backend.entity.Event;
-import com.credaegis.backend.entity.Status;
+import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.repository.ApprovalRepository;
 import com.credaegis.backend.repository.CertificateRepository;
+import com.credaegis.backend.repository.ClusterRepository;
 import com.credaegis.backend.repository.EventRepository;
 import com.credaegis.backend.utility.CheckSumUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,13 +39,22 @@ public class ApprovalService {
     private final CertificateRepository certificateRepository;
     private final EventRepository eventRepository;
     private final MinioClient minioClient;
+    private final ClusterRepository clusterRepository;
     private final CheckSumUtility checkSumUtility;
 
+
+    public List<Approval> getAllClusterApprovals(String clusterId,String userOrganizationId){
+        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if(!cluster.getOrganization().getId().equals(userOrganizationId))
+            throw ExceptionFactory.insufficientPermission();
+
+        return approvalRepository.findByClusterAndStatus(cluster,Status.pending);
+    }
 
     public List<Approval> getAllEventApprovals(String eventId, String userOrganizationId) {
         Event event = eventRepository.findById(eventId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
-            ExceptionFactory.insufficientPermission();
+            throw ExceptionFactory.insufficientPermission();
 
         return approvalRepository.findByEventAndStatus(event,Status.pending);
     }

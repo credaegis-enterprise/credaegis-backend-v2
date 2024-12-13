@@ -34,13 +34,24 @@ public class ApprovalController {
     private final ApprovalService approvalService;
     private final CheckSumUtility checkSumUtility;
 
+
+    @GetMapping(path = "/cluster/get-all/{id}")
+    public ResponseEntity<CustomApiResponse<List<Approval>>> getAllApprovalsByCluster(@PathVariable String id,
+                                                                                      @AuthenticationPrincipal CustomUser customUser) {
+
+        List<Approval> approvals = approvalService.getAllClusterApprovals(id, customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(approvals, "approvals fetched", true)
+        );
+    }
+
     @GetMapping(path = "/event/get-all/{id}")
     public ResponseEntity<CustomApiResponse<List<Approval>>> getAllApprovalsByEvent(@PathVariable String id,
-                                                                                    @AuthenticationPrincipal CustomUser customUser){
+                                                                                    @AuthenticationPrincipal CustomUser customUser) {
 
-        List<Approval> approvals = approvalService.getAllEventApprovals(id,customUser.getOrganizationId());
+        List<Approval> approvals = approvalService.getAllEventApprovals(id, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(approvals,"approvals fetched",true)
+                new CustomApiResponse<>(approvals, "approvals fetched", true)
         );
     }
 

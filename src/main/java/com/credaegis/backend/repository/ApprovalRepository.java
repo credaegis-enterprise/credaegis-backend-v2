@@ -18,5 +18,7 @@ public interface  ApprovalRepository extends JpaRepository<Approval,String> {
     void rejectCertificates(@Param("id") String userOrganizationId, @Param("appIds") List<String> approvalIds);
 
     List<Approval> findByEventAndStatus(Event event, Status status);
-    List<Approval> findByClusterAndStatus(Cluster cluster, Status status);
+
+    @Query("SELECT a FROM Approval a WHERE a.event.cluster = :cluster AND a.status =:status")
+    List<Approval> findByClusterAndStatus(@Param("cluster") Cluster cluster, @Param("status") Status status);
 }
