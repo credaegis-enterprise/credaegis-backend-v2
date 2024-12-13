@@ -12,7 +12,7 @@ import lombok.Data;
 public class CustomApiResponse <T> {
 
 
-    private T data;
+    private T responseData;
     private String message;
     private Boolean success;
 

@@ -5,6 +5,7 @@ import com.credaegis.backend.http.request.LoginRequest;
 import com.credaegis.backend.http.request.MfaLoginRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.LoginResponse;
+import com.credaegis.backend.http.response.custom.SessionCheckResponse;
 import com.credaegis.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,10 +45,12 @@ public class AuthController {
 
 
     @GetMapping(path = "/session-check")
-    public ResponseEntity<CustomApiResponse<Void>> sessionCheckController(Authentication authentication){
+    public ResponseEntity<CustomApiResponse<SessionCheckResponse>> sessionCheckController(Authentication authentication){
         if(authentication.isAuthenticated())
+
             return ResponseEntity.status(HttpStatus.OK).
-                    body(new CustomApiResponse<>(null,null,true));
+                    body(new CustomApiResponse<>(
+                            new SessionCheckResponse(Constants.ADMIN,Constants.ORGANIZATION_ACCOUNT_TYPE),null,true));
         else
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
                     body(new CustomApiResponse<>(null,null,false));
