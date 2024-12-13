@@ -27,7 +27,7 @@ public class AuthController {
                                                                             HttpServletRequest request, HttpServletResponse response){
        Boolean mfaEnabled = authService.login(loginRequest,request,response);
         return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>
-                (new LoginResponse(mfaEnabled),"login success",true));
+                (new LoginResponse(mfaEnabled,Constants.ADMIN,Constants.ORGANIZATION_ACCOUNT_TYPE),"login success",true));
     }
 
 

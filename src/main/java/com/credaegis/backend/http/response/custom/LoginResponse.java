@@ -9,4 +9,6 @@ import lombok.Data;
 public class LoginResponse {
 
     private final boolean mfaEnabled;
+    private final String role;
+    private final String accountType;
 }
