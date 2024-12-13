@@ -28,16 +28,19 @@ public class VerificationService {
 
         List<CertificateVerificationResponse> certificateVerificationResponseList = new ArrayList<>();
         for (MultipartFile file : certificateFiles) {
+            System.out.println("innnn");
             CertificateVerificationResponse certificateVerificationResponse = new CertificateVerificationResponse();
             Optional<Certificate> optionalCertificate = certificateRepository.findByCertificateHash(checkSumUtility.hashCertificate(file.getBytes()));
             certificateVerificationResponse.setCertificateName(file.getOriginalFilename());
             if (!optionalCertificate.isPresent()) {
                 certificateVerificationResponse.setIsIssued(false);
                 certificateVerificationResponse.setCertificateVerificationInfo(null);
+                certificateVerificationResponseList.add(certificateVerificationResponse);
                 continue;
             }
 
             Certificate certificate = optionalCertificate.get();
+            certificateVerificationResponse.setIsIssued(true);
 
             CertificateVerificationInfo info = CertificateVerificationInfo.builder()
                     .certificateName(file.getOriginalFilename())
