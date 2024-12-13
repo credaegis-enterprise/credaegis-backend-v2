@@ -21,4 +21,7 @@ public interface  ApprovalRepository extends JpaRepository<Approval,String> {
 
     @Query("SELECT a FROM Approval a WHERE a.event.cluster = :cluster AND a.status =:status")
     List<Approval> findByClusterAndStatus(@Param("cluster") Cluster cluster, @Param("status") Status status);
+
+    @Query("SELECT a FROM Approval a WHERE a.event.cluster.organization.id = :id")
+    List<Approval> findByOrganizationId(@Param("id") String id);
 }

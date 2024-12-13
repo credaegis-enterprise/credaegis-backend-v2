@@ -43,6 +43,10 @@ public class ApprovalService {
     private final CheckSumUtility checkSumUtility;
 
 
+    public List<Approval> getAllApprovals(String userOrganizationId) {
+        return approvalRepository.findByOrganizationId(userOrganizationId);
+    }
+
     public List<Approval> getAllClusterApprovals(String clusterId,String userOrganizationId){
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
         if(!cluster.getOrganization().getId().equals(userOrganizationId))

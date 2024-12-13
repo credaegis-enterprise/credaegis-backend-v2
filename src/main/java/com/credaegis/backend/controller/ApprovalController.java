@@ -35,6 +35,15 @@ public class ApprovalController {
     private final CheckSumUtility checkSumUtility;
 
 
+    @GetMapping(path = "/get-all")
+    public ResponseEntity<CustomApiResponse<List<Approval>>> getAllApprovals(@AuthenticationPrincipal CustomUser customUser) {
+
+        List<Approval> approvals = approvalService.getAllApprovals(customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(approvals, "approvals fetched", true)
+        );
+    }
+
     @GetMapping(path = "/cluster/get-all/{id}")
     public ResponseEntity<CustomApiResponse<List<Approval>>> getAllApprovalsByCluster(@PathVariable String id,
                                                                                       @AuthenticationPrincipal CustomUser customUser) {
