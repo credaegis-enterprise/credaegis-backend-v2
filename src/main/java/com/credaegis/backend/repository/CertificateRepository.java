@@ -12,4 +12,8 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
     Optional<Certificate> findByCertificateHash(String hashedValue);
 
     Page<Certificate> findByEvent_Cluster_Organization_Id(String id, Pageable pageable);
+
+    Page<Certificate> findByEvent_Cluster_IdAndEvent_Cluster_Organization_Id(String clusterId, String userOrganizationId, Pageable pageable);
+
+    Page<Certificate> findByEvent_IdAndEvent_Cluster_Organization_Id(String eventId, String userOrganizationId, Pageable pageable);
 }
