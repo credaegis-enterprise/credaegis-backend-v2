@@ -1,26 +1,17 @@
 package com.credaegis.backend.http.response.custom;
 
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-public class CertificateVerificationResponse {
-
-
-    private  String certificateName;
-    private Boolean isIssued;
-    private Info info;
-
-}
-
-
-@Data
-@NoArgsConstructor
-class Info {
+public class CertificateVerificationInfo {
 
     private String certificateId;
     private String certificateName;
@@ -32,6 +23,7 @@ class Info {
     private String organizationName;
     private Boolean revoked;
     private Date revokedDate;
+    private Date expiryDate;
     private String comments;
 
 
