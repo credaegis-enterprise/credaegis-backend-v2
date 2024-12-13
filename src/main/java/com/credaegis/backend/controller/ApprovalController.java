@@ -3,6 +3,7 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
+import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalsIdRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
@@ -11,7 +12,10 @@ import com.credaegis.backend.utility.CheckSumUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +32,19 @@ public class ApprovalController {
 
     private final ApprovalService approvalService;
     private final CheckSumUtility checkSumUtility;
+
+
+    @GetMapping(path = "/view/{id}")
+    public ResponseEntity<InputStreamResource> viewApproval(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
+
+        ViewApprovalDTO viewApprovalDTO = approvalService.viewApprovalCertificate(id, customUser.getOrganizationId());
+        InputStreamResource resource = new InputStreamResource(viewApprovalDTO.getApprovalFileStream());
+        return ResponseEntity.status(HttpStatus.OK).header(
+                        HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + viewApprovalDTO.getApprovalFileName())
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(resource);
+
+    }
 
     @PostMapping(path = "/upload/{eventId}")
     public ResponseEntity<CustomApiResponse<Void>> uploadCertificates(
@@ -52,7 +69,7 @@ public class ApprovalController {
                                                                        @AuthenticationPrincipal CustomUser customUser) {
 
         approvalService.approveCertificates
-                (customUser.getId(),customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
+                (customUser.getId(), customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Requests to approve are processing", true));
     }

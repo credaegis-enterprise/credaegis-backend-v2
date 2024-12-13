@@ -21,9 +21,6 @@ public class Approval  {
     @Id
     private String id;
 
-    @Column(name = "approval_certificate_id", nullable = false)
-    private String approvalCertificateId;
-
     @Column(name = "approval_certificate_name", nullable = false)
     private String approvalCertificateName;
 

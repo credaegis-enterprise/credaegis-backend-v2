@@ -2,6 +2,7 @@ package com.credaegis.backend.service;
 
 
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
+import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.entity.Event;
@@ -18,13 +19,18 @@ import com.github.f4b6a3.ulid.UlidCreator;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.errors.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -43,8 +49,34 @@ public class ApprovalService {
     private final CheckSumUtility checkSumUtility;
 
 
+    public ViewApprovalDTO viewApprovalCertificate(String approvalId, String userOrganizationId) {
+        Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
+            throw ExceptionFactory.insufficientPermission();
+
+        String approvalPath = approval.getEvent().getCluster().getName() + "-" + approval.getEvent().getCluster().getId() + "/"
+                + approval.getEvent().getName() + "-" + approval.getEvent().getId() + "/" + approval.getApprovalCertificateName()
+                + "-" + approval.getId();
+
+        try {
+            InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                    .bucket("approvals")
+                    .object(approvalPath)
+                    .build());
+
+            ViewApprovalDTO viewApprovalDTO = new ViewApprovalDTO(stream,approval.getApprovalCertificateName());
+            return viewApprovalDTO;
+
+        }
+        catch (Exception e){
+            log.error(e.getMessage());
+            throw ExceptionFactory.internalError();
+        }
+
+
+    }
+
     public void rejectCertificates(String userOrganizationId, List<String> approvalIdList) {
-        System.out.println(approvalIdList.getFirst());
         approvalRepository.rejectCertificates(userOrganizationId, approvalIdList);
     }
 
@@ -61,7 +93,7 @@ public class ApprovalService {
                 //creating path to retrieve file
                 String approvalPath = approval.getEvent().getCluster().getName() + "-" + approval.getEvent().getCluster().getId() + "/"
                         + approval.getEvent().getName() + "-" + approval.getEvent().getId() + "/" + approval.getApprovalCertificateName()
-                        + "-" + approval.getApprovalCertificateId();
+                        + "-" + approval.getId();
 
 
                 InputStream stream = minioClient.getObject(GetObjectArgs.builder()
@@ -148,8 +180,7 @@ public class ApprovalService {
 
 
                 Approval approval = new Approval();
-                approval.setId(UlidCreator.getUlid().toString());
-                approval.setApprovalCertificateId(approvalCertificateId);
+                approval.setId(approvalCertificateId);
                 approval.setApprovalCertificateName(info.getFileName());
                 approval.setRecipientEmail(info.getRecipientEmail());
                 approval.setRecipientName(info.getRecipientName());

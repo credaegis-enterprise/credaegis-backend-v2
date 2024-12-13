@@ -6,6 +6,10 @@ public  class ExceptionFactory {
 
 
 
+
+    public static RuntimeException internalError() throws CustomException{
+        return new CustomException("Error occurred",HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     public static RuntimeException accessDeniedException(String message) throws CustomException{
         return new CustomException(message,HttpStatus.FORBIDDEN);
     }
