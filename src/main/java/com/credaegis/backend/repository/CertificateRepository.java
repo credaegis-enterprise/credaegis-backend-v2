@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface  CertificateRepository extends JpaRepository<Certificate,String> {
     Optional<Certificate> findByCertificateHash(String hashedValue);
 
-    Page<Certificate> findByEvent_Cluster_Organization(Organization organization, Pageable pageable);
+    Page<Certificate> findByEvent_Cluster_Organization_Id(String id, Pageable pageable);
 }
