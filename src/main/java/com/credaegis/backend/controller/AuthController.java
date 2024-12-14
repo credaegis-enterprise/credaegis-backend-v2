@@ -53,7 +53,7 @@ public class AuthController {
                     body(new CustomApiResponse<>(
                             new SessionCheckResponse(Constants.ADMIN,Constants.ORGANIZATION_ACCOUNT_TYPE),null,true));
         else
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
-                    body(new CustomApiResponse<>(null,null,false));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).
+                    body(new CustomApiResponse<>(null,"Session expired",false));
     }
 }
