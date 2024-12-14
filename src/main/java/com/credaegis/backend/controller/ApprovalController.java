@@ -8,6 +8,7 @@ import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalsIdRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
+import com.credaegis.backend.http.response.custom.ApprovalInfoResponse;
 import com.credaegis.backend.service.ApprovalService;
 import com.credaegis.backend.utility.CheckSumUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,11 +37,11 @@ public class ApprovalController {
 
 
     @GetMapping(path = "/get-all")
-    public ResponseEntity<CustomApiResponse<List<Approval>>> getAllApprovals(@AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<ApprovalInfoResponse>>> getAllApprovals(@AuthenticationPrincipal CustomUser customUser) {
 
-        List<Approval> approvals = approvalService.getAllApprovals(customUser.getOrganizationId());
+        List<ApprovalInfoResponse> approvalInfoResponses= approvalService.getAllApprovals(customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(approvals, "approvals fetched", true)
+                new CustomApiResponse<>(approvalInfoResponses, "approvals fetched", true)
         );
     }
 

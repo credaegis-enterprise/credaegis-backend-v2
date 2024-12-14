@@ -5,6 +5,7 @@ import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
+import com.credaegis.backend.http.response.custom.ApprovalInfoResponse;
 import com.credaegis.backend.repository.ApprovalRepository;
 import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.repository.ClusterRepository;
@@ -42,8 +43,8 @@ public class ApprovalService {
     private final CheckSumUtility checkSumUtility;
 
 
-    public List<Approval> getAllApprovals(String userOrganizationId) {
-        return approvalRepository.findByOrganizationId(userOrganizationId);
+    public List<ApprovalInfoResponse> getAllApprovals(String userOrganizationId) {
+        return approvalRepository.getApprovalInfo(Status.pending, userOrganizationId);
     }
 
     public List<Approval> getAllClusterApprovals(String clusterId,String userOrganizationId){
