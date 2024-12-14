@@ -43,13 +43,13 @@ public class CertificateService {
         return certificateRepository.getLatestCertificateInfo(pageable,userOrganizationId).getContent();
     }
 
-    public Page<Certificate> getLatestCertificatesCluster(int page, int size, String userOrganizationId, String clusterId){
+    public List<CertificateInfoProjection> getLatestCertificatesCluster(int page, int size, String userOrganizationId, String clusterId){
         Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Order.desc("issuedDate")));
-        return certificateRepository.findByEvent_Cluster_IdAndEvent_Cluster_Organization_Id(clusterId,userOrganizationId,pageable);
+        return certificateRepository.getLatestCertificateInfoByCluster(pageable,clusterId,userOrganizationId).getContent();
     }
 
-    public Page<Certificate> getLatestCertificatesEvent(int page, int size, String userOrganizationId, String eventId){
+    public List<CertificateInfoProjection> getLatestCertificatesEvent(int page, int size, String userOrganizationId, String eventId){
         Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Order.desc("issuedDate")));
-        return certificateRepository.findByEvent_IdAndEvent_Cluster_Organization_Id(eventId,userOrganizationId,pageable);
+        return certificateRepository.getLatestCertificateInfoByEvent(pageable,eventId,userOrganizationId).getContent();
     }
 }

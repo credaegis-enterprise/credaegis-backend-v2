@@ -54,7 +54,7 @@ public class CertificateController {
     }
 
     @GetMapping(path="/cluster/{id}/get-latest")
-    public ResponseEntity<CustomApiResponse<Page<Certificate>>> getLatestCertificatesCluster(@RequestParam("page") int page,
+    public ResponseEntity<CustomApiResponse<List<CertificateInfoProjection>>> getLatestCertificatesCluster(@RequestParam("page") int page,
                                                                                              @RequestParam("size") int size,
                                                                                              @PathVariable String id,
                                                                                              @AuthenticationPrincipal CustomUser customUser) {
@@ -69,7 +69,7 @@ public class CertificateController {
     }
 
     @GetMapping(path="/event/{id}/get-latest")
-    public ResponseEntity<CustomApiResponse<Page<Certificate>>> getLatestCertificatesEvent(@RequestParam("page") int page,
+    public ResponseEntity<CustomApiResponse<List<CertificateInfoProjection>>> getLatestCertificatesEvent(@RequestParam("page") int page,
                                                                                            @RequestParam("size") int size,
                                                                                            @PathVariable String id,
                                                                                            @AuthenticationPrincipal CustomUser customUser) {

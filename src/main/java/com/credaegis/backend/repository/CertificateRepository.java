@@ -34,21 +34,25 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
     Page<CertificateInfoProjection> getLatestCertificateInfo(Pageable pageable, @Param("organizationId") String organizationId);
 
 
-//    @Query(
-//            "SELECT new com.credaegis.backend.dto.CertificateInfoDTO(c.id,c.recipientName,c.recipientEmail," +
-//                    "c.issuedByUser.username,c.issuedByUser.email,c.issuedDate," +
-//                    "c.expiryDate,c.revoked,c.revokedDate," +
-//                    "c.comments,c.certificateName,c.event.name,c.event.cluster.name) " +
-//                    "FROM Certificate c "
-//    )
-//    List<CertificateInfoDTO> getLatestCertificateInfo();
+    @Query(
+            "SELECT c.id AS id,c.recipientName AS recipientName,c.recipientEmail AS recipientEmail," +
+                    "c.certificateName AS certificateName,c.issuedDate AS issuedDate," +
+                    "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
+                    "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail," +
+                    "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName" +
+                    "  FROM Certificate c WHERE c.event.cluster.id = :clusterId AND c.event.cluster.organization.id = :organizationId")
+    Page<CertificateInfoProjection> getLatestCertificateInfoByCluster(Pageable pageable, String clusterId, String organizationId);
 
 
-    Page<Certificate> findByEvent_Cluster_Organization_Id(String id, Pageable pageable);
 
-    Page<Certificate> findByEvent_Cluster_IdAndEvent_Cluster_Organization_Id(String clusterId, String userOrganizationId, Pageable pageable);
-
-    Page<Certificate> findByEvent_IdAndEvent_Cluster_Organization_Id(String eventId, String userOrganizationId, Pageable pageable);
+    @Query(
+            "SELECT c.id AS id,c.recipientName AS recipientName,c.recipientEmail AS recipientEmail," +
+                    "c.certificateName AS certificateName,c.issuedDate AS issuedDate," +
+                    "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
+                    "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail," +
+                    "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName" +
+                    "  FROM Certificate c WHERE c.event.id = :eventId AND c.event.cluster.organization.id = :organizationId")
+    Page<CertificateInfoProjection> getLatestCertificateInfoByEvent(Pageable pageable, String eventId, String organizationId);
 
     Long countByEvent_Cluster_Organization_Id(String userOrganizationId);
 }
