@@ -4,10 +4,12 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ViewApprovalDTO;
-import com.credaegis.backend.entity.Approval;
+import com.credaegis.backend.entity.Status;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
+import com.credaegis.backend.http.request.ApprovalModificationRequest;
 import com.credaegis.backend.http.request.ApprovalsIdRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
+import com.credaegis.backend.dto.projection.ApprovalInfoProjection;
 import com.credaegis.backend.service.ApprovalService;
 import com.credaegis.backend.utility.CheckSumUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -35,30 +38,51 @@ public class ApprovalController {
     private final CheckSumUtility checkSumUtility;
 
 
-    @GetMapping(path = "/get-all")
-    public ResponseEntity<CustomApiResponse<List<Approval>>> getAllApprovals(@AuthenticationPrincipal CustomUser customUser) {
+    @GetMapping(path = "/get-count")
+    public ResponseEntity<CustomApiResponse<Map<String,Long>>> getCount(@RequestParam String status,
+                                                                        @AuthenticationPrincipal CustomUser customUser) {
 
-        List<Approval> approvals = approvalService.getAllApprovals(customUser.getOrganizationId());
+        Map<String, Long> count = approvalService.getCount( customUser.getOrganizationId(), Status.valueOf(status));
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(approvals, "approvals fetched", true)
+                new CustomApiResponse<>(count, "count fetched", true)
+        );
+    }
+
+    @PutMapping(path = "/modify")
+    public ResponseEntity<CustomApiResponse<Void>> modifyApproval(@RequestBody @Valid ApprovalModificationRequest approvalModificationRequest,
+                                                                  @AuthenticationPrincipal CustomUser customUser) {
+
+        approvalService.modifyApproval(approvalModificationRequest, customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "approval modified Success", true)
+        );
+    }
+
+
+    @GetMapping(path = "/get-all")
+    public ResponseEntity<CustomApiResponse<List<ApprovalInfoProjection>>> getAllApprovals(@AuthenticationPrincipal CustomUser customUser) {
+
+        List<ApprovalInfoProjection> approvalInfoRespons = approvalService.getAllApprovals(customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(approvalInfoRespons, "approvals fetched", true)
         );
     }
 
     @GetMapping(path = "/cluster/get-all/{id}")
-    public ResponseEntity<CustomApiResponse<List<Approval>>> getAllApprovalsByCluster(@PathVariable String id,
-                                                                                      @AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<ApprovalInfoProjection>>> getAllApprovalsByCluster(@PathVariable String id,
+                                                                                                    @AuthenticationPrincipal CustomUser customUser) {
 
-        List<Approval> approvals = approvalService.getAllClusterApprovals(id, customUser.getOrganizationId());
+        List<ApprovalInfoProjection> approvals = approvalService.getAllClusterApprovals(id, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(approvals, "approvals fetched", true)
         );
     }
 
     @GetMapping(path = "/event/get-all/{id}")
-    public ResponseEntity<CustomApiResponse<List<Approval>>> getAllApprovalsByEvent(@PathVariable String id,
-                                                                                    @AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<ApprovalInfoProjection>>> getAllApprovalsByEvent(@PathVariable String id,
+                                                                                                  @AuthenticationPrincipal CustomUser customUser) {
 
-        List<Approval> approvals = approvalService.getAllEventApprovals(id, customUser.getOrganizationId());
+        List<ApprovalInfoProjection> approvals = approvalService.getAllEventApprovals(id, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(approvals, "approvals fetched", true)
         );
@@ -72,6 +96,7 @@ public class ApprovalController {
         InputStreamResource resource = new InputStreamResource(viewApprovalDTO.getApprovalFileStream());
         return ResponseEntity.status(HttpStatus.OK).header(
                         HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + viewApprovalDTO.getApprovalFileName())
+                .header("Content-Security-Policy", "frame-ancestors 'self' http://localhost:3000")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(resource);
 

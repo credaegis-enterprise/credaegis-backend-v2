@@ -5,6 +5,7 @@ import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.http.request.EventCreationRequest;
 import com.credaegis.backend.http.request.EventModificationRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
+import com.credaegis.backend.dto.projection.EventSearchProjection;
 import com.credaegis.backend.service.EventService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -13,12 +14,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = Constants.ROUTEV1 + "/event-control")
 @AllArgsConstructor
 public class EventController {
 
     private final EventService eventService;
+
+
+
+    @GetMapping(path = "/event/cluster/search")
+    public ResponseEntity<CustomApiResponse<List<EventSearchProjection>>> searchByNameAndClusterId(@RequestParam String name,
+                                                                                                   @RequestParam String clusterId,
+                                                                                                   @AuthenticationPrincipal CustomUser customUser) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(eventService.searchByNameAndClusterId(name, clusterId, customUser.getOrganizationId()), "Events fetched", true)
+        );
+    }
+
+    @GetMapping(path="/event/name/search")
+    public  ResponseEntity<CustomApiResponse<List<EventSearchProjection>>> searchByName(@RequestParam String name,
+                                                                                        @AuthenticationPrincipal CustomUser customUser) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(eventService.searchByName(name, customUser.getOrganizationId()), "Events fetched", true)
+        );
+    }
 
     @PostMapping(path = "/create")
     public ResponseEntity<CustomApiResponse<Void>> createEvent(@RequestBody @Valid EventCreationRequest eventCreationRequest,

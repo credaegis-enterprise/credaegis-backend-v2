@@ -2,9 +2,11 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
+import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
+import com.credaegis.backend.http.response.custom.AccountInfoResponse;
 import com.credaegis.backend.service.AccountService;
 import dev.samstevens.totp.exceptions.QrGenerationException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +29,17 @@ public class AccountController {
     private final AccountService accountService;
 
 
-    @PostMapping(path = "/change-password")
+    @GetMapping(path = "/me")
+    public ResponseEntity<CustomApiResponse<AccountInfoResponse>> getMe(@AuthenticationPrincipal CustomUser customUser) {
+        AccountInfoResponse accountInfoResponse = accountService.getMe(customUser.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(accountInfoResponse,"User details", true)
+        );
+    }
+
+
+
+    @PutMapping(path = "/change-password")
     public ResponseEntity<CustomApiResponse<Void>> changePassword(@RequestBody @Valid
                                                                   PasswordChangeRequest passwordChangeRequest,
                                                                   @AuthenticationPrincipal CustomUser customUser,

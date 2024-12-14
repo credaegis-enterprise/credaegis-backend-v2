@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -38,7 +37,7 @@ public class Certificate  {
     private Date issuedDate;
 
     @Column(name = "expiry_date")
-    private Date ExpiryDate;
+    private Date expiryDate;
 
     @Column(nullable = false)
     private Boolean revoked = false;
@@ -47,6 +46,12 @@ public class Certificate  {
     private Date revokedDate;
 
     private String comments;
+
+
+    @ManyToOne
+    @JoinColumn(name="user_id",nullable = false)
+    @JsonBackReference
+    private User issuedByUser;
 
     @ManyToOne
     @JoinColumn(name  = "event_id",nullable = false)

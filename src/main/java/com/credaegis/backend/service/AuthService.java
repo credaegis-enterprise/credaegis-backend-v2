@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +22,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class AuthService {
@@ -44,9 +46,10 @@ public class AuthService {
                 loginRequest.getPassword()
         );
 
+        securityContextRepository.saveContext(authenticator(authenticationRequest),request,response);
         if (user.getMfaEnabled())
             return true;
-        securityContextRepository.saveContext(authenticator(authenticationRequest),request,response);
+
         return false;
 
     }
@@ -54,6 +57,8 @@ public class AuthService {
     public void mfaLogin(@Valid MfaLoginRequest mfaLoginRequest, HttpServletRequest
             request, HttpServletResponse response) {
 
+
+        System.out.println("skskjskjskjksjk");
         User user = userRepository.findByEmail(mfaLoginRequest.getEmail()).orElseThrow(
                 () -> ExceptionFactory.customValidationError("Invalid email")
         );
@@ -63,6 +68,9 @@ public class AuthService {
         if(!codeVerifier.isValidCode(user.getMfaSecret(),mfaLoginRequest.getOtp()))
             throw ExceptionFactory.accessDeniedException("Entered OTP is incorrect");
 
+
+        log.error("MFA login request for user: {}",mfaLoginRequest.getEmail());
+        log.error("MFA login request for user: {}",mfaLoginRequest.getPassword());
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
                 mfaLoginRequest.getEmail(),
                 mfaLoginRequest.getPassword()

@@ -11,14 +11,14 @@ public  class ExceptionFactory {
         return new CustomException("Error occurred",HttpStatus.INTERNAL_SERVER_ERROR);
     }
     public static RuntimeException accessDeniedException(String message) throws CustomException{
-        return new CustomException(message,HttpStatus.FORBIDDEN);
+        return new CustomException(message,HttpStatus.UNAUTHORIZED);
     }
     public  static RuntimeException customValidationError(String message) throws CustomException{
         return new CustomException(message, HttpStatus.BAD_REQUEST);
     }
 
     public static RuntimeException insufficientPermission() throws CustomException{
-        return new CustomException("You have insufficient permission, access denied",HttpStatus.UNAUTHORIZED);
+        return new CustomException("You have insufficient permission, access denied",HttpStatus.FORBIDDEN);
     }
 
 

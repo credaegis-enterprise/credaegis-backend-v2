@@ -1,6 +1,7 @@
 package com.credaegis.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -34,6 +35,7 @@ public class Event {
 
 
     @OneToMany(mappedBy = "event")
+    @JsonIgnore
     @JsonManagedReference
     private List<Approval> approvals = new ArrayList<>();
 

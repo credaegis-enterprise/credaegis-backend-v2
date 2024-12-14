@@ -72,6 +72,8 @@ public class MemberService {
         if (userId.equals(memberId)) {
             throw ExceptionFactory.customValidationError("You cannot activate yourself");
         }
+        if(user.getCluster().getDeactivated())
+            throw ExceptionFactory.customValidationError("Cluster is deactivated, you cannot activate the member");
         if (user.getRole().getRole().equals("ROLE_" + Constants.CLUSTER_ADMIN))
             throw ExceptionFactory.customValidationError("The member is an  cluster admin, you cannot perform this operation");
         if (!user.getDeactivated()) throw ExceptionFactory.customValidationError("User already activated");
@@ -89,6 +91,7 @@ public class MemberService {
         User user = userRepository.findById(memberId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!user.getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
+
         if (userId.equals(memberId)) {
             throw ExceptionFactory.customValidationError("You cannot deactivate yourself");
         }
@@ -96,7 +99,7 @@ public class MemberService {
         if (user.getRole().getRole().equals("ROLE_" + Constants.CLUSTER_ADMIN))
             throw ExceptionFactory.customValidationError("The member is an  cluster admin, you cannot perform this operation");
 
-        if (!user.getDeactivated()) throw ExceptionFactory.customValidationError("User already deactivated");
+        if (user.getDeactivated()) throw ExceptionFactory.customValidationError("User already deactivated");
 
         userRepository.deactivateUser(new ArrayList<>(List.of(memberId)));
     }
@@ -114,6 +117,7 @@ public class MemberService {
         if (user.getRole().getRole().equals("ROLE_" + Constants.CLUSTER_ADMIN))
             throw ExceptionFactory.customValidationError("The member is an  cluster admin, you cannot perform this operation");
 
+        roleRepository.updateRole("ROLE_" + Constants.DELETED, user.getRole().getId());
         userRepository.deleteUser(memberId);
 
     }

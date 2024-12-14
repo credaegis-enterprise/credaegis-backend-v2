@@ -5,6 +5,7 @@ import com.credaegis.backend.http.request.LoginRequest;
 import com.credaegis.backend.http.request.MfaLoginRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.LoginResponse;
+import com.credaegis.backend.http.response.custom.SessionCheckResponse;
 import com.credaegis.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,29 +28,32 @@ public class AuthController {
                                                                             HttpServletRequest request, HttpServletResponse response){
        Boolean mfaEnabled = authService.login(loginRequest,request,response);
         return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>
-                (new LoginResponse(mfaEnabled),"login success",true));
+                (new LoginResponse(mfaEnabled,Constants.ADMIN,Constants.ORGANIZATION_ACCOUNT_TYPE),"login success",true));
     }
 
 
     @PostMapping(path = "/mfa/login")
-    public ResponseEntity<CustomApiResponse<Void>> mfaLoginController(@Valid @RequestBody MfaLoginRequest mfaLoginRequest,
+    public ResponseEntity<CustomApiResponse<LoginResponse>> mfaLoginController(@Valid @RequestBody MfaLoginRequest mfaLoginRequest,
                                                                       HttpServletRequest request, HttpServletResponse
                                                                                   response){
 
         authService.mfaLogin(mfaLoginRequest,request,response);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null,"login success",true)
+                new CustomApiResponse<>(new LoginResponse(true,Constants.ADMIN,Constants.ORGANIZATION_ACCOUNT_TYPE),
+                        "login success",true)
         );
     }
 
 
     @GetMapping(path = "/session-check")
-    public ResponseEntity<CustomApiResponse<Void>> sessionCheckController(Authentication authentication){
+    public ResponseEntity<CustomApiResponse<SessionCheckResponse>> sessionCheckController(Authentication authentication){
         if(authentication.isAuthenticated())
+
             return ResponseEntity.status(HttpStatus.OK).
-                    body(new CustomApiResponse<>(null,null,true));
+                    body(new CustomApiResponse<>(
+                            new SessionCheckResponse(Constants.ADMIN,Constants.ORGANIZATION_ACCOUNT_TYPE),null,true));
         else
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
-                    body(new CustomApiResponse<>(null,null,false));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).
+                    body(new CustomApiResponse<>(null,"Session expired",false));
     }
 }

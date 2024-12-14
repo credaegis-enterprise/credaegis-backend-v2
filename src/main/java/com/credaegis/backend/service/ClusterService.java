@@ -4,7 +4,8 @@ import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
-import com.credaegis.backend.http.response.custom.AllClustersResponse;
+import com.credaegis.backend.http.response.custom.ClusterInfoResponse;
+import com.credaegis.backend.dto.projection.ClusterSearchProjection;
 import com.credaegis.backend.repository.*;
 
 import com.github.f4b6a3.ulid.UlidCreator;
@@ -28,6 +29,7 @@ public class ClusterService {
     private final ClusterRepository clusterRepository;
     private final AdminClusterRepository adminClusterRepository;
     private final OrganizationRepository organizationRepository;
+    private final EventRepository eventRepository;
 
 
     public void createCluster(ClusterCreationRequest clusterCreationRequest, String organizationId) {
@@ -82,12 +84,18 @@ public class ClusterService {
 
     }
 
+
+    public List<ClusterSearchProjection> searchCluster(String userOrganizationId, String name) {
+        return clusterRepository.searchByName(name, userOrganizationId);
+    }
+
     public void renameCluster(String clusterId, String userOrganizationId, String newName) {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
 
 
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
-
+            if(cluster.getName().equals(newName))
+                throw ExceptionFactory.customValidationError("Cannot enter the same name");
             if (clusterRepository.findByNameAndOrganization(newName, cluster.getOrganization()) != null)
                 throw ExceptionFactory.customValidationError("Name already exists, " +
                         "Choose a different cluster name");
@@ -138,7 +146,12 @@ public class ClusterService {
                 ExceptionFactory.customValidationError("User is already admin of the specified cluster");
 
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
+            cluster.getAdminCluster().getUser().getRole().setRole("ROLE"+Constants.MEMBER);
+            user.getRole().setRole("ROLE_"+Constants.CLUSTER_ADMIN);
+            userRepository.save(user);
+            clusterRepository.save(cluster);
             adminClusterRepository.updateAdminCluster(newAdminId, clusterId);
+
         } else throw ExceptionFactory.insufficientPermission();
 
 
@@ -151,7 +164,7 @@ public class ClusterService {
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
 
             clusterRepository.lockPermissions(clusterId);
-            roleRepository.updateRole(Constants.LOCKED_CLUSTER_ADMIN, cluster.getAdminCluster().getId());
+            roleRepository.updateRole("ROLE_"+Constants.LOCKED_CLUSTER_ADMIN, cluster.getAdminCluster().getId());
         } else throw ExceptionFactory.insufficientPermission();
 
     }
@@ -163,13 +176,13 @@ public class ClusterService {
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
 
             clusterRepository.unlockPermissions(clusterId);
-            roleRepository.updateRole(Constants.CLUSTER_ADMIN, cluster.getAdminCluster().getId());
+            roleRepository.updateRole("ROLE_"+Constants.CLUSTER_ADMIN, cluster.getAdminCluster().getId());
         } else throw ExceptionFactory.insufficientPermission();
 
     }
 
 
-    public List<AllClustersResponse> getAllNameAndId(String organizationId) {
+    public List<ClusterSearchProjection> getAllNameAndId(String organizationId) {
         return clusterRepository.getAllNameAndId(organizationId);
     }
 
@@ -179,10 +192,17 @@ public class ClusterService {
         ));
     }
 
-    public Cluster getOneCluster(String organizationId, String clusterId) {
-        return clusterRepository.findByIdAndOrganization(clusterId, organizationRepository.findById(organizationId).orElseThrow(
-                ExceptionFactory::resourceNotFound
-        ));
+    public ClusterInfoResponse getOneCluster(String organizationId, String clusterId) {
+
+        System.out.println(clusterId);
+        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if(!cluster.getOrganization().getId().equals(organizationId)) throw ExceptionFactory.insufficientPermission();
+        ClusterInfoResponse clusterInfoResponse = new ClusterInfoResponse();
+        clusterInfoResponse.setAdminInfo(adminClusterRepository.getAdminClusterInfo(cluster));
+        clusterInfoResponse.setClusterInfo(clusterRepository.getClusterInfo(cluster));
+        clusterInfoResponse.setEvents(eventRepository.getEventInfo(cluster));
+        clusterInfoResponse.setMembers(userRepository.getMemberInfo(cluster));
+        return clusterInfoResponse;
     }
 
 

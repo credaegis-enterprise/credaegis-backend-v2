@@ -6,7 +6,8 @@ import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.http.request.RenameRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
-import com.credaegis.backend.http.response.custom.AllClustersResponse;
+import com.credaegis.backend.http.response.custom.ClusterInfoResponse;
+import com.credaegis.backend.dto.projection.ClusterSearchProjection;
 import com.credaegis.backend.service.ClusterService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,17 @@ import java.util.List;
 public class ClusterController {
 
     private final ClusterService clusterService;
+
+
+    @GetMapping(path = "/cluster/search")
+    public ResponseEntity<CustomApiResponse<List<ClusterSearchProjection>>> searchClusterController(@RequestParam String name,
+                                                                                                    @AuthenticationPrincipal CustomUser customUser) {
+        System.out.println("name = " + name);
+        List<ClusterSearchProjection> clusters = clusterService.searchCluster(customUser.getOrganizationId(),name);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(clusters,"Cluster List", true)
+        );
+    }
 
     @PostMapping(path = "/create")
     public ResponseEntity<CustomApiResponse<Void>> clusterCreationController(@Valid @RequestBody ClusterCreationRequest clusterCreationRequest,
@@ -93,10 +105,10 @@ public class ClusterController {
     }
 
     @GetMapping(path = "/get-clusters")
-    public ResponseEntity<CustomApiResponse<List<AllClustersResponse>>> getClustersNameAndId(@AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<ClusterSearchProjection>>> getClustersNameAndId(@AuthenticationPrincipal CustomUser customUser) {
 
         //DI at runtime
-        List<AllClustersResponse> clusters = clusterService.getAllNameAndId(customUser.getOrganizationId());
+        List<ClusterSearchProjection> clusters = clusterService.getAllNameAndId(customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(clusters,"Cluster List", true)
         );
@@ -111,12 +123,13 @@ public class ClusterController {
         );
     }
 
-
+    //get all related info of one cluster
     @GetMapping(path = "/get-one/{id}")
-    public ResponseEntity<CustomApiResponse<Cluster>> getOneCluster(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
-        Cluster cluster = clusterService.getOneCluster(customUser.getOrganizationId(),id);
+    public ResponseEntity<CustomApiResponse<ClusterInfoResponse>> getOneCluster(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
+        ClusterInfoResponse clusterInfoResponse = clusterService.getOneCluster(customUser.getOrganizationId(), id);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(cluster,"details of cluster "+cluster.getName()+" fetched", true)
+                new CustomApiResponse<>(clusterInfoResponse,"details of cluster "+
+                        clusterInfoResponse.getClusterInfo().getName()+" fetched", true)
         );
     }
 

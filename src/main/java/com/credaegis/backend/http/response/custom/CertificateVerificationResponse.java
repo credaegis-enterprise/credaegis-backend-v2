@@ -1,7 +1,7 @@
-package com.credaegis.backend.dto;
+package com.credaegis.backend.http.response.custom;
 
 
-import com.credaegis.backend.http.response.custom.CertificateVerificationInfo;
+import com.credaegis.backend.dto.CertificateVerificationInfoDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ public class CertificateVerificationResponse {
     private Boolean isIssued;
 
     @JsonProperty("info")
-    private CertificateVerificationInfo certificateVerificationInfo;
+    private CertificateVerificationInfoDTO certificateVerificationInfoDTO;
 
 }
 
