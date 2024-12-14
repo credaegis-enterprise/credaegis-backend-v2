@@ -17,8 +17,13 @@ public interface EventRepository extends JpaRepository<Event, String> {
 
 
     @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName FROM Event e WHERE e.name " +
+            "LIKE %:eventName% AND e.cluster.id = :clusterId")
+    List<EventSearchResponse> searchByNameAndClusterId(String eventName, String clusterId, String userOrganizationId);
+
+
+    @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName FROM Event e WHERE e.name " +
             "LIKE %:eventName% ")
-    List<EventSearchResponse> searchEvents(@Param("eventName") String eventName, @Param("organizationId") String organizationId);
+    List<EventSearchResponse> searchByName(@Param("eventName") String eventName, @Param("organizationId") String userOrganizationId);
 
     @Modifying
     @Query("UPDATE Event e SET e.deactivated = false WHERE e.id = :id")

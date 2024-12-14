@@ -24,11 +24,21 @@ public class EventController {
     private final EventService eventService;
 
 
-    @GetMapping(path="/event/search")
-    public final ResponseEntity<CustomApiResponse<List<EventSearchResponse>>> searchEvents(@RequestParam String name,
+
+    @GetMapping(path = "/event/cluster/search")
+    public ResponseEntity<CustomApiResponse<List<EventSearchResponse>>> searchByNameAndClusterId(@RequestParam String name,
+                                                                                                 @RequestParam String clusterId,
+                                                                                                 @AuthenticationPrincipal CustomUser customUser) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(eventService.searchByNameAndClusterId(name, clusterId, customUser.getOrganizationId()), "Events fetched", true)
+        );
+    }
+
+    @GetMapping(path="/event/name/search")
+    public  ResponseEntity<CustomApiResponse<List<EventSearchResponse>>> searchByName(@RequestParam String name,
                                                                                            @AuthenticationPrincipal CustomUser customUser) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(eventService.searchEvents(name, customUser.getOrganizationId()), "Events fetched", true)
+                new CustomApiResponse<>(eventService.searchByName(name, customUser.getOrganizationId()), "Events fetched", true)
         );
     }
 

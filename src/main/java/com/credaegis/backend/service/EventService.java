@@ -1,7 +1,6 @@
 package com.credaegis.backend.service;
 
 
-import com.credaegis.backend.entity.Organization;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.http.request.EventCreationRequest;
 import com.credaegis.backend.entity.Cluster;
@@ -24,73 +23,78 @@ import java.util.List;
 @Transactional
 public class EventService {
 
-    private final EventRepository eventRepository;
-    private final ClusterRepository clusterRepository;
-    private final UserRepository userRepository;
+        private final EventRepository eventRepository;
+        private final ClusterRepository clusterRepository;
+        private final UserRepository userRepository;
 
 
-    //creates an event by organization if cluster and organization are same.
-   public void createEvent(EventCreationRequest eventCreationRequest, String userId){
-          Cluster cluster = clusterRepository.findById(eventCreationRequest.getClusterId()).orElseThrow(
-                  ExceptionFactory::resourceNotFound);
-          User user = userRepository.findById(userId).orElseThrow(
-                  ExceptionFactory::resourceNotFound
-          );
-          if(!cluster.getOrganization().getId().equals(user.getOrganization().getId()))
-              throw ExceptionFactory.insufficientPermission();
+        //creates an event by organization if cluster and organization are same.
+       public void createEvent(EventCreationRequest eventCreationRequest, String userId){
+              Cluster cluster = clusterRepository.findById(eventCreationRequest.getClusterId()).orElseThrow(
+                      ExceptionFactory::resourceNotFound);
+              User user = userRepository.findById(userId).orElseThrow(
+                      ExceptionFactory::resourceNotFound
+              );
+              if(!cluster.getOrganization().getId().equals(user.getOrganization().getId()))
+                  throw ExceptionFactory.insufficientPermission();
 
-          if(eventRepository.existsByNameAndCluster(eventCreationRequest.getEventName(),cluster))
-              throw ExceptionFactory.customValidationError("Event with same name already exists in the cluster");
-
-
-      
-          Event event = new Event();
-          event.setId(UlidCreator.getUlid().toString());
-          event.setName(eventCreationRequest.getEventName());
-          event.setDescription(eventCreationRequest.getDescription());
-          event.setCluster(cluster);
-          event.setCreatedBy(user);
-          eventRepository.save(event);
-   }
+              if(eventRepository.existsByNameAndCluster(eventCreationRequest.getEventName(),cluster))
+                  throw ExceptionFactory.customValidationError("Event with same name already exists in the cluster");
 
 
-   public List<EventSearchResponse> searchEvents(String eventId, String userOrganizationId){
-       return eventRepository.searchEvents(eventId, userOrganizationId);
-   }
 
-   public void activateEvent(String eventId, String userOrganizationId){
-       Event event = eventRepository.findById(eventId).orElseThrow(
-               ExceptionFactory::resourceNotFound
-       );
-       if(!event.getCluster().getOrganization().getId().equals(userOrganizationId))
-           throw ExceptionFactory.insufficientPermission();
-       if(!event.getDeactivated()) throw ExceptionFactory.customValidationError("Event is already active");
+              Event event = new Event();
+              event.setId(UlidCreator.getUlid().toString());
+              event.setName(eventCreationRequest.getEventName());
+              event.setDescription(eventCreationRequest.getDescription());
+              event.setCluster(cluster);
+              event.setCreatedBy(user);
+              eventRepository.save(event);
+       }
 
-       eventRepository.activateEvent(eventId);
-   }
 
-   public void deactivateEvent(String eventId, String userOrganizationId){
-       Event event = eventRepository.findById(eventId).orElseThrow(
-               ExceptionFactory::resourceNotFound
-       );
+       public List<EventSearchResponse> searchByNameAndClusterId(String eventName,String clusterId,String userOrganizationId){
+              return eventRepository.searchByNameAndClusterId(eventName, clusterId, userOrganizationId);
+       }
 
-       if(!event.getCluster().getOrganization().getId().equals(userOrganizationId))
-           throw ExceptionFactory.insufficientPermission();
-       if(event.getDeactivated()) throw ExceptionFactory.customValidationError("Event is already deactivated");
-       eventRepository.deactivateEvent(eventId);
-   }
+       public List<EventSearchResponse> searchByName(String eventName, String userOrganizationId){
+           return eventRepository.searchByName(eventName, userOrganizationId);
 
-   public void updateEvent(EventModificationRequest eventModificationRequest, String userOrganizationId,
-                           String eventId){
-       Event event = eventRepository.findById(eventId).orElseThrow(
-               ExceptionFactory::resourceNotFound
-       );
+       }
 
-       if(!event.getCluster().getOrganization().getId().equals(userOrganizationId))
-           throw ExceptionFactory.insufficientPermission();
+       public void activateEvent(String eventId, String userOrganizationId){
+           Event event = eventRepository.findById(eventId).orElseThrow(
+                   ExceptionFactory::resourceNotFound
+           );
+           if(!event.getCluster().getOrganization().getId().equals(userOrganizationId))
+               throw ExceptionFactory.insufficientPermission();
+           if(!event.getDeactivated()) throw ExceptionFactory.customValidationError("Event is already active");
 
-       eventRepository.updateEvent(eventModificationRequest.getEventName(),
-               eventModificationRequest.getEventDescription(),eventId);
+           eventRepository.activateEvent(eventId);
+       }
 
-   }
+       public void deactivateEvent(String eventId, String userOrganizationId){
+           Event event = eventRepository.findById(eventId).orElseThrow(
+                   ExceptionFactory::resourceNotFound
+           );
+
+           if(!event.getCluster().getOrganization().getId().equals(userOrganizationId))
+               throw ExceptionFactory.insufficientPermission();
+           if(event.getDeactivated()) throw ExceptionFactory.customValidationError("Event is already deactivated");
+           eventRepository.deactivateEvent(eventId);
+       }
+
+       public void updateEvent(EventModificationRequest eventModificationRequest, String userOrganizationId,
+                               String eventId){
+           Event event = eventRepository.findById(eventId).orElseThrow(
+                   ExceptionFactory::resourceNotFound
+           );
+
+           if(!event.getCluster().getOrganization().getId().equals(userOrganizationId))
+               throw ExceptionFactory.insufficientPermission();
+
+           eventRepository.updateEvent(eventModificationRequest.getEventName(),
+                   eventModificationRequest.getEventDescription(),eventId);
+
+       }
 }
