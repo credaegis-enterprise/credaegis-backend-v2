@@ -7,10 +7,7 @@ import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalModificationRequest;
 import com.credaegis.backend.dto.projection.ApprovalInfoProjection;
-import com.credaegis.backend.repository.ApprovalRepository;
-import com.credaegis.backend.repository.CertificateRepository;
-import com.credaegis.backend.repository.ClusterRepository;
-import com.credaegis.backend.repository.EventRepository;
+import com.credaegis.backend.repository.*;
 import com.credaegis.backend.utility.CheckSumUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -42,8 +39,7 @@ public class ApprovalService {
     private final MinioClient minioClient;
     private final ClusterRepository clusterRepository;
     private final CheckSumUtility checkSumUtility;
-
-
+    private final UserRepository userRepository;
 
 
     public void modifyApproval(ApprovalModificationRequest approvalModificationRequest,String userOrganizationId){
@@ -94,9 +90,8 @@ public class ApprovalService {
         if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        String approvalPath = approval.getEvent().getCluster().getName() + "-" + approval.getEvent().getCluster().getId() + "/"
-                + approval.getEvent().getName() + "-" + approval.getEvent().getId() + "/" + approval.getApprovalCertificateName()
-                + "-" + approval.getId();
+        String approvalPath = approval.getEvent().getCluster().getId() + "/"
+                 + approval.getEvent().getId() + "/" + approval.getId();
 
         try {
             InputStream stream = minioClient.getObject(GetObjectArgs.builder()
@@ -126,15 +121,15 @@ public class ApprovalService {
         for (String approvalId : approvalIdList) {
             try {
                 System.out.println(approvalId);
+                User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
                 Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
                 if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
                     throw ExceptionFactory.insufficientPermission();
                 }
 
                 //creating path to retrieve file
-                String approvalPath = approval.getEvent().getCluster().getName() + "-" + approval.getEvent().getCluster().getId() + "/"
-                        + approval.getEvent().getName() + "-" + approval.getEvent().getId() + "/" + approval.getApprovalCertificateName()
-                        + "-" + approval.getId();
+                String approvalPath = approval.getEvent().getCluster().getId() + "/"
+                        + approval.getEvent().getId() + "/" + approval.getId();
 
 
                 InputStream stream = minioClient.getObject(GetObjectArgs.builder()
@@ -160,6 +155,7 @@ public class ApprovalService {
                 certificate.setRecipientEmail(approval.getRecipientEmail());
                 certificate.setIssuedDate(new Date(System.currentTimeMillis()));
                 certificate.setEvent(approval.getEvent());
+                certificate.setIssuedByUser(user);
                 approval.setStatus(Status.approved);
 
                 //right now storing everything in off-chain database
@@ -205,8 +201,7 @@ public class ApprovalService {
 
         //path to store in minio
         String clusterId = event.getCluster().getId();
-        String approvalPath = event.getCluster().getName() + "-" + clusterId +
-                "/" + event.getName() + "-" + eventId;
+        String approvalPath =  clusterId + "/"  + eventId;
         for (ApprovalsInfoDTO info : approvalsInfoDTOS) {
 //            if (!approvalsCertificatesMap.containsKey(info.getFileName())) {
 //                to be done
@@ -215,7 +210,7 @@ public class ApprovalService {
                 String approvalCertificateId = UlidCreator.getUlid().toString();
                 MultipartFile uploadCertificate = approvalsCertificatesMap.get(info.getFileName());
                 minioClient.putObject(PutObjectArgs.builder().bucket("approvals")
-                        .object(approvalPath + "/" + info.getFileName() + "-" + approvalCertificateId)
+                        .object(approvalPath + "/" + approvalCertificateId)
                         .stream(uploadCertificate.getInputStream(), uploadCertificate.getSize(), -1)
                         .build());
 

@@ -76,6 +76,12 @@ public class  User {
     @JsonManagedReference
     private List<Event> events;
 
+    @OneToMany(mappedBy = "issuedByUser")
+    @JsonProperty("issued_certificates")
+    @JsonIgnore
+    @JsonManagedReference
+    private List<Certificate> certificates;
+
 
 
     @CreationTimestamp
