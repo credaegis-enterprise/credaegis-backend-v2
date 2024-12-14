@@ -54,6 +54,7 @@ public class EventService {
 
 
        public List<EventSearchResponse> searchByNameAndClusterId(String eventName,String clusterId,String userOrganizationId){
+           if(clusterId.isBlank()) clusterId = null;
               return eventRepository.searchByNameAndClusterId(eventName, clusterId, userOrganizationId);
        }
 

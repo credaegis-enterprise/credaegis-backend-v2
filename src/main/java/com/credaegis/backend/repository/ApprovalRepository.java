@@ -34,11 +34,25 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
     List<ApprovalInfoResponse> getApprovalInfo( @Param("status")
     Status status, @Param("userOrganizationId") String userOrganizationId);
 
-    List<Approval> findByEventAndStatus(Event event, Status status);
 
-    @Query("SELECT a FROM Approval a WHERE a.event.cluster = :cluster AND a.status =:status")
-    List<Approval> findByClusterAndStatus(@Param("cluster") Cluster cluster, @Param("status") Status status);
+    @Query("SELECT a.id AS id,a.approvalCertificateName AS approvalCertificateName," +
+            "a.recipientName  AS recipientName,a.recipientEmail AS recipientEmail," +
+            "a.expiryDate AS expiryDate,a.comments AS comment,a.status AS status," +
+            "a.createdOn AS createdOn,a.updatedOn AS updatedOn," +
+            "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
+            "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
+            "FROM Approval a WHERE a.event.cluster = :cluster AND a.status = :status")
+    List<ApprovalInfoResponse> getApprovalInfoByClusterAndStatus(Cluster cluster, Status status);
 
-    @Query("SELECT a FROM Approval a WHERE a.event.cluster.organization.id = :id")
-    List<Approval> findByOrganizationId(@Param("id") String id);
+
+    @Query("SELECT a.id AS id,a.approvalCertificateName AS approvalCertificateName," +
+            "a.recipientName  AS recipientName,a.recipientEmail AS recipientEmail," +
+            "a.expiryDate AS expiryDate,a.comments AS comment,a.status AS status," +
+            "a.createdOn AS createdOn,a.updatedOn AS updatedOn," +
+            "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
+            "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
+            "FROM Approval a WHERE a.event = :event AND a.status = :status")
+    List<ApprovalInfoResponse> getApprovalInfoByEventAndStatus(Event event, Status status);
+
+
 }

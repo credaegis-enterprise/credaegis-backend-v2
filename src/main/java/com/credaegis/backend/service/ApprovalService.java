@@ -55,20 +55,20 @@ public class ApprovalService {
         return countMap;
 
     }
-    public List<Approval> getAllClusterApprovals(String clusterId,String userOrganizationId){
+    public List<ApprovalInfoResponse> getAllClusterApprovals(String clusterId,String userOrganizationId){
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
         if(!cluster.getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.findByClusterAndStatus(cluster,Status.pending);
+        return approvalRepository.getApprovalInfoByClusterAndStatus(cluster,Status.pending);
     }
 
-    public List<Approval> getAllEventApprovals(String eventId, String userOrganizationId) {
+    public List<ApprovalInfoResponse> getAllEventApprovals(String eventId, String userOrganizationId) {
         Event event = eventRepository.findById(eventId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.findByEventAndStatus(event,Status.pending);
+        return approvalRepository.getApprovalInfoByEventAndStatus(event, Status.pending);
     }
 
     public ViewApprovalDTO viewApprovalCertificate(String approvalId, String userOrganizationId) {
