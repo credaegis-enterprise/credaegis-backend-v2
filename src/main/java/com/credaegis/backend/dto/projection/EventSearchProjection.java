@@ -1,6 +1,6 @@
-package com.credaegis.backend.http.response.custom;
+package com.credaegis.backend.dto.projection;
 
-public interface EventSearchResponse {
+public interface EventSearchProjection {
 
     public String getId();
     public String getName();

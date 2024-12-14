@@ -3,7 +3,7 @@ package com.credaegis.backend.repository;
 import com.credaegis.backend.dto.EventInfoDTO;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Event;
-import com.credaegis.backend.http.response.custom.EventSearchResponse;
+import com.credaegis.backend.dto.projection.EventSearchProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,12 +18,12 @@ public interface EventRepository extends JpaRepository<Event, String> {
 
     @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName FROM Event e WHERE e.name " +
             "LIKE %:eventName% AND (:clusterId IS NULL OR e.cluster.id = :clusterId)")
-    List<EventSearchResponse> searchByNameAndClusterId(String eventName, String clusterId, String userOrganizationId);
+    List<EventSearchProjection> searchByNameAndClusterId(String eventName, String clusterId, String userOrganizationId);
 
 
     @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName FROM Event e WHERE e.name " +
             "LIKE %:eventName% ")
-    List<EventSearchResponse> searchByName(@Param("eventName") String eventName, @Param("organizationId") String userOrganizationId);
+    List<EventSearchProjection> searchByName(@Param("eventName") String eventName, @Param("organizationId") String userOrganizationId);
 
     @Modifying
     @Query("UPDATE Event e SET e.deactivated = false WHERE e.id = :id")

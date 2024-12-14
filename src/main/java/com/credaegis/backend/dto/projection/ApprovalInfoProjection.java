@@ -1,11 +1,11 @@
-package com.credaegis.backend.http.response.custom;
+package com.credaegis.backend.dto.projection;
 
 import com.credaegis.backend.entity.Status;
 
 import java.sql.Date;
 import java.sql.Timestamp;
 
-public interface ApprovalInfoResponse {
+public interface ApprovalInfoProjection {
 
     public String getId();
     public String getApprovalCertificateName();

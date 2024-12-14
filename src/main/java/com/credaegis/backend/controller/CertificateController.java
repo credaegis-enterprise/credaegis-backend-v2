@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping(value = Constants.ROUTEV1 + "/certificate-control")
 @AllArgsConstructor
@@ -24,6 +26,19 @@ public class CertificateController {
 
 
     private final CertificateService certificateService;
+
+
+    @GetMapping(path = "/issued/get-count")
+    public ResponseEntity<CustomApiResponse<Map<String,Long>>> getTotalCount(@AuthenticationPrincipal CustomUser customUser){
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new CustomApiResponse<>(
+                            certificateService.getTotalIssuedCertificateCount(customUser.getOrganizationId()),
+                            "total issued count",true
+                    )
+            );
+    }
+
 
 
     @PutMapping(path = "/revoke")

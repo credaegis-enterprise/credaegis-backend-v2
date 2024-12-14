@@ -4,7 +4,7 @@ import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Event;
 import com.credaegis.backend.entity.Status;
-import com.credaegis.backend.http.response.custom.ApprovalInfoResponse;
+import com.credaegis.backend.dto.projection.ApprovalInfoProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,7 +31,7 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
             "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
             "FROM Approval a WHERE  a.status = :status AND a.event.cluster.organization.id = :userOrganizationId")
-    List<ApprovalInfoResponse> getApprovalInfo( @Param("status")
+    List<ApprovalInfoProjection> getApprovalInfo(@Param("status")
     Status status, @Param("userOrganizationId") String userOrganizationId);
 
 
@@ -42,7 +42,7 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
             "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
             "FROM Approval a WHERE a.event.cluster = :cluster AND a.status = :status")
-    List<ApprovalInfoResponse> getApprovalInfoByClusterAndStatus(Cluster cluster, Status status);
+    List<ApprovalInfoProjection> getApprovalInfoByClusterAndStatus(Cluster cluster, Status status);
 
 
     @Query("SELECT a.id AS id,a.approvalCertificateName AS approvalCertificateName," +
@@ -52,7 +52,7 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
             "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
             "FROM Approval a WHERE a.event = :event AND a.status = :status")
-    List<ApprovalInfoResponse> getApprovalInfoByEventAndStatus(Event event, Status status);
+    List<ApprovalInfoProjection> getApprovalInfoByEventAndStatus(Event event, Status status);
 
 
 }

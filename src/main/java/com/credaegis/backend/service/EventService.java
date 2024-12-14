@@ -7,7 +7,7 @@ import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Event;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.EventModificationRequest;
-import com.credaegis.backend.http.response.custom.EventSearchResponse;
+import com.credaegis.backend.dto.projection.EventSearchProjection;
 import com.credaegis.backend.repository.ClusterRepository;
 import com.credaegis.backend.repository.EventRepository;
 import com.credaegis.backend.repository.UserRepository;
@@ -53,12 +53,12 @@ public class EventService {
        }
 
 
-       public List<EventSearchResponse> searchByNameAndClusterId(String eventName,String clusterId,String userOrganizationId){
+       public List<EventSearchProjection> searchByNameAndClusterId(String eventName, String clusterId, String userOrganizationId){
            if(clusterId.isBlank()) clusterId = null;
               return eventRepository.searchByNameAndClusterId(eventName, clusterId, userOrganizationId);
        }
 
-       public List<EventSearchResponse> searchByName(String eventName, String userOrganizationId){
+       public List<EventSearchProjection> searchByName(String eventName, String userOrganizationId){
            return eventRepository.searchByName(eventName, userOrganizationId);
 
        }

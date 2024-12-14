@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface  CertificateRepository extends JpaRepository<Certificate,String> {
@@ -24,4 +25,6 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
     Page<Certificate> findByEvent_Cluster_IdAndEvent_Cluster_Organization_Id(String clusterId, String userOrganizationId, Pageable pageable);
 
     Page<Certificate> findByEvent_IdAndEvent_Cluster_Organization_Id(String eventId, String userOrganizationId, Pageable pageable);
+
+    Long countByEvent_Cluster_Organization_Id(String userOrganizationId);
 }

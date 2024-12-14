@@ -3,7 +3,7 @@ package com.credaegis.backend.repository;
 import com.credaegis.backend.dto.ClusterInfoDTO;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Organization;
-import com.credaegis.backend.http.response.custom.ClusterSearchResponse;
+import com.credaegis.backend.dto.projection.ClusterSearchProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,11 +18,11 @@ public interface  ClusterRepository extends JpaRepository<Cluster,String> {
 
 
         @Query("SELECT c.id AS id,c.name AS name FROM Cluster c WHERE c.name LIKE %:name% AND c.organization.id = :id")
-        List<ClusterSearchResponse> searchByName(@Param("name") String name, @Param("id") String userOrganizationId);
+        List<ClusterSearchProjection> searchByName(@Param("name") String name, @Param("id") String userOrganizationId);
 
         //maps via alias (runtime)
         @Query("SELECT  c.id AS id ,c.name AS name from Cluster c WHERE c.organization.id =:id")
-        List<ClusterSearchResponse> getAllNameAndId(@Param("id") String id);
+        List<ClusterSearchProjection> getAllNameAndId(@Param("id") String id);
 
         @Modifying
         @Query("UPDATE Cluster c SET c.deactivated = true WHERE c.id = :id ")

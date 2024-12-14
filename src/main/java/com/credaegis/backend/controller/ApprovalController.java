@@ -4,13 +4,12 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ViewApprovalDTO;
-import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.entity.Status;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalModificationRequest;
 import com.credaegis.backend.http.request.ApprovalsIdRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
-import com.credaegis.backend.http.response.custom.ApprovalInfoResponse;
+import com.credaegis.backend.dto.projection.ApprovalInfoProjection;
 import com.credaegis.backend.service.ApprovalService;
 import com.credaegis.backend.utility.CheckSumUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -61,29 +60,29 @@ public class ApprovalController {
 
 
     @GetMapping(path = "/get-all")
-    public ResponseEntity<CustomApiResponse<List<ApprovalInfoResponse>>> getAllApprovals(@AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<ApprovalInfoProjection>>> getAllApprovals(@AuthenticationPrincipal CustomUser customUser) {
 
-        List<ApprovalInfoResponse> approvalInfoResponses= approvalService.getAllApprovals(customUser.getOrganizationId());
+        List<ApprovalInfoProjection> approvalInfoRespons = approvalService.getAllApprovals(customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(approvalInfoResponses, "approvals fetched", true)
+                new CustomApiResponse<>(approvalInfoRespons, "approvals fetched", true)
         );
     }
 
     @GetMapping(path = "/cluster/get-all/{id}")
-    public ResponseEntity<CustomApiResponse<List<ApprovalInfoResponse>>> getAllApprovalsByCluster(@PathVariable String id,
-                                                                                      @AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<ApprovalInfoProjection>>> getAllApprovalsByCluster(@PathVariable String id,
+                                                                                                    @AuthenticationPrincipal CustomUser customUser) {
 
-        List<ApprovalInfoResponse> approvals = approvalService.getAllClusterApprovals(id, customUser.getOrganizationId());
+        List<ApprovalInfoProjection> approvals = approvalService.getAllClusterApprovals(id, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(approvals, "approvals fetched", true)
         );
     }
 
     @GetMapping(path = "/event/get-all/{id}")
-    public ResponseEntity<CustomApiResponse<List<ApprovalInfoResponse>>> getAllApprovalsByEvent(@PathVariable String id,
-                                                                                    @AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<ApprovalInfoProjection>>> getAllApprovalsByEvent(@PathVariable String id,
+                                                                                                  @AuthenticationPrincipal CustomUser customUser) {
 
-        List<ApprovalInfoResponse> approvals = approvalService.getAllEventApprovals(id, customUser.getOrganizationId());
+        List<ApprovalInfoProjection> approvals = approvalService.getAllEventApprovals(id, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(approvals, "approvals fetched", true)
         );

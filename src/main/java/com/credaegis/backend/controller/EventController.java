@@ -5,7 +5,7 @@ import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.http.request.EventCreationRequest;
 import com.credaegis.backend.http.request.EventModificationRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
-import com.credaegis.backend.http.response.custom.EventSearchResponse;
+import com.credaegis.backend.dto.projection.EventSearchProjection;
 import com.credaegis.backend.service.EventService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -26,17 +26,17 @@ public class EventController {
 
 
     @GetMapping(path = "/event/cluster/search")
-    public ResponseEntity<CustomApiResponse<List<EventSearchResponse>>> searchByNameAndClusterId(@RequestParam String name,
-                                                                                                 @RequestParam String clusterId,
-                                                                                                 @AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<EventSearchProjection>>> searchByNameAndClusterId(@RequestParam String name,
+                                                                                                   @RequestParam String clusterId,
+                                                                                                   @AuthenticationPrincipal CustomUser customUser) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(eventService.searchByNameAndClusterId(name, clusterId, customUser.getOrganizationId()), "Events fetched", true)
         );
     }
 
     @GetMapping(path="/event/name/search")
-    public  ResponseEntity<CustomApiResponse<List<EventSearchResponse>>> searchByName(@RequestParam String name,
-                                                                                           @AuthenticationPrincipal CustomUser customUser) {
+    public  ResponseEntity<CustomApiResponse<List<EventSearchProjection>>> searchByName(@RequestParam String name,
+                                                                                        @AuthenticationPrincipal CustomUser customUser) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(eventService.searchByName(name, customUser.getOrganizationId()), "Events fetched", true)
         );

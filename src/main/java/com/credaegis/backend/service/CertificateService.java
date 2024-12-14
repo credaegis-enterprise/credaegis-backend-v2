@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +23,14 @@ public class CertificateService {
     @Transactional
     public void revokeCertificates(List<String> certificateIds, String userOrganizationId){
         certificateRepository.revokeCertificates(certificateIds,userOrganizationId);
+    }
+
+    public Map<String,Long> getTotalIssuedCertificateCount(String userOrganizationId){
+
+
+        Long count = certificateRepository.countByEvent_Cluster_Organization_Id(userOrganizationId);
+        Map<String,Long> countMap = Map.of("count",count);
+        return countMap;
     }
 
     public Page<Certificate> getLatestCertificates(int page, int size, String userOrganizationId){

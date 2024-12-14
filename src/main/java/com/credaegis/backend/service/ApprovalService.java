@@ -6,7 +6,7 @@ import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalModificationRequest;
-import com.credaegis.backend.http.response.custom.ApprovalInfoResponse;
+import com.credaegis.backend.dto.projection.ApprovalInfoProjection;
 import com.credaegis.backend.repository.ApprovalRepository;
 import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.repository.ClusterRepository;
@@ -61,7 +61,7 @@ public class ApprovalService {
 
     }
 
-    public List<ApprovalInfoResponse> getAllApprovals(String userOrganizationId) {
+    public List<ApprovalInfoProjection> getAllApprovals(String userOrganizationId) {
         return approvalRepository.getApprovalInfo(Status.pending, userOrganizationId);
     }
 
@@ -73,7 +73,7 @@ public class ApprovalService {
         return countMap;
 
     }
-    public List<ApprovalInfoResponse> getAllClusterApprovals(String clusterId,String userOrganizationId){
+    public List<ApprovalInfoProjection> getAllClusterApprovals(String clusterId, String userOrganizationId){
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
         if(!cluster.getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
@@ -81,7 +81,7 @@ public class ApprovalService {
         return approvalRepository.getApprovalInfoByClusterAndStatus(cluster,Status.pending);
     }
 
-    public List<ApprovalInfoResponse> getAllEventApprovals(String eventId, String userOrganizationId) {
+    public List<ApprovalInfoProjection> getAllEventApprovals(String eventId, String userOrganizationId) {
         Event event = eventRepository.findById(eventId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
