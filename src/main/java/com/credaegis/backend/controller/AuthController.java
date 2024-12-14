@@ -33,13 +33,14 @@ public class AuthController {
 
 
     @PostMapping(path = "/mfa/login")
-    public ResponseEntity<CustomApiResponse<Void>> mfaLoginController(@Valid @RequestBody MfaLoginRequest mfaLoginRequest,
+    public ResponseEntity<CustomApiResponse<LoginResponse>> mfaLoginController(@Valid @RequestBody MfaLoginRequest mfaLoginRequest,
                                                                       HttpServletRequest request, HttpServletResponse
                                                                                   response){
 
         authService.mfaLogin(mfaLoginRequest,request,response);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null,"login success",true)
+                new CustomApiResponse<>(new LoginResponse(true,Constants.ADMIN,Constants.ORGANIZATION_ACCOUNT_TYPE),
+                        "login success",true)
         );
     }
 

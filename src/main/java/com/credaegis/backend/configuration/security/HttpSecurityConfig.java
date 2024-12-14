@@ -25,6 +25,7 @@ public class HttpSecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
 
     @Bean
@@ -40,7 +41,9 @@ public class HttpSecurityConfig {
                         anyRequest().authenticated()).
                 logout((logout) ->
                         logout.logoutUrl(Constants.ROUTEV1 + "/auth/logout").
-                                logoutSuccessHandler(customLogoutSuccessHandler));
+                                logoutSuccessHandler(customLogoutSuccessHandler))
+                .exceptionHandling(handler -> handler.
+                        authenticationEntryPoint(customAuthenticationEntryPoint));
 
         return http.build();
     }
