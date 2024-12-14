@@ -16,6 +16,9 @@ public interface ApprovalInfoResponse {
     public Status getStatus();
     public Timestamp getCreatedOn();
     public Timestamp getUpdatedOn();
+    public String getEventId();
+    public String getEventName();
+    public String getClusterId();
     public String getClusterName();
     public String getOrganizationName();
     default Boolean getSelected(){

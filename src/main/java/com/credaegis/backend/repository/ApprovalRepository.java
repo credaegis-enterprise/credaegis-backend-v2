@@ -14,6 +14,11 @@ import java.util.List;
 
 public interface ApprovalRepository extends JpaRepository<Approval, String> {
 
+
+
+    Long countByEvent_Cluster_Organization_IdAndStatus(String organizationId, Status status);
+
+
     @Modifying
     @Query("UPDATE Approval a SET a.status = 'rejected' WHERE a.id in :appIds AND a.event.cluster.organization.id = :id")
     void rejectCertificates(@Param("id") String userOrganizationId, @Param("appIds") List<String> approvalIds);
@@ -23,7 +28,8 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
             "a.recipientName  AS recipientName,a.recipientEmail AS recipientEmail," +
             "a.expiryDate AS expiryDate,a.comments AS comment,a.status AS status," +
             "a.createdOn AS createdOn,a.updatedOn AS updatedOn," +
-            "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName " +
+            "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
+            "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
             "FROM Approval a WHERE  a.status = :status AND a.event.cluster.organization.id = :userOrganizationId")
     List<ApprovalInfoResponse> getApprovalInfo( @Param("status")
     Status status, @Param("userOrganizationId") String userOrganizationId);

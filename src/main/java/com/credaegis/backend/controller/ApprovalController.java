@@ -5,6 +5,7 @@ import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.Approval;
+import com.credaegis.backend.entity.Status;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalsIdRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -34,6 +36,17 @@ public class ApprovalController {
 
     private final ApprovalService approvalService;
     private final CheckSumUtility checkSumUtility;
+
+
+    @GetMapping(path = "/get-count")
+    public ResponseEntity<CustomApiResponse<Map<String,Long>>> getCount(@RequestParam String status,
+                                                                        @AuthenticationPrincipal CustomUser customUser) {
+
+        Map<String, Long> count = approvalService.getCount( customUser.getOrganizationId(), Status.valueOf(status));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(count, "count fetched", true)
+        );
+    }
 
 
     @GetMapping(path = "/get-all")

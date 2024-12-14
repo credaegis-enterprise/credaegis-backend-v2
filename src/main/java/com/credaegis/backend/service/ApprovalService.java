@@ -47,6 +47,14 @@ public class ApprovalService {
         return approvalRepository.getApprovalInfo(Status.pending, userOrganizationId);
     }
 
+
+    public Map<String,Long> getCount(String userOrganizationId,Status status){
+        Map<String,Long> countMap = new HashMap<>();
+        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndStatus(userOrganizationId,status);
+        countMap.put("count",count);
+        return countMap;
+
+    }
     public List<Approval> getAllClusterApprovals(String clusterId,String userOrganizationId){
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
         if(!cluster.getOrganization().getId().equals(userOrganizationId))
