@@ -3,6 +3,7 @@ package com.credaegis.backend.repository;
 import com.credaegis.backend.dto.EventInfoDTO;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Event;
+import com.credaegis.backend.http.response.custom.EventSearchResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +14,10 @@ import java.util.List;
 
 @Repository
 public interface  EventRepository extends JpaRepository<Event,String> {
+
+
+    @Query("SELECT e.id AS id ,e.name AS name FROM Event e WHERE e.name LIKE %:eventName% AND e.cluster.organization.id = :organizationId")
+    List<EventSearchResponse> searchEvents(@Param("eventName") String eventName, @Param("organizationId") String organizationId);
 
     @Modifying
     @Query("UPDATE Event e SET e.deactivated = false WHERE e.id = :id")

@@ -8,6 +8,7 @@ import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Event;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.EventModificationRequest;
+import com.credaegis.backend.http.response.custom.EventSearchResponse;
 import com.credaegis.backend.repository.ClusterRepository;
 import com.credaegis.backend.repository.EventRepository;
 import com.credaegis.backend.repository.UserRepository;
@@ -15,6 +16,8 @@ import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -48,6 +51,11 @@ public class EventService {
           event.setCluster(cluster);
           event.setCreatedBy(user);
           eventRepository.save(event);
+   }
+
+
+   public List<EventSearchResponse> searchEvents(String eventId, String userOrganizationId){
+       return eventRepository.searchEvents(eventId, userOrganizationId);
    }
 
    public void activateEvent(String eventId, String userOrganizationId){
