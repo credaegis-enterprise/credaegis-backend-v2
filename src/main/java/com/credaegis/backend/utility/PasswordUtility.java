@@ -27,7 +27,10 @@ public class PasswordUtility {
     public void isPasswordValid(String oldPassword,String confirmOldPassword, String newPassword,
                                        String confirmNewPassword) {
 
-
+        System.out.println("Old Password: "+oldPassword);
+        System.out.println("Confirm Old Password: "+confirmOldPassword);
+        System.out.println("New Password: "+newPassword);
+        System.out.println("Confirm New Password: "+confirmNewPassword);
         if(!isSamePassword(newPassword,confirmNewPassword)) {
             throw ExceptionFactory.customValidationError("Entered confirm password is not correct");
         }
@@ -36,7 +39,7 @@ public class PasswordUtility {
             throw ExceptionFactory.customValidationError("Passwords do not match with old password");
 
         }
-        if(!newPassword.equals(confirmNewPassword)){
+        if(passwordEncoder.matches(newPassword,oldPassword)){
             throw ExceptionFactory.customValidationError("Password cannot be same as old one");
         }
 

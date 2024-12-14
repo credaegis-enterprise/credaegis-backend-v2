@@ -39,7 +39,7 @@ public class AccountController {
 
 
 
-    @PostMapping(path = "/change-password")
+    @PutMapping(path = "/change-password")
     public ResponseEntity<CustomApiResponse<Void>> changePassword(@RequestBody @Valid
                                                                   PasswordChangeRequest passwordChangeRequest,
                                                                   @AuthenticationPrincipal CustomUser customUser,
