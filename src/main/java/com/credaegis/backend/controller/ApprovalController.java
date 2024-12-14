@@ -7,6 +7,7 @@ import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.entity.Status;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
+import com.credaegis.backend.http.request.ApprovalModificationRequest;
 import com.credaegis.backend.http.request.ApprovalsIdRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.ApprovalInfoResponse;
@@ -45,6 +46,16 @@ public class ApprovalController {
         Map<String, Long> count = approvalService.getCount( customUser.getOrganizationId(), Status.valueOf(status));
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(count, "count fetched", true)
+        );
+    }
+
+    @PutMapping(path = "/modify")
+    public ResponseEntity<CustomApiResponse<Void>> modifyApproval(@RequestBody @Valid ApprovalModificationRequest approvalModificationRequest,
+                                                                  @AuthenticationPrincipal CustomUser customUser) {
+
+        approvalService.modifyApproval(approvalModificationRequest, customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "approval modified Success", true)
         );
     }
 

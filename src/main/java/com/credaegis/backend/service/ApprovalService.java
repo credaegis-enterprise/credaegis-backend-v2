@@ -5,6 +5,7 @@ import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
+import com.credaegis.backend.http.request.ApprovalModificationRequest;
 import com.credaegis.backend.http.response.custom.ApprovalInfoResponse;
 import com.credaegis.backend.repository.ApprovalRepository;
 import com.credaegis.backend.repository.CertificateRepository;
@@ -42,6 +43,23 @@ public class ApprovalService {
     private final ClusterRepository clusterRepository;
     private final CheckSumUtility checkSumUtility;
 
+
+
+
+    public void modifyApproval(ApprovalModificationRequest approvalModificationRequest,String userOrganizationId){
+        Approval approval = approvalRepository.findById(approvalModificationRequest.getApprovalId()).orElseThrow(
+                ExceptionFactory::resourceNotFound
+        );
+        if(!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
+            throw ExceptionFactory.insufficientPermission();
+
+        approval.setComments(approvalModificationRequest.getComments());
+        approval.setRecipientEmail(approvalModificationRequest.getRecipientEmail());
+        approval.setRecipientName(approvalModificationRequest.getRecipientName());
+        approval.setExpiryDate(approvalModificationRequest.getExpiryDate());
+        approvalRepository.save(approval);
+
+    }
 
     public List<ApprovalInfoResponse> getAllApprovals(String userOrganizationId) {
         return approvalRepository.getApprovalInfo(Status.pending, userOrganizationId);
