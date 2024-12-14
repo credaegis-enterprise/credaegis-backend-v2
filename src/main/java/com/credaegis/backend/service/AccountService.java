@@ -110,7 +110,7 @@ public class AccountService {
             return true;
         }
         else{
-            throw ExceptionFactory.customValidationError("Mfa registration failed");
+            throw ExceptionFactory.customValidationError("Mfa registration failed, incorrect otp");
         }
 
     }
