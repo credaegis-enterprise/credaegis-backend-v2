@@ -13,10 +13,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface  EventRepository extends JpaRepository<Event,String> {
+public interface EventRepository extends JpaRepository<Event, String> {
 
 
-    @Query("SELECT e.id AS id ,e.name AS name FROM Event e WHERE e.name LIKE %:eventName% AND e.cluster.organization.id = :organizationId")
+    @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName FROM Event e WHERE e.name " +
+            "LIKE %:eventName% AND e.cluster.organization.id = :organizationId")
     List<EventSearchResponse> searchEvents(@Param("eventName") String eventName, @Param("organizationId") String organizationId);
 
     @Modifying
