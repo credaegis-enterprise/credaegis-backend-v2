@@ -86,6 +86,7 @@ public class ApprovalController {
         InputStreamResource resource = new InputStreamResource(viewApprovalDTO.getApprovalFileStream());
         return ResponseEntity.status(HttpStatus.OK).header(
                         HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + viewApprovalDTO.getApprovalFileName())
+                .header("Content-Security-Policy", "frame-ancestors 'self' http://localhost:3000")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(resource);
 
