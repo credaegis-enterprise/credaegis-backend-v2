@@ -24,7 +24,7 @@ public class EventController {
     private final EventService eventService;
 
 
-    @GetMapping(path="/search")
+    @GetMapping(path="/event/search")
     public final ResponseEntity<CustomApiResponse<List<EventSearchResponse>>> searchEvents(@RequestParam String name,
                                                                                            @AuthenticationPrincipal CustomUser customUser) {
         return ResponseEntity.status(HttpStatus.OK).body(

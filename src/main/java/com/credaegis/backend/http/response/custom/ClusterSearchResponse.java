@@ -2,7 +2,7 @@ package com.credaegis.backend.http.response.custom;
 
 
 
-public interface ClusterNameAndIdResponse {
+public interface ClusterSearchResponse {
 
     public String getId();
     public String getName();

@@ -7,7 +7,7 @@ import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.http.request.RenameRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.ClusterInfoResponse;
-import com.credaegis.backend.http.response.custom.ClusterNameAndIdResponse;
+import com.credaegis.backend.http.response.custom.ClusterSearchResponse;
 import com.credaegis.backend.service.ClusterService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -24,6 +24,17 @@ import java.util.List;
 public class ClusterController {
 
     private final ClusterService clusterService;
+
+
+    @GetMapping(path = "/cluster/search")
+    public ResponseEntity<CustomApiResponse<List<ClusterSearchResponse>>> searchClusterController(@RequestParam String name,
+                                                                                                  @AuthenticationPrincipal CustomUser customUser) {
+        System.out.println("name = " + name);
+        List<ClusterSearchResponse> clusters = clusterService.searchCluster(customUser.getOrganizationId(),name);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(clusters,"Cluster List", true)
+        );
+    }
 
     @PostMapping(path = "/create")
     public ResponseEntity<CustomApiResponse<Void>> clusterCreationController(@Valid @RequestBody ClusterCreationRequest clusterCreationRequest,
@@ -94,10 +105,10 @@ public class ClusterController {
     }
 
     @GetMapping(path = "/get-clusters")
-    public ResponseEntity<CustomApiResponse<List<ClusterNameAndIdResponse>>> getClustersNameAndId(@AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<CustomApiResponse<List<ClusterSearchResponse>>> getClustersNameAndId(@AuthenticationPrincipal CustomUser customUser) {
 
         //DI at runtime
-        List<ClusterNameAndIdResponse> clusters = clusterService.getAllNameAndId(customUser.getOrganizationId());
+        List<ClusterSearchResponse> clusters = clusterService.getAllNameAndId(customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(clusters,"Cluster List", true)
         );

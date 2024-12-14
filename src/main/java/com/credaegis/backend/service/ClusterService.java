@@ -5,7 +5,7 @@ import com.credaegis.backend.entity.*;
 import com.credaegis.backend.http.request.ClusterCreationRequest;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.response.custom.ClusterInfoResponse;
-import com.credaegis.backend.http.response.custom.ClusterNameAndIdResponse;
+import com.credaegis.backend.http.response.custom.ClusterSearchResponse;
 import com.credaegis.backend.repository.*;
 
 import com.github.f4b6a3.ulid.UlidCreator;
@@ -82,6 +82,11 @@ public class ClusterService {
         roleRepository.save(role);
         adminClusterRepository.save(adminCluster);
 
+    }
+
+
+    public List<ClusterSearchResponse> searchCluster(String userOrganizationId, String name) {
+        return clusterRepository.searchByName(name, userOrganizationId);
     }
 
     public void renameCluster(String clusterId, String userOrganizationId, String newName) {
@@ -177,7 +182,7 @@ public class ClusterService {
     }
 
 
-    public List<ClusterNameAndIdResponse> getAllNameAndId(String organizationId) {
+    public List<ClusterSearchResponse> getAllNameAndId(String organizationId) {
         return clusterRepository.getAllNameAndId(organizationId);
     }
 
