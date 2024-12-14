@@ -3,7 +3,7 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.http.response.custom.CertificateVerificationResponse;
-import com.credaegis.backend.http.response.custom.CertificateVerificationInfo;
+import com.credaegis.backend.dto.CertificateVerificationInfoDTO;
 import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.utility.CheckSumUtility;
 import jakarta.transaction.Transactional;
@@ -34,7 +34,7 @@ public class VerificationService {
             certificateVerificationResponse.setCertificateName(file.getOriginalFilename());
             if (!optionalCertificate.isPresent()) {
                 certificateVerificationResponse.setIsIssued(false);
-                certificateVerificationResponse.setCertificateVerificationInfo(null);
+                certificateVerificationResponse.setCertificateVerificationInfoDTO(null);
                 certificateVerificationResponseList.add(certificateVerificationResponse);
                 continue;
             }
@@ -42,7 +42,7 @@ public class VerificationService {
             Certificate certificate = optionalCertificate.get();
             certificateVerificationResponse.setIsIssued(true);
 
-            CertificateVerificationInfo info = CertificateVerificationInfo.builder()
+            CertificateVerificationInfoDTO info = CertificateVerificationInfoDTO.builder()
                     .certificateName(file.getOriginalFilename())
                     .certificateId(certificate.getId())
                     .recipientName(certificate.getRecipientName())
@@ -56,7 +56,7 @@ public class VerificationService {
                     .clusterName(certificate.getEvent().getCluster().getName())
                     .build();
 
-            certificateVerificationResponse.setCertificateVerificationInfo(info);
+            certificateVerificationResponse.setCertificateVerificationInfoDTO(info);
             certificateVerificationResponseList.add(certificateVerificationResponse);
 
         }

@@ -1,4 +1,4 @@
-package com.credaegis.backend.http.response.custom;
+package com.credaegis.backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.sql.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CertificateVerificationInfo {
+public class CertificateVerificationInfoDTO {
 
     private String certificateId;
     private String certificateName;

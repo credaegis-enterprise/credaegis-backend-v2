@@ -1,10 +1,12 @@
 package com.credaegis.backend.service;
 
 import com.credaegis.backend.constant.Constants;
+import com.credaegis.backend.dto.OrganizationInfoDTO;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
+import com.credaegis.backend.http.response.custom.AccountInfoResponse;
 import com.credaegis.backend.repository.UserRepository;
 import com.credaegis.backend.utility.PasswordUtility;
 import dev.samstevens.totp.code.CodeVerifier;
@@ -38,6 +40,25 @@ public class AccountService {
     private SecretGenerator secretGenerator;
     private QrGenerator qrGenerator;
     private CodeVerifier codeVerifier;
+
+
+
+    public AccountInfoResponse getMe(String userId){
+
+        User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+        OrganizationInfoDTO organizationInfoDTO = OrganizationInfoDTO.builder()
+                .id(user.getOrganization().getId())
+                .name(user.getOrganization().getName())
+                .address(user.getOrganization().getAddress())
+                .pincode(user.getOrganization().getPincode())
+                .build();
+
+        return AccountInfoResponse.builder()
+                .user(user)
+                .organizationInfoDTO(organizationInfoDTO)
+                .build();
+
+    }
 
     public void changePassword(PasswordChangeRequest passwordChangeRequest,
                                String oldPassword,

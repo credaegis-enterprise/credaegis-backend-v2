@@ -50,8 +50,6 @@ public class  User {
     @Column(nullable = false)
     private boolean deleted = false;
 
-
-
     @ManyToOne
     @JoinColumn(name = "organization_id",nullable = false)
     @JsonBackReference
@@ -74,6 +72,7 @@ public class  User {
 
     @OneToMany(mappedBy = "createdBy")
     @JsonProperty("created_events")
+    @JsonIgnore
     @JsonManagedReference
     private List<Event> events;
 
