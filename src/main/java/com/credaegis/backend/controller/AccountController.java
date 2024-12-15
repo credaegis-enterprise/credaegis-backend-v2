@@ -2,8 +2,6 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
-import com.credaegis.backend.entity.User;
-import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.http.request.AccountInfoModificationRequest;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
@@ -33,6 +31,9 @@ public class AccountController {
     private final AccountService accountService;
 
 
+
+
+
     @GetMapping(path = "/me")
     public ResponseEntity<CustomApiResponse<AccountInfoResponse>> getMe(@AuthenticationPrincipal CustomUser customUser) {
         AccountInfoResponse accountInfoResponse = accountService.getMe(customUser.getId());
@@ -42,10 +43,18 @@ public class AccountController {
     }
 
 
-    @GetMapping(path = "/get/brand-logo")
-    public ResponseEntity<InputStreamResource> getBrandLogo(@AuthenticationPrincipal CustomUser customUser) {
-        InputStreamResource inputStreamResource = new InputStreamResource(accountService.getBrandLogo(customUser.getId()));
+    @DeleteMapping(path = "/remove/brand-logo")
+    public ResponseEntity<CustomApiResponse<Void>> removeBrandLogo(@AuthenticationPrincipal CustomUser customUser) {
+        accountService.removeBrandLogo(customUser.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Brand logo removed", true)
+        );
+    }
 
+
+    @GetMapping(path = "/serve/brand-logo")
+    public ResponseEntity<?> serveBrandLogo(@AuthenticationPrincipal CustomUser customUser) {
+        InputStreamResource inputStreamResource = new InputStreamResource(accountService.serveBrandLogo(customUser.getId()));
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Content-Disposition", "inline; filename=brand-logo.jpg")
                 .contentType(MediaType.IMAGE_JPEG)
@@ -116,6 +125,14 @@ public class AccountController {
     @PostMapping(path ="/upload/brand-logo")
     public ResponseEntity<CustomApiResponse<Void>> uploadBrandLogo(@AuthenticationPrincipal CustomUser customUser,
                                                                    @RequestParam("logo") MultipartFile file) {
+
+       Float value = (float) (file.getSize()/1000000);
+       if(value > 1) {
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                   new CustomApiResponse<>(null, "File size should be less than 2MB", false)
+           );
+       }
+
         accountService.uploadBrandLogo(customUser.getId(), file);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Brand logo uploaded", true)

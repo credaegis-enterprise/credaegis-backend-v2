@@ -8,12 +8,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MultipartException;
 
 import java.util.ArrayList;
 
 @ControllerAdvice
 public class ControllerAdvisor {
 
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<CustomExceptionResponse> handleMultipartException(MultipartException exc) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new CustomExceptionResponse("Request size exceeds the limit", false));
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CustomExceptionResponse> methodArgumentNotValidException(MethodArgumentNotValidException exception)
             throws MethodArgumentNotValidException{

@@ -18,11 +18,14 @@ import dev.samstevens.totp.secret.SecretGenerator;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import io.minio.errors.MinioException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,20 +54,39 @@ public class AccountService {
     private final MinioClient minioClient;
 
 
+    public void removeBrandLogo(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket("brand-logo")
+                    .object(user.getId())
+                    .build());
+        } catch (Exception e) {
+            log.error(e.toString());
+            log.error(e.getMessage());
+            throw new CustomException("Error in removing profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
-    public InputStream getBrandLogo(String userId){
+    public InputStream serveBrandLogo(String userId) {
         User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
         try {
             return minioClient.getObject(GetObjectArgs.builder()
-                            .bucket("brand-logo")
-                            .object(user.getId())
+                    .bucket("brand-logo")
+                    .object(user.getId())
                     .build());
+        } catch (io.minio.errors.ErrorResponseException e) {
+            if (!e.errorResponse().code().equals("NoSuchKey")) {
+                throw new CustomException("Error in serving profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return getPlaceHolderImage();
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new CustomException("Error in fetching profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("Error in serving profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     public void uploadBrandLogo(String userId, MultipartFile file) {
         User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
         try {
@@ -165,6 +187,17 @@ public class AccountService {
             throw ExceptionFactory.customValidationError("mfa is already disabled");
         }
         userRepository.enableMfa(false, userId);
+    }
+
+
+    private InputStream getPlaceHolderImage(){
+        try {
+
+            return new ClassPathResource("static/placeholder.png").getInputStream();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CustomException("Error in serving profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
