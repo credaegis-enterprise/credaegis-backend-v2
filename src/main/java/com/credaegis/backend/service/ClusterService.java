@@ -144,9 +144,11 @@ public class ClusterService {
                 ExceptionFactory.customValidationError("New AdminCluster must of from the same cluster");
         if (cluster.getAdminCluster().getUser().getId().equals(newAdminId)) throw
                 ExceptionFactory.customValidationError("User is already admin of the specified cluster");
+        if(user.getDeactivated())
+            throw ExceptionFactory.customValidationError("User is deactivated, you must activate to make admin");
 
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
-            cluster.getAdminCluster().getUser().getRole().setRole("ROLE"+Constants.MEMBER);
+            cluster.getAdminCluster().getUser().getRole().setRole("ROLE_"+Constants.MEMBER);
             user.getRole().setRole("ROLE_"+Constants.CLUSTER_ADMIN);
             userRepository.save(user);
             clusterRepository.save(cluster);
