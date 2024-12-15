@@ -199,7 +199,7 @@ public class AccountService {
     private InputStream getPlaceHolderImage(){
         try {
 
-            return new ClassPathResource("static/placeholder.png").getInputStream();
+            return new ClassPathResource("static/placeholder-brandlogo.png").getInputStream();
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new CustomException("Error in serving profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
