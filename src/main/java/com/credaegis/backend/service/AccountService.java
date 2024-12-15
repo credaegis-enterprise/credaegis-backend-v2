@@ -12,10 +12,12 @@ import com.credaegis.backend.repository.UserRepository;
 import com.credaegis.backend.utility.PasswordUtility;
 import dev.samstevens.totp.code.CodeVerifier;
 import dev.samstevens.totp.code.HashingAlgorithm;
-import dev.samstevens.totp.exceptions.QrGenerationException;
 import dev.samstevens.totp.qr.QrData;
 import dev.samstevens.totp.qr.QrGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
+import io.minio.GetObjectArgs;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -27,32 +29,67 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStream;
+
 import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 
 @Service
 @AllArgsConstructor
 @Transactional
 @Slf4j
+
 public class AccountService {
 
     private final UserRepository userRepository;
     private final PasswordUtility passwordUtility;
     private final PasswordEncoder passwordEncoder;
-    private SecretGenerator secretGenerator;
-    private QrGenerator qrGenerator;
-    private CodeVerifier codeVerifier;
+    private final SecretGenerator secretGenerator;
+    private final QrGenerator qrGenerator;
+    private final CodeVerifier codeVerifier;
+    private final MinioClient minioClient;
 
 
 
 
+    public InputStream getBrandLogo(String userId){
+        User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+        try {
+            return minioClient.getObject(GetObjectArgs.builder()
+                            .bucket("brand-logo")
+                            .object(user.getId())
+                    .build());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CustomException("Error in fetching profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    public void uploadBrandLogo(String userId, MultipartFile file) {
+        User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+        try {
 
-    public void updateAccountInfo(AccountInfoModificationRequest accountInfoModificationRequest,String userId){
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket("brand-logo")
+                    .object(user.getId())
+                    .stream(
+                            file.getInputStream(), file.getSize(), -1)
+                    .contentType(file.getContentType())
+                    .build());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new CustomException("Error in uploading profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void updateAccountInfo(AccountInfoModificationRequest accountInfoModificationRequest, String userId) {
         User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
         user.setUsername(accountInfoModificationRequest.getUsername());
         user.getOrganization().setName(accountInfoModificationRequest.getOrganizationName());
         userRepository.save(user);
     }
-    public AccountInfoResponse getMe(String userId){
+
+    public AccountInfoResponse getMe(String userId) {
 
         User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
         OrganizationInfoDTO organizationInfoDTO = OrganizationInfoDTO.builder()
@@ -74,8 +111,8 @@ public class AccountService {
                                String userId,
                                HttpServletRequest request, HttpServletResponse response) {
 
-        passwordUtility.isPasswordValid(oldPassword,passwordChangeRequest.getOldPassword(),
-        passwordChangeRequest.getNewPassword(),passwordChangeRequest.getConfirmPassword());
+        passwordUtility.isPasswordValid(oldPassword, passwordChangeRequest.getOldPassword(),
+                passwordChangeRequest.getNewPassword(), passwordChangeRequest.getConfirmPassword());
         userRepository.updatePassword(userId, passwordEncoder.encode(passwordChangeRequest.getNewPassword()));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -87,7 +124,7 @@ public class AccountService {
     }
 
 
-    public String generateQrCodeMfa(String email,String userId) {
+    public String generateQrCodeMfa(String email, String userId) {
 
         try {
             String secret = secretGenerator.generate();
@@ -101,38 +138,34 @@ public class AccountService {
 
             userRepository.updateMfaSecret(secret, userId);
             return getDataUriForImage(qrGenerator.generate(data), qrGenerator.getImageMimeType());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new CustomException("Error in generating qr-code", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
-    public Boolean registerMfa(String code, String userId){
+    public Boolean registerMfa(String code, String userId) {
         User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if(user.getMfaEnabled()){
+        if (user.getMfaEnabled()) {
             throw ExceptionFactory.customValidationError("mfa is already enabled");
         }
-        if(codeVerifier.isValidCode(user.getMfaSecret(),code)){
-            userRepository.enableMfa(true,userId);
+        if (codeVerifier.isValidCode(user.getMfaSecret(), code)) {
+            userRepository.enableMfa(true, userId);
             return true;
-        }
-        else{
+        } else {
             throw ExceptionFactory.customValidationError("Mfa registration failed, incorrect otp");
         }
 
     }
 
-    public void disableMfa(String userId){
+    public void disableMfa(String userId) {
         User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if(!user.getMfaEnabled()){
+        if (!user.getMfaEnabled()) {
             throw ExceptionFactory.customValidationError("mfa is already disabled");
         }
-        userRepository.enableMfa(false,userId);
+        userRepository.enableMfa(false, userId);
     }
-
-
 
 
 }

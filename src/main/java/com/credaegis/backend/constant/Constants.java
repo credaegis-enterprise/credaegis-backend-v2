@@ -1,5 +1,7 @@
 package com.credaegis.backend.constant;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class Constants {
 
     public static final String ROUTEV1 = "/api/v1/organization";

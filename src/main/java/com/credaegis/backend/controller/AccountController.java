@@ -15,10 +15,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(value = Constants.ROUTEV1 + "/account")
@@ -37,6 +40,18 @@ public class AccountController {
                 new CustomApiResponse<>(accountInfoResponse, "User details", true)
         );
     }
+
+
+    @GetMapping(path = "/get/brand-logo")
+    public ResponseEntity<InputStreamResource> getBrandLogo(@AuthenticationPrincipal CustomUser customUser) {
+        InputStreamResource inputStreamResource = new InputStreamResource(accountService.getBrandLogo(customUser.getId()));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Content-Disposition", "inline; filename=brand-logo.jpg")
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(inputStreamResource);
+    }
+
 
 
     @PutMapping(path = "/change-password")
@@ -96,6 +111,17 @@ public class AccountController {
                 new CustomApiResponse<>(null, "User info updated", true)
         );
     }
+
+
+    @PostMapping(path ="/upload/brand-logo")
+    public ResponseEntity<CustomApiResponse<Void>> uploadBrandLogo(@AuthenticationPrincipal CustomUser customUser,
+                                                                   @RequestParam("logo") MultipartFile file) {
+        accountService.uploadBrandLogo(customUser.getId(), file);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Brand logo uploaded", true)
+        );
+    }
+
 
 
 }

@@ -28,8 +28,8 @@ public class MinioConfig {
     @Value("${minio.certificate.bucket.name}")
     private String certificateBucket;
 
-    @Value("${minio.profile.bucket.name}")
-    private String profileBucket;
+    @Value("${minio.logo.bucket.name}")
+    private String logoBucket;
 
     @Bean
     public MinioClient createMinioClient() {
@@ -42,7 +42,7 @@ public class MinioConfig {
             minioClient.listBuckets();
             createIfNotExists(approvalBucket,minioClient);
             createIfNotExists(certificateBucket,minioClient);
-            createIfNotExists(profileBucket,minioClient);
+            createIfNotExists(logoBucket,minioClient);
 
             log.info("Successful connection to minio established and bucket are initialized");
             return minioClient;
