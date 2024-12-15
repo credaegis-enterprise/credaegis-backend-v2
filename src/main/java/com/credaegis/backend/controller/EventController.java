@@ -57,7 +57,7 @@ public class EventController {
     public ResponseEntity<CustomApiResponse<Void>> activateEvent(@PathVariable String id,
                                                                  @AuthenticationPrincipal CustomUser customUser) {
 
-        eventService.activateEvent(id, customUser.getId());
+        eventService.activateEvent(id, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Event Successfully activated", true)
         );
@@ -66,7 +66,7 @@ public class EventController {
     @PutMapping(path = "/deactivate/{id}")
     public ResponseEntity<CustomApiResponse<Void>> deactivateEvent(@PathVariable String id,
                                                                    @AuthenticationPrincipal CustomUser customUser) {
-        eventService.deactivateEvent(id, customUser.getId());
+        eventService.deactivateEvent(id, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Event Successfully deactivated", true)
         );
