@@ -54,6 +54,7 @@ public class VerificationService {
                     .comments(certificate.getComments())
                     .expiryDate(certificate.getExpiryDate())
                     .clusterName(certificate.getEvent().getCluster().getName())
+                    .eventName(certificate.getEvent().getName())
                     .build();
 
             certificateVerificationResponse.setCertificateVerificationInfoDTO(info);

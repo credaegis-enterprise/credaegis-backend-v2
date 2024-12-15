@@ -21,7 +21,7 @@ public class VerificationController {
 
     private VerificationService verificationService;
 
-    @GetMapping(path = "/verify")
+    @PostMapping(path = "/verify")
     public ResponseEntity<CustomApiResponse<List<CertificateVerificationResponse>>> verifyCertificates(@RequestParam("certificates")
                                                                                                        List<MultipartFile> multipartFiles)
             throws IOException {
