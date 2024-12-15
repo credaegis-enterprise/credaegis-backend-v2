@@ -17,6 +17,13 @@ public interface  ClusterRepository extends JpaRepository<Cluster,String> {
         List<Cluster> findByOrganization(Organization organization);
 
 
+//        @Query("SELECT new com.credaegis.backend.dto.ClusterInfoDTO" +
+//                "(cl.name,COUNT (a.id) AS issuedCertificateCount,COUNT (CASE WHEN c.revoked = true THEN 1) AS revokedCertificateCount," +
+//                "COUNT (CASE WHEN a.status = 'rejected' THEN 1) AS rejectedCertificateCount) FROM Cluster cl INNER JOIN " +
+//                "" +
+//                "FROM Cluster c WHERE c.id = :id")
+
+
         @Query("SELECT c.id AS id,c.name AS name FROM Cluster c WHERE c.name LIKE %:name% AND c.organization.id = :id")
         List<ClusterSearchProjection> searchByName(@Param("name") String name, @Param("id") String userOrganizationId);
 

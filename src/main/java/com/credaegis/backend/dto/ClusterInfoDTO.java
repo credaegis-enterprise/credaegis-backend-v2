@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class ClusterInfoDTO {
     private String id;
     private String name;
