@@ -4,6 +4,7 @@ import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.CustomException;
+import com.credaegis.backend.http.request.AccountInfoModificationRequest;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.AccountInfoResponse;
@@ -33,10 +34,9 @@ public class AccountController {
     public ResponseEntity<CustomApiResponse<AccountInfoResponse>> getMe(@AuthenticationPrincipal CustomUser customUser) {
         AccountInfoResponse accountInfoResponse = accountService.getMe(customUser.getId());
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(accountInfoResponse,"User details", true)
+                new CustomApiResponse<>(accountInfoResponse, "User details", true)
         );
     }
-
 
 
     @PutMapping(path = "/change-password")
@@ -83,6 +83,17 @@ public class AccountController {
         accountService.disableMfa(customUser.getId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Mfa disabled", true)
+        );
+    }
+
+
+    @PutMapping(path = "/update-info")
+    public ResponseEntity<CustomApiResponse<Void>> updateInfo(@AuthenticationPrincipal CustomUser customUser,
+                                                              @RequestBody @Valid AccountInfoModificationRequest
+                                                                      accountInfoModificationRequest) {
+        accountService.updateAccountInfo(accountInfoModificationRequest, customUser.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "User info updated", true)
         );
     }
 

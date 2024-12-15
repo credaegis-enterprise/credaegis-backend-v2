@@ -5,6 +5,7 @@ import com.credaegis.backend.dto.OrganizationInfoDTO;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
+import com.credaegis.backend.http.request.AccountInfoModificationRequest;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.custom.AccountInfoResponse;
 import com.credaegis.backend.repository.UserRepository;
@@ -43,6 +44,14 @@ public class AccountService {
 
 
 
+
+
+    public void updateAccountInfo(AccountInfoModificationRequest accountInfoModificationRequest,String userId){
+        User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+        user.setUsername(accountInfoModificationRequest.getUsername());
+        user.getOrganization().setName(accountInfoModificationRequest.getOrganizationName());
+        userRepository.save(user);
+    }
     public AccountInfoResponse getMe(String userId){
 
         User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
