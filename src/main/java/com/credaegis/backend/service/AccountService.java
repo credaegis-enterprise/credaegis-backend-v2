@@ -61,6 +61,9 @@ public class AccountService {
                     .bucket("brand-logo")
                     .object(user.getId())
                     .build());
+
+            user.setBrandLogoEnabled(false);
+            userRepository.save(user);
         } catch (Exception e) {
             log.error(e.toString());
             log.error(e.getMessage());
@@ -98,6 +101,9 @@ public class AccountService {
                             file.getInputStream(), file.getSize(), -1)
                     .contentType(file.getContentType())
                     .build());
+
+            user.setBrandLogoEnabled(true);
+            userRepository.save(user);
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new CustomException("Error in uploading profile picture", HttpStatus.INTERNAL_SERVER_ERROR);

@@ -41,8 +41,8 @@ public class  User {
     @JsonIgnore
     private String mfaSecret;
 
-    @Column(name = "profile_url", unique = true)
-    private String profileUrl;
+    @Column(name = "brand_logo_enabled", nullable = false)
+    private Boolean brandLogoEnabled = false;
 
     @Column(nullable = false)
     private Boolean deactivated = false;

@@ -127,6 +127,7 @@ public class AccountController {
                                                                    @RequestParam("logo") MultipartFile file) {
 
        Float value = (float) (file.getSize()/1000000);
+       log.error("File size: "+value);
        if(value > 1) {
            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                    new CustomApiResponse<>(null, "File size should be less than 2MB", false)

@@ -3,6 +3,7 @@ package com.credaegis.backend.exception;
 import com.credaegis.backend.http.response.exception.CustomExceptionResponse;
 import com.credaegis.backend.exception.custom.CustomException;
 import jakarta.validation.ConstraintViolationException;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +15,12 @@ import java.util.ArrayList;
 
 @ControllerAdvice
 public class ControllerAdvisor {
+
+    @ExceptionHandler(FileSizeLimitExceededException.class)
+    public ResponseEntity<CustomExceptionResponse> handleFileSizeLimitExceededException(FileSizeLimitExceededException exc) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new CustomExceptionResponse("File size exceeds the limit", false));
+    }
 
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<CustomExceptionResponse> handleMultipartException(MultipartException exc) {
