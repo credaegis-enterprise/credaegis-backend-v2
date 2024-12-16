@@ -20,7 +20,6 @@ public class CustomUser implements UserDetails {
     @Getter
     private final String email;
 
-
     private final String password;
 
     @Getter
@@ -41,6 +40,7 @@ public class CustomUser implements UserDetails {
         this.organizationId=organizationId;
         this.password=password;
         this.mfaEnabled=mfaEnabled;
+
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
