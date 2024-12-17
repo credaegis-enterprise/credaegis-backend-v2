@@ -16,6 +16,7 @@ public class HttpSessionConfig {
     CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setCookieName("ORGANIZATION_SESSION");
+
         return serializer;
     }
 
