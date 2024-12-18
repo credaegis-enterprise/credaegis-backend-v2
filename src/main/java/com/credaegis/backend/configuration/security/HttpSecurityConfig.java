@@ -1,5 +1,6 @@
 package com.credaegis.backend.configuration.security;
 
+import com.credaegis.backend.configuration.session.CustomInvalidSessionStrategy;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.service.CustomUserDetailsService;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class HttpSecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomInvalidSessionStrategy  customInvalidSessionStrategy;
 
 
     @Bean
@@ -36,7 +38,7 @@ public class HttpSecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(request -> request.requestMatchers
-                                (Constants.ROUTEV1 + "/auth/**", Constants.ROUTEV1 + "/test/**",Constants.ROUTEV1 + "/external/**").
+                                (Constants.ROUTEV1 + "/auth/**", Constants.ROUTEV1 + "/test/**", Constants.ROUTEV1 + "/external/**").
                         permitAll().requestMatchers(Constants.ROUTEV1 + "/**").hasRole(Constants.ADMIN).
                         anyRequest().authenticated()).
                 logout((logout) ->
@@ -45,8 +47,11 @@ public class HttpSecurityConfig {
                 .exceptionHandling(handler -> handler.
                         authenticationEntryPoint(customAuthenticationEntryPoint));
 
+//        http.sessionManagement(session->session.invalidSessionStrategy(customInvalidSessionStrategy));
+
         return http.build();
     }
+
 
 
     @Bean
