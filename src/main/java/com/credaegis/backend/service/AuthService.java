@@ -58,7 +58,6 @@ public class AuthService {
             request, HttpServletResponse response) {
 
 
-        System.out.println("skskjskjskjksjk");
         User user = userRepository.findByEmail(mfaLoginRequest.getEmail()).orElseThrow(
                 () -> ExceptionFactory.customValidationError("Invalid email")
         );
@@ -69,8 +68,6 @@ public class AuthService {
             throw ExceptionFactory.accessDeniedException("Entered OTP is incorrect");
 
 
-        log.error("MFA login request for user: {}",mfaLoginRequest.getEmail());
-        log.error("MFA login request for user: {}",mfaLoginRequest.getPassword());
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
                 mfaLoginRequest.getEmail(),
                 mfaLoginRequest.getPassword()
