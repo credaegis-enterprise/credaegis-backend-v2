@@ -51,7 +51,7 @@ public class AccountController {
         );
     }
 
-
+    @CrossOrigin
     @GetMapping(path = "/serve/brand-logo")
     public ResponseEntity<?> serveBrandLogo(@AuthenticationPrincipal CustomUser customUser) {
         InputStreamResource inputStreamResource = new InputStreamResource(accountService.serveBrandLogo(customUser.getId()));

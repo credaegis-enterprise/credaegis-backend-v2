@@ -88,7 +88,7 @@ public class ApprovalController {
         );
     }
 
-
+    @CrossOrigin
     @GetMapping(path = "/view/{id}")
     public ResponseEntity<InputStreamResource> viewApproval(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
 
