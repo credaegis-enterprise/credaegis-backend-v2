@@ -2,6 +2,7 @@ package com.credaegis.backend.configuration.rabbitmq;
 
 
 import com.credaegis.backend.exception.custom.CustomException;
+import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,11 @@ public class RabbitMqConfig {
             factory.setHost(rabbitMqHost);
             try{
                 Connection connection = factory.newConnection();
+                Channel channel = connection.createChannel();
+                channel.queueDeclare("ERROR_QUEUE", true, false, false, null);
+                channel.queueDeclare("APPROVAL_REQUEST_QUEUE", true, false, false, null);
+                channel.close();
+
                 log.info("Rabbit MQ connection established successfully");
                 return connection;
             }

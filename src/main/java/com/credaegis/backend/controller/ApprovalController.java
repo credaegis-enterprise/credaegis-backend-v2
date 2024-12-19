@@ -24,6 +24,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,22 @@ public class ApprovalController {
 
     private final ApprovalService approvalService;
     private final CheckSumUtility checkSumUtility;
+
+
+
+    @PostMapping(path = "/blockchain/approve")
+    public ResponseEntity<CustomApiResponse<Void>> approveBlock(@Valid @RequestBody ApprovalsIdRequest
+                                                                               approvalsIdRequest,
+                                                                       @AuthenticationPrincipal CustomUser customUser) throws IOException {
+
+        approvalService.approveCertifcatesExternal
+                (customUser.getId(), customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Requests to approve are processing", true));
+    }
+
+
+
 
 
     @GetMapping(path = "/get-count")

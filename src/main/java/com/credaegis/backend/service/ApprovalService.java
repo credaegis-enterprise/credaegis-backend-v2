@@ -4,6 +4,7 @@ package com.credaegis.backend.service;
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.*;
+import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalModificationRequest;
 import com.credaegis.backend.dto.projection.ApprovalInfoProjection;
@@ -13,15 +14,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.ulid.UlidCreator;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
 import java.util.HashMap;
@@ -40,11 +45,65 @@ public class ApprovalService {
     private final ClusterRepository clusterRepository;
     private final CheckSumUtility checkSumUtility;
     private final UserRepository userRepository;
+    private final Connection rabbitMqConnection;
 
 
 
-    public void approveCertifcatesExternal(String userId,String userOrganizationId, List<String> approvalIdList){
+    public void approveCertifcatesExternal(String userId,String userOrganizationId, List<String> approvalIdList) throws IOException {
 
+        try {
+            Channel channel = rabbitMqConnection.createChannel();
+            channel.queueDeclare("ERROR_QUEUE", true, false, false, null);
+            channel.queueDeclare("APPROVAL_REQUEST_QUEUE", true, false, false, null);
+            for (String approvalId : approvalIdList) {
+                try {
+                    System.out.println(approvalId);
+//                User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+//                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+//                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
+//                    String errorMessage = "approval id " + approvalId + " could not be processed because of" +
+//                            "insufficient permission";
+//                    channel.basicPublish("","ERROR_QUEUE",null,errorMessage.getBytes());
+//                }
+//
+//                //creating path to retrieve file
+//                String approvalPath = approval.getEvent().getCluster().getId() + "/"
+//                        + approval.getEvent().getId() + "/" + approval.getId();
+//
+//
+//                InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+//                        .bucket("approvals")
+//                        .object(approvalPath)
+//                        .build());
+
+//                String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
+                channel.basicPublish("","APPROVAL_REQUEST_QUEUE",null,approvalId.getBytes());
+
+
+                }
+//            catch (io.minio.errors.ErrorResponseException ie){
+//                log.error(ie.getMessage());
+//                if (!ie.errorResponse().code().equals("NoSuchKey")) {
+//                    String errorMessgae ="approval id " + approvalId + " could not be processed because " +
+//                            "the file is not found";
+//                    channel.basicPublish("","ERROR_QUEUE",null,errorMessgae.getBytes());
+//                }
+//                String errorMessage ="approval id " + approvalId + " could not be processed";
+//                channel.basicPublish("","ERROR_QUEUE",null,errorMessage.getBytes());
+//
+//            }
+                catch (Exception e) {
+
+                    log.error(e.getMessage());
+                    String errorMessage = "approval id " + approvalId + " could not be processed";
+                    channel.basicPublish("", "ERROR_QUEUE", null, errorMessage.getBytes());
+
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void modifyApproval(ApprovalModificationRequest approvalModificationRequest,String userOrganizationId){
