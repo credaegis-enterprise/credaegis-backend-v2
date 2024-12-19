@@ -42,6 +42,11 @@ public class ApprovalService {
     private final UserRepository userRepository;
 
 
+
+    public void approveCertifcatesExternal(String userId,String userOrganizationId, List<String> approvalIdList){
+
+    }
+
     public void modifyApproval(ApprovalModificationRequest approvalModificationRequest,String userOrganizationId){
         Approval approval = approvalRepository.findById(approvalModificationRequest.getApprovalId()).orElseThrow(
                 ExceptionFactory::resourceNotFound
