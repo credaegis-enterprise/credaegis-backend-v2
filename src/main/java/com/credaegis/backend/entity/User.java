@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -81,6 +80,12 @@ public class  User {
     @JsonIgnore
     @JsonManagedReference
     private List<Certificate> certificates;
+
+
+    @OneToMany(mappedBy = "user")
+    @JsonProperty("notifications")
+    @JsonManagedReference
+    private List<Notification> notifications;
 
 
 
