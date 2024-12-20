@@ -3,6 +3,7 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
+import com.credaegis.backend.dto.NotificationMessageDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.CustomException;
@@ -32,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +60,14 @@ public class ApprovalService {
 
             for (String approvalId : approvalIdList) {
                 try {
-                    rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,"errors",approvalId);
-                    rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,"approvals",approvalId);
+                    NotificationMessageDTO notificationMessageDTO = NotificationMessageDTO.builder()
+                            .message("Approval id " + approvalId + " is being processed")
+                            .type("APPROVAL")
+                            .userId(userId)
+                            .timestamp(new Timestamp(System.currentTimeMillis()))
+                            .build();
+
+                    rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE, Constants.APPROVAL_REQUEST_QUEUE_KEY, notificationMessageDTO);
 //                User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
 //                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
 //                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
