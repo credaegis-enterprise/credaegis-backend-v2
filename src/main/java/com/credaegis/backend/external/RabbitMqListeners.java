@@ -2,8 +2,8 @@ package com.credaegis.backend.external;
 
 
 import com.credaegis.backend.constant.Constants;
+import com.credaegis.backend.dto.ApprovalBlockchainDTO;
 import com.credaegis.backend.dto.NotificationMessageDTO;
-import com.credaegis.backend.dto.external.ApprovalBlockChainStoreStatusDTO;
 import com.credaegis.backend.entity.Notification;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
@@ -58,11 +58,12 @@ public class RabbitMqListeners{
     }
 
     @RabbitListener(queues = Constants.APPROVAL_RESPONSE_QUEUE)
-    public void receiveApprovalRequest(ApprovalBlockChainStoreStatusDTO message, @Header(AmqpHeaders.DELIVERY_TAG) long tag,
+    public void receiveApprovalRequest(ApprovalBlockchainDTO message, @Header(AmqpHeaders.DELIVERY_TAG) long tag,
                                        Channel channel) throws IOException {
 
-        System.out.println("Approval response received for user: " + message.getUserId());
-        System.out.println("Hashes stored: " + message.getHashesStored());
+        System.out.println("Approval response received for user: " + message.getApprovalId());
+        System.out.println("Hash stored: " + message.getHash());
+        System.out.println("Stored: " + message.getStored());
 
         channel.basicAck(tag,false);
 

@@ -1,4 +1,4 @@
-package com.credaegis.backend.dto.external;
+package com.credaegis.backend.dto;
 
 
 import lombok.Data;
@@ -10,7 +10,9 @@ import java.util.List;
 @Data
 public class ApprovalBlockchainDTO {
 
-     private  String userId;
-     private List<String> hashes;
+    private String approvalId;
+    private String hash;
+    private Boolean stored;
+    private String userId;
 
 }

@@ -2,7 +2,7 @@ package com.credaegis.backend.service;
 
 
 import com.credaegis.backend.constant.Constants;
-import com.credaegis.backend.dto.external.ApprovalBlockchainDTO;
+import com.credaegis.backend.dto.ApprovalBlockchainDTO;
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.dto.NotificationMessageDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
@@ -52,11 +52,11 @@ public class ApprovalService {
 
     public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList) throws IOException {
 
-            ApprovalBlockchainDTO approvalBlockchainDTO = new ApprovalBlockchainDTO();
+
             User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
-            approvalBlockchainDTO.setUserId(userId);
-            List<String> hashes = new ArrayList<>();
             for (String approvalId : approvalIdList) {
+
+                ApprovalBlockchainDTO approvalBlockchainDTO = new ApprovalBlockchainDTO();
                 try {
 //                    Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
 //                    if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
@@ -85,7 +85,12 @@ public class ApprovalService {
 //                            .build());
 
                     String hashedValue = checkSumUtility.hashCertificate(approvalId.getBytes());
-                    hashes.add(hashedValue);
+                    approvalBlockchainDTO.setApprovalId(approvalId);
+                    approvalBlockchainDTO.setHash(hashedValue);
+
+                    rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.APPROVAL_REQUEST_QUEUE_KEY
+                    ,approvalBlockchainDTO);
+
 
 
                 } catch (Exception e) {
@@ -101,9 +106,6 @@ public class ApprovalService {
 
                 }
             }
-
-            approvalBlockchainDTO.setHashes(hashes);
-            rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE, Constants.APPROVAL_REQUEST_QUEUE_KEY, approvalBlockchainDTO);
 
     }
 
