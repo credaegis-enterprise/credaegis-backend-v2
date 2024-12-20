@@ -1,6 +1,7 @@
 package com.credaegis.backend.service;
 
 
+import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.*;
@@ -22,6 +23,7 @@ import io.minio.PutObjectArgs;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,19 +47,17 @@ public class ApprovalService {
     private final ClusterRepository clusterRepository;
     private final CheckSumUtility checkSumUtility;
     private final UserRepository userRepository;
-    private final Connection rabbitMqConnection;
+    private final RabbitTemplate rabbitTemplate;
 
 
 
     public void approveCertifcatesExternal(String userId,String userOrganizationId, List<String> approvalIdList) throws IOException {
 
         try {
-            Channel channel = rabbitMqConnection.createChannel();
-            channel.queueDeclare("ERROR_QUEUE", true, false, false, null);
-            channel.queueDeclare("APPROVAL_REQUEST_QUEUE", true, false, false, null);
+
             for (String approvalId : approvalIdList) {
                 try {
-                    System.out.println(approvalId);
+                    rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,"errors",approvalId);
 //                User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
 //                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
 //                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
@@ -77,7 +77,6 @@ public class ApprovalService {
 //                        .build());
 
 //                String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
-                channel.basicPublish("","APPROVAL_REQUEST_QUEUE",null,approvalId.getBytes());
 
 
                 }
@@ -90,13 +89,15 @@ public class ApprovalService {
 //                }
 //                String errorMessage ="approval id " + approvalId + " could not be processed";
 //                channel.basicPublish("","ERROR_QUEUE",null,errorMessage.getBytes());
+
+
 //
 //            }
                 catch (Exception e) {
 
                     log.error(e.getMessage());
                     String errorMessage = "approval id " + approvalId + " could not be processed";
-                    channel.basicPublish("", "ERROR_QUEUE", null, errorMessage.getBytes());
+
 
                 }
             }
