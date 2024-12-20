@@ -3,7 +3,7 @@ CREATE TABLE admins
     id            VARCHAR(255) NOT NULL,
     admin_id      VARCHAR(255) NOT NULL,
     cluster_id    VARCHAR(255) NOT NULL,
-    last_modified datetime NULL,
+    last_modified datetime     NULL,
     CONSTRAINT pk_admins PRIMARY KEY (id)
 );
 
@@ -13,12 +13,12 @@ CREATE TABLE approvals
     approval_certificate_name VARCHAR(255) NOT NULL,
     recipient_name            VARCHAR(255) NOT NULL,
     recipient_email           VARCHAR(255) NOT NULL,
-    expiry_date               date NULL,
+    expiry_date               date         NULL,
     comments                  VARCHAR(255) NULL,
     approval_status           VARCHAR(255) NOT NULL,
     event_id                  VARCHAR(255) NOT NULL,
-    created_on                datetime NULL,
-    updated_on                datetime NULL,
+    created_on                datetime     NULL,
+    updated_on                datetime     NULL,
     CONSTRAINT pk_approvals PRIMARY KEY (id)
 );
 
@@ -30,14 +30,14 @@ CREATE TABLE certificates
     recipient_name   VARCHAR(255) NOT NULL,
     recipient_email  VARCHAR(255) NOT NULL,
     issued_date      date         NOT NULL,
-    expiry_date      date NULL,
+    expiry_date      date         NULL,
     revoked          BIT(1)       NOT NULL,
-    revoked_date     date NULL,
+    revoked_date     date         NULL,
     comments         VARCHAR(255) NULL,
     user_id          VARCHAR(255) NOT NULL,
     event_id         VARCHAR(255) NOT NULL,
-    created_on       datetime NULL,
-    updated_on       datetime NULL,
+    created_on       datetime     NULL,
+    updated_on       datetime     NULL,
     CONSTRAINT pk_certificates PRIMARY KEY (id)
 );
 
@@ -47,8 +47,8 @@ CREATE TABLE clusters
     name            VARCHAR(255) NOT NULL,
     deactivated     BIT(1)       NOT NULL,
     `locked`        BIT(1)       NOT NULL,
-    created_on      datetime NULL,
-    updated_on      datetime NULL,
+    created_on      datetime     NULL,
+    updated_on      datetime     NULL,
     organization_id VARCHAR(255) NOT NULL,
     CONSTRAINT pk_clusters PRIMARY KEY (id)
 );
@@ -60,10 +60,20 @@ CREATE TABLE events
     deactivated   BIT(1)       NOT NULL,
     `description` VARCHAR(255) NOT NULL,
     created_by    VARCHAR(255) NOT NULL,
-    updated_on    datetime NULL,
-    created_on    datetime NULL,
+    updated_on    datetime     NULL,
+    created_on    datetime     NULL,
     cluster_id    VARCHAR(255) NOT NULL,
     CONSTRAINT pk_events PRIMARY KEY (id)
+);
+
+CREATE TABLE notifications
+(
+    id        VARCHAR(255) NOT NULL,
+    message   VARCHAR(255) NOT NULL,
+    type      VARCHAR(255) NOT NULL,
+    timestamp datetime     NOT NULL,
+    user_id   VARCHAR(255) NULL,
+    CONSTRAINT pk_notifications PRIMARY KEY (id)
 );
 
 CREATE TABLE organizations
@@ -96,8 +106,8 @@ CREATE TABLE users
     deleted            BIT(1)       NOT NULL,
     organization_id    VARCHAR(255) NOT NULL,
     cluster_id         VARCHAR(255) NULL,
-    created_on         datetime NULL,
-    updated_on         datetime NULL,
+    created_on         datetime     NULL,
+    updated_on         datetime     NULL,
     CONSTRAINT pk_users PRIMARY KEY (id)
 );
 
@@ -139,6 +149,9 @@ ALTER TABLE events
 
 ALTER TABLE events
     ADD CONSTRAINT FK_EVENTS_ON_CREATED_BY FOREIGN KEY (created_by) REFERENCES users (id);
+
+ALTER TABLE notifications
+    ADD CONSTRAINT FK_NOTIFICATIONS_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
 
 ALTER TABLE roles
     ADD CONSTRAINT FK_ROLES_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);

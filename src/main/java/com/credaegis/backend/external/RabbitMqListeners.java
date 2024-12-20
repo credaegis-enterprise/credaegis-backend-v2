@@ -90,6 +90,8 @@ public class RabbitMqListeners {
                         approval.getApprovalCertificateName() + " of the recipient: " +
                         approval.getRecipientName() + "," + "" + approval.getRecipientEmail() +
                         " is already issued, checksum found";
+
+                approval.setStatus(Status.pending);
                 Notification notification = new Notification();
                 notification.setId(UlidCreator.getUlid().toString());
                 notification.setMessage(errorMessage);
@@ -98,6 +100,7 @@ public class RabbitMqListeners {
                 notification.setType("duplicate_certificate");
                 notificationRepository.save(notification);
                 notificationRepository.save(notification);
+                approvalRepository.save(approval);
 
             }
 

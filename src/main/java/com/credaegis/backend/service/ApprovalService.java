@@ -93,7 +93,8 @@ public class ApprovalService {
                     approvalBlockchainDTO.setHash(hashedValue);
 
                     System.out.println("jehjdhjwdhjhdjwhdjwhdjwhdjhw");
-
+                    approval.setStatus(Status.buffered);
+                    approvalRepository.save(approval);
                     rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.APPROVAL_REQUEST_QUEUE_KEY
                     ,approvalBlockchainDTO);
 
