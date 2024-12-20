@@ -10,16 +10,18 @@ import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
-import javax.sound.midi.Receiver;
-
 @Configuration
 public class RabbitMqConfig {
 
 
     @Bean
-    Queue queue(){
+    Queue errorQueue(){
         return new Queue(Constants.ERROR_QUEUE,true);
+    }
+
+    @Bean
+    Queue approvalRequestQueue(){
+        return new Queue(Constants.APPROVAL_REQUEST_QUEUE,true);
     }
 
     @Bean
@@ -29,25 +31,13 @@ public class RabbitMqConfig {
 
 
     @Bean
-    Binding binding(Queue queue,DirectExchange exchange){
-        return BindingBuilder.bind(queue).to(exchange).with("errors");
-    }
-
-
-
-    @Bean
-    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter){
-
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(Constants.ERROR_QUEUE);
-        container.setMessageListener(listenerAdapter);
-        return container;
+    Binding errorBinding(Queue errorQueue,DirectExchange exchange){
+        return BindingBuilder.bind(errorQueue).to(exchange).with(Constants.ERROR_QUEUE_KEY);
     }
 
     @Bean
-    MessageListenerAdapter messageListenerAdapter(ErrorReceiver errorReceiver){
-        return new MessageListenerAdapter(errorReceiver,"receiveMessage");
+    Binding approvalRequestBinding(Queue approvalRequestQueue,DirectExchange exchange){
+        return BindingBuilder.bind(approvalRequestQueue).to(exchange).with(Constants.APPROVAL_REQUEST_QUEUE_KEY);
     }
 
 

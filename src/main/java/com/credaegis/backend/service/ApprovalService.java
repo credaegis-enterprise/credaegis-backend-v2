@@ -23,6 +23,7 @@ import io.minio.PutObjectArgs;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,7 @@ public class ApprovalService {
             for (String approvalId : approvalIdList) {
                 try {
                     rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,"errors",approvalId);
+                    rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,"approvals",approvalId);
 //                User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
 //                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
 //                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
