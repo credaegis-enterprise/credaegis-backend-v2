@@ -15,10 +15,11 @@ public class RabbitMqConfig {
 
 
     //not using listener container factory instead using annotation based listener
+    //if needed different config for each listener then use multiple listener container factor
 
     @Bean
-    Queue errorQueue(){
-        return new Queue(Constants.ERROR_QUEUE,true);
+    Queue notificationQueue(){
+        return new Queue(Constants.NOTIFICATION_QUEUE,true);
     }
 
     @Bean
@@ -33,8 +34,8 @@ public class RabbitMqConfig {
 
 
     @Bean
-    Binding errorBinding(Queue errorQueue,DirectExchange exchange){
-        return BindingBuilder.bind(errorQueue).to(exchange).with(Constants.ERROR_QUEUE_KEY);
+    Binding notificationBinding(Queue notificationQueue,DirectExchange exchange){
+        return BindingBuilder.bind(notificationQueue).to(exchange).with(Constants.NOTIFICATION_QUEUE_KEY);
     }
 
     @Bean

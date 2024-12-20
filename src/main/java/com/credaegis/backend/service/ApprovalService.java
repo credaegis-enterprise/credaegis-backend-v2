@@ -6,7 +6,6 @@ import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.dto.NotificationMessageDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.*;
-import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalModificationRequest;
 import com.credaegis.backend.dto.projection.ApprovalInfoProjection;
@@ -16,17 +15,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.ulid.UlidCreator;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,75 +48,61 @@ public class ApprovalService {
     private final RabbitTemplate rabbitTemplate;
 
 
-
-    public void approveCertifcatesExternal(String userId,String userOrganizationId, List<String> approvalIdList) throws IOException {
-
-        try {
+    public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList) throws IOException {
 
             for (String approvalId : approvalIdList) {
                 try {
+
+                    User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+                    Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+                    if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
+                        String errorMessage = "approval id " + approvalId + " could not be processed because of" +
+                                "insufficient permission";
+
+                        NotificationMessageDTO notificationMessageDTO = NotificationMessageDTO.builder()
+                                .message(errorMessage)
+                                .type("insufficient_permission")
+                                .userId(userId)
+                                .timestamp(new Timestamp(System.currentTimeMillis()))
+                                .build();
+
+                        rabbitTemplate.convertAndSend(Constants.NOTIFICATION_QUEUE, notificationMessageDTO);
+
+                    }
+
+                    //creating path to retrieve file
+                    String approvalPath = approval.getEvent().getCluster().getId() + "/"
+                            + approval.getEvent().getId() + "/" + approval.getId();
+
+
+                    InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                            .bucket("approvals")
+                            .object(approvalPath)
+                            .build());
+
+                    String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
+
+
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                    log.error("error processing approval id {}", approvalId);
                     NotificationMessageDTO notificationMessageDTO = NotificationMessageDTO.builder()
-                            .message("Approval id " + approvalId + " is being processed")
-                            .type("APPROVAL")
+                            .message(e.getMessage())
+                            .type("error")
                             .userId(userId)
                             .timestamp(new Timestamp(System.currentTimeMillis()))
                             .build();
-
-                    rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE, Constants.APPROVAL_REQUEST_QUEUE_KEY, notificationMessageDTO);
-//                User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
-//                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
-//                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
-//                    String errorMessage = "approval id " + approvalId + " could not be processed because of" +
-//                            "insufficient permission";
-//                    channel.basicPublish("","ERROR_QUEUE",null,errorMessage.getBytes());
-//                }
-//
-//                //creating path to retrieve file
-//                String approvalPath = approval.getEvent().getCluster().getId() + "/"
-//                        + approval.getEvent().getId() + "/" + approval.getId();
-//
-//
-//                InputStream stream = minioClient.getObject(GetObjectArgs.builder()
-//                        .bucket("approvals")
-//                        .object(approvalPath)
-//                        .build());
-
-//                String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
-
-
-                }
-//            catch (io.minio.errors.ErrorResponseException ie){
-//                log.error(ie.getMessage());
-//                if (!ie.errorResponse().code().equals("NoSuchKey")) {
-//                    String errorMessgae ="approval id " + approvalId + " could not be processed because " +
-//                            "the file is not found";
-//                    channel.basicPublish("","ERROR_QUEUE",null,errorMessgae.getBytes());
-//                }
-//                String errorMessage ="approval id " + approvalId + " could not be processed";
-//                channel.basicPublish("","ERROR_QUEUE",null,errorMessage.getBytes());
-
-
-//
-//            }
-                catch (Exception e) {
-
-                    log.error(e.getMessage());
-                    String errorMessage = "approval id " + approvalId + " could not be processed";
-
-
+                    rabbitTemplate.convertAndSend(Constants.NOTIFICATION_QUEUE, notificationMessageDTO);
                 }
             }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+
     }
 
-    public void modifyApproval(ApprovalModificationRequest approvalModificationRequest,String userOrganizationId){
+    public void modifyApproval(ApprovalModificationRequest approvalModificationRequest, String userOrganizationId) {
         Approval approval = approvalRepository.findById(approvalModificationRequest.getApprovalId()).orElseThrow(
                 ExceptionFactory::resourceNotFound
         );
-        if(!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
+        if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
         approval.setComments(approvalModificationRequest.getComments());
@@ -137,19 +118,20 @@ public class ApprovalService {
     }
 
 
-    public Map<String,Long> getCount(String userOrganizationId,Status status){
-        Map<String,Long> countMap = new HashMap<>();
-        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndStatus(userOrganizationId,status);
-        countMap.put("count",count);
+    public Map<String, Long> getCount(String userOrganizationId, Status status) {
+        Map<String, Long> countMap = new HashMap<>();
+        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndStatus(userOrganizationId, status);
+        countMap.put("count", count);
         return countMap;
 
     }
-    public List<ApprovalInfoProjection> getAllClusterApprovals(String clusterId, String userOrganizationId){
+
+    public List<ApprovalInfoProjection> getAllClusterApprovals(String clusterId, String userOrganizationId) {
         Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if(!cluster.getOrganization().getId().equals(userOrganizationId))
+        if (!cluster.getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.getApprovalInfoByClusterAndStatus(cluster,Status.pending);
+        return approvalRepository.getApprovalInfoByClusterAndStatus(cluster, Status.pending);
     }
 
     public List<ApprovalInfoProjection> getAllEventApprovals(String eventId, String userOrganizationId) {
@@ -166,7 +148,7 @@ public class ApprovalService {
             throw ExceptionFactory.insufficientPermission();
 
         String approvalPath = approval.getEvent().getCluster().getId() + "/"
-                 + approval.getEvent().getId() + "/" + approval.getId();
+                + approval.getEvent().getId() + "/" + approval.getId();
 
         try {
             InputStream stream = minioClient.getObject(GetObjectArgs.builder()
@@ -276,7 +258,7 @@ public class ApprovalService {
 
         //path to store in minio
         String clusterId = event.getCluster().getId();
-        String approvalPath =  clusterId + "/"  + eventId;
+        String approvalPath = clusterId + "/" + eventId;
         for (ApprovalsInfoDTO info : approvalsInfoDTOS) {
 //            if (!approvalsCertificatesMap.containsKey(info.getFileName())) {
 //                to be done

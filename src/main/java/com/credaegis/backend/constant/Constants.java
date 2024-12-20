@@ -1,7 +1,5 @@
 package com.credaegis.backend.constant;
 
-import org.springframework.beans.factory.annotation.Value;
-
 public class Constants {
 
     public static final String ROUTEV1 = "/api/v1/organization";
@@ -15,8 +13,8 @@ public class Constants {
     public static final String DELETED = "DELETED";
     public static final String APPROVAL_REQUEST_QUEUE = "APPROVAL_REQUEST_QUEUE";
     public static final String DIRECT_EXCHANGE = "DIRECT_EXCHANGE";
-    public static final String ERROR_QUEUE = "ERROR_QUEUE";
+    public static final String NOTIFICATION_QUEUE = "ERROR_QUEUE";
     public static final String APPROVAL_REQUEST_QUEUE_KEY = "approvals";
-    public static final String ERROR_QUEUE_KEY = "errors";
+    public static final String NOTIFICATION_QUEUE_KEY = "errors";
 
 }

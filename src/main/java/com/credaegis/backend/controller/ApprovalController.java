@@ -45,7 +45,7 @@ public class ApprovalController {
                                                                                approvalsIdRequest,
                                                                        @AuthenticationPrincipal CustomUser customUser) throws IOException {
 
-        approvalService.approveCertifcatesExternal
+        approvalService.approveCertifcatesBlockchain
                 (customUser.getId(), customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Requests to approve are processing", true));
