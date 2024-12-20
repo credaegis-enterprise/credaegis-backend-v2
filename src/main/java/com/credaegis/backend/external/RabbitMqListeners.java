@@ -3,11 +3,13 @@ package com.credaegis.backend.external;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.NotificationMessageDTO;
+import com.credaegis.backend.dto.external.ApprovalBlockChainStoreStatusDTO;
 import com.credaegis.backend.entity.Notification;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.repository.NotificationRepository;
 import com.credaegis.backend.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.ulid.UlidCreator;
 import com.rabbitmq.client.Channel;
 import lombok.AllArgsConstructor;
@@ -43,6 +45,7 @@ public class RabbitMqListeners{
            notification.setMessage(message.getMessage());
            notification.setUser(user);
            notification.setType(message.getType());
+           notification.setTimestamp(message.getTimestamp());
            notificationRepository.save(notification);
            channel.basicAck(tag,false);
        }
@@ -54,10 +57,14 @@ public class RabbitMqListeners{
 
     }
 
-    @RabbitListener(queues = Constants.APPROVAL_REQUEST_QUEUE)
-    public void receiveApprovalRequest(String message,@Header(AmqpHeaders.DELIVERY_TAG) long tag,
+    @RabbitListener(queues = Constants.APPROVAL_RESPONSE_QUEUE)
+    public void receiveApprovalRequest(ApprovalBlockChainStoreStatusDTO message, @Header(AmqpHeaders.DELIVERY_TAG) long tag,
                                        Channel channel) throws IOException {
 
+        System.out.println("Approval response received for user: " + message.getUserId());
+        System.out.println("Hashes stored: " + message.getHashesStored());
+
+        channel.basicAck(tag,false);
 
     }
 

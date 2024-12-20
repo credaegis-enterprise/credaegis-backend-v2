@@ -1,9 +1,10 @@
 CREATE TABLE notifications
 (
     id      VARCHAR(255) NOT NULL,
-    message VARCHAR(255) NULL,
-    type    VARCHAR(255) NULL,
-    user_id VARCHAR(255) NULL,
+    message VARCHAR(255) NOT NULL,
+    type    VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
     CONSTRAINT pk_notifications PRIMARY KEY (id)
 );
 

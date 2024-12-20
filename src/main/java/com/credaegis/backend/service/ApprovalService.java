@@ -2,6 +2,7 @@ package com.credaegis.backend.service;
 
 
 import com.credaegis.backend.constant.Constants;
+import com.credaegis.backend.dto.external.ApprovalBlockchainDTO;
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.dto.NotificationMessageDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,37 +52,40 @@ public class ApprovalService {
 
     public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList) throws IOException {
 
+            ApprovalBlockchainDTO approvalBlockchainDTO = new ApprovalBlockchainDTO();
+            User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+            approvalBlockchainDTO.setUserId(userId);
+            List<String> hashes = new ArrayList<>();
             for (String approvalId : approvalIdList) {
                 try {
-
-                    User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
-                    Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
-                    if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
-                        String errorMessage = "approval id " + approvalId + " could not be processed because of" +
-                                "insufficient permission";
-
-                        NotificationMessageDTO notificationMessageDTO = NotificationMessageDTO.builder()
-                                .message(errorMessage)
-                                .type("insufficient_permission")
-                                .userId(userId)
-                                .timestamp(new Timestamp(System.currentTimeMillis()))
-                                .build();
-
-                        rabbitTemplate.convertAndSend(Constants.NOTIFICATION_QUEUE, notificationMessageDTO);
-
-                    }
+//                    Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+//                    if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
+//                        String errorMessage = "approval id " + approvalId + " could not be processed because of" +
+//                                "insufficient permission";
+//
+//                        NotificationMessageDTO notificationMessageDTO = NotificationMessageDTO.builder()
+//                                .message(errorMessage)
+//                                .type("insufficient_permission")
+//                                .userId(userId)
+//                                .timestamp(new Timestamp(System.currentTimeMillis()))
+//                                .build();
+//
+//                        rabbitTemplate.convertAndSend(Constants.NOTIFICATION_QUEUE, notificationMessageDTO);
+//
+//                    }
 
                     //creating path to retrieve file
-                    String approvalPath = approval.getEvent().getCluster().getId() + "/"
-                            + approval.getEvent().getId() + "/" + approval.getId();
+//                    String approvalPath = approval.getEvent().getCluster().getId() + "/"
+//                            + approval.getEvent().getId() + "/" + approval.getId();
+//
+//
+//                    InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+//                            .bucket("approvals")
+//                            .object(approvalPath)
+//                            .build());
 
-
-                    InputStream stream = minioClient.getObject(GetObjectArgs.builder()
-                            .bucket("approvals")
-                            .object(approvalPath)
-                            .build());
-
-                    String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
+                    String hashedValue = checkSumUtility.hashCertificate(approvalId.getBytes());
+                    hashes.add(hashedValue);
 
 
                 } catch (Exception e) {
@@ -92,9 +97,13 @@ public class ApprovalService {
                             .userId(userId)
                             .timestamp(new Timestamp(System.currentTimeMillis()))
                             .build();
-                    rabbitTemplate.convertAndSend(Constants.NOTIFICATION_QUEUE, notificationMessageDTO);
+
+
                 }
             }
+
+            approvalBlockchainDTO.setHashes(hashes);
+            rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE, Constants.APPROVAL_REQUEST_QUEUE_KEY, approvalBlockchainDTO);
 
     }
 

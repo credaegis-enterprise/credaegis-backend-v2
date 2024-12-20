@@ -28,10 +28,20 @@ public class RabbitMqConfig {
     }
 
     @Bean
+    Queue approvalResponseQueue(){
+        return new Queue(Constants.APPROVAL_RESPONSE_QUEUE,true);
+    }
+
+    @Bean
     DirectExchange exchange(){
         return new DirectExchange(Constants.DIRECT_EXCHANGE);
     }
 
+
+    @Bean
+    Binding approvalResponseBinding(Queue approvalResponseQueue,DirectExchange exchange){
+        return BindingBuilder.bind(approvalResponseQueue).to(exchange).with(Constants.APPROVAL_RESPONSE_QUEUE_KEY);
+    }
 
     @Bean
     Binding notificationBinding(Queue notificationQueue,DirectExchange exchange){
