@@ -88,7 +88,6 @@ public class  User {
     private List<Notification> notifications;
 
 
-
     @CreationTimestamp
     @Column(name = "created_on",updatable = false)
     private Timestamp createdOn;

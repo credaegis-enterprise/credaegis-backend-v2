@@ -35,6 +35,8 @@ public class Approval  {
 
     private String  comments;
 
+
+
     @Column(name = "approval_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;

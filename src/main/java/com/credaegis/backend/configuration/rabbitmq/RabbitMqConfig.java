@@ -38,6 +38,8 @@ public class RabbitMqConfig {
     }
 
 
+
+
     @Bean
     Binding approvalResponseBinding(Queue approvalResponseQueue,DirectExchange exchange){
         return BindingBuilder.bind(approvalResponseQueue).to(exchange).with(Constants.APPROVAL_RESPONSE_QUEUE_KEY);

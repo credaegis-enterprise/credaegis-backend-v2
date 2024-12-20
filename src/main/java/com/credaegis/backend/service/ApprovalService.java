@@ -52,41 +52,47 @@ public class ApprovalService {
 
     public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList) throws IOException {
 
-
-            User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
             for (String approvalId : approvalIdList) {
 
                 ApprovalBlockchainDTO approvalBlockchainDTO = new ApprovalBlockchainDTO();
                 try {
-//                    Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
-//                    if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
-//                        String errorMessage = "approval id " + approvalId + " could not be processed because of" +
-//                                "insufficient permission";
-//
-//                        NotificationMessageDTO notificationMessageDTO = NotificationMessageDTO.builder()
-//                                .message(errorMessage)
-//                                .type("insufficient_permission")
-//                                .userId(userId)
-//                                .timestamp(new Timestamp(System.currentTimeMillis()))
-//                                .build();
-//
-//                        rabbitTemplate.convertAndSend(Constants.NOTIFICATION_QUEUE, notificationMessageDTO);
-//
-//                    }
+                    Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+                    if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
+                        String errorMessage = "approval id " + approvalId + " could not be processed because of" +
+                                "insufficient permission";
 
-                    //creating path to retrieve file
-//                    String approvalPath = approval.getEvent().getCluster().getId() + "/"
-//                            + approval.getEvent().getId() + "/" + approval.getId();
-//
-//
-//                    InputStream stream = minioClient.getObject(GetObjectArgs.builder()
-//                            .bucket("approvals")
-//                            .object(approvalPath)
-//                            .build());
+                        NotificationMessageDTO notificationMessageDTO = NotificationMessageDTO.builder()
+                                .message(errorMessage)
+                                .type("insufficient_permission")
+                                .userId(userId)
+                                .timestamp(new Timestamp(System.currentTimeMillis()))
+                                .build();
 
-                    String hashedValue = checkSumUtility.hashCertificate(approvalId.getBytes());
+                        rabbitTemplate.convertAndSend(Constants.NOTIFICATION_QUEUE, notificationMessageDTO);
+                        continue;
+
+                    }
+
+        //    creating path to retrieve file
+                    String approvalPath = approval.getEvent().getCluster().getId() + "/"
+                            + approval.getEvent().getId() + "/" + approval.getId();
+
+
+                    InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                            .bucket("approvals")
+                            .object(approvalPath)
+                            .build());
+
+
+                    byte [] bytes = stream.readAllBytes();
+                    stream.close();
+                    String hashedValue = checkSumUtility.hashCertificate(bytes);
+                    System.out.println(hashedValue);
+                    approvalBlockchainDTO.setUserId(userId);
                     approvalBlockchainDTO.setApprovalId(approvalId);
                     approvalBlockchainDTO.setHash(hashedValue);
+
+                    System.out.println("jehjdhjwdhjhdjwhdjwhdjwhdjhw");
 
                     rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.APPROVAL_REQUEST_QUEUE_KEY
                     ,approvalBlockchainDTO);
