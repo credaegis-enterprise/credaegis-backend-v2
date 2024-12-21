@@ -4,9 +4,10 @@ package com.credaegis.backend.http.request;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 public class PasswordChangeRequest {
 
     @NotBlank(message = "Old password should not be empty")

@@ -39,30 +39,30 @@ public class RabbitMqListeners {
     private final UserRepository userRepository;
 
 
-    @RabbitListener(queues = Constants.NOTIFICATION_QUEUE)
-    public void receiveError(NotificationMessageDTO message, @Header(AmqpHeaders.DELIVERY_TAG) long tag,
-
-                             Channel channel) throws IOException {
-
-        try {
-
-            User user = userRepository.findById(message.getUserId()).orElseThrow(ExceptionFactory::resourceNotFound);
-            log.info("Notification received for user: " + user.getEmail() + " with message: " + message.getMessage());
-            Notification notification = new Notification();
-            notification.setId(UlidCreator.getUlid().toString());
-            notification.setMessage(message.getMessage());
-            notification.setUser(user);
-            notification.setType(message.getType());
-            notification.setTimestamp(message.getTimestamp());
-            notificationRepository.save(notification);
-            channel.basicAck(tag, false);
-        } catch (Exception e) {
-            log.error("Error in receiving notification: {}", e.getMessage());
-            channel.basicNack(tag, false, false);
-        }
-
-
-    }
+//    @RabbitListener(queues = Constants.NOTIFICATION_QUEUE)
+//    public void receiveError(NotificationMessageDTO message, @Header(AmqpHeaders.DELIVERY_TAG) long tag,
+//
+//                             Channel channel) throws IOException {
+//
+//        try {
+//
+//            User user = userRepository.findById(message.getUserId()).orElseThrow(ExceptionFactory::resourceNotFound);
+//            log.info("Notification received for user: " + user.getEmail() + " with message: " + message.getMessage());
+//            Notification notification = new Notification();
+//            notification.setId(UlidCreator.getUlid().toString());
+//            notification.setMessage(message.getMessage());
+//            notification.setUser(user);
+//            notification.setType(message.getType());
+//            notification.setTimestamp(message.getTimestamp());
+//            notificationRepository.save(notification);
+//            channel.basicAck(tag, false);
+//        } catch (Exception e) {
+//            log.error("Error in receiving notification: {}", e.getMessage());
+//            channel.basicNack(tag, false, false);
+//        }
+//
+//
+//    }
 
 
     //on-chain approval
@@ -70,16 +70,6 @@ public class RabbitMqListeners {
     public void receiveApprovalRequest(ApprovalBlockchainDTO message, @Header(AmqpHeaders.DELIVERY_TAG) long tag,
                                        Channel channel,@Header(AmqpHeaders.CONSUMER_TAG) String consumerTag
                                        ) throws IOException {
-
-
-
-        log.error("consu,er lag {}",consumerTag);
-        log.error("channel no {}",channel.getChannelNumber());
-        log.error("erororoorororororororo");
-        log.error("Approval request received: {}", message.getApprovalId());
-        log.error("Approval request received : {}", message.getUserId());
-        log.error("Approval request received ahash: {}", message.getHash());
-        log.error("Approval request received stored: {}", message.getStored());
 
         try {
 
@@ -89,9 +79,9 @@ public class RabbitMqListeners {
                 String errorMessage = "Approval request for certificate with name: " +
                         approval.getApprovalCertificateName() + " of the recipient: " +
                         approval.getRecipientName() + "," + "" + approval.getRecipientEmail() +
-                        " is already issued, checksum found";
+                        " is already issued and checksum found, rejected this certificate.";
 
-                approval.setStatus(Status.pending);
+                approval.setStatus(Status.rejected);
                 Notification notification = new Notification();
                 notification.setId(UlidCreator.getUlid().toString());
                 notification.setMessage(errorMessage);

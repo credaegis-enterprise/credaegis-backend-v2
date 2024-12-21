@@ -3,8 +3,10 @@ package com.credaegis.backend.http.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class MemberCreationRequest {
 
     @NotBlank(message = "Username cannot be blank")

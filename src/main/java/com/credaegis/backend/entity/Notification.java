@@ -3,6 +3,8 @@ package com.credaegis.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +15,8 @@ import java.sql.Timestamp;
 @Table(name = "notifications")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Notification {
 
         @Id
@@ -22,7 +26,7 @@ public class Notification {
         private String message;
 
         @Column(nullable = false)
-        private String type;
+        private NotificationType type;
 
         @Column(name = "timestamp",nullable = false)
         private Timestamp timestamp;

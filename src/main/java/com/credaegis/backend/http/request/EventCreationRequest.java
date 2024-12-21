@@ -4,9 +4,11 @@ package com.credaegis.backend.http.request;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @Data
+@NoArgsConstructor
 public class EventCreationRequest {
 
     @NotBlank(message = "Event name should not be blank")

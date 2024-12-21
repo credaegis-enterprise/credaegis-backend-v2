@@ -2,12 +2,14 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.OrganizationInfoDTO;
+import com.credaegis.backend.entity.Notification;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.AccountInfoModificationRequest;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.custom.AccountInfoResponse;
+import com.credaegis.backend.repository.NotificationRepository;
 import com.credaegis.backend.repository.UserRepository;
 import com.credaegis.backend.utility.PasswordUtility;
 import dev.samstevens.totp.code.CodeVerifier;
@@ -35,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.List;
 
 import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 
@@ -51,7 +54,14 @@ public class AccountService {
     private final SecretGenerator secretGenerator;
     private final QrGenerator qrGenerator;
     private final CodeVerifier codeVerifier;
+    private final NotificationRepository notificationRepository;
     private final MinioClient minioClient;
+
+
+//    public List<Notification> getNotifications(String userId){
+    //      return notificationRepository.findByTypeAndUser_Id()
+//
+//    }
 
 
     public void removeBrandLogo(String userId) {

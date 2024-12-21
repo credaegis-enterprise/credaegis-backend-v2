@@ -47,11 +47,15 @@ public class ApprovalService {
     private final ClusterRepository clusterRepository;
     private final CheckSumUtility checkSumUtility;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
     private final RabbitTemplate rabbitTemplate;
 
 
     public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList) throws IOException {
 
+
+
+            User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
             for (String approvalId : approvalIdList) {
 
                 ApprovalBlockchainDTO approvalBlockchainDTO = new ApprovalBlockchainDTO();
@@ -61,14 +65,15 @@ public class ApprovalService {
                         String errorMessage = "approval id " + approvalId + " could not be processed because of" +
                                 "insufficient permission";
 
-                        NotificationMessageDTO notificationMessageDTO = NotificationMessageDTO.builder()
+                        Notification notification = Notification.builder()
+                                .id(UlidCreator.getUlid().toString())
                                 .message(errorMessage)
-                                .type("insufficient_permission")
-                                .userId(userId)
                                 .timestamp(new Timestamp(System.currentTimeMillis()))
+                                .type(NotificationType.WARNING)
+                                .user(user)
                                 .build();
 
-                        rabbitTemplate.convertAndSend(Constants.NOTIFICATION_QUEUE, notificationMessageDTO);
+                        notificationRepository.save(notification);
                         continue;
 
                     }
@@ -92,7 +97,6 @@ public class ApprovalService {
                     approvalBlockchainDTO.setApprovalId(approvalId);
                     approvalBlockchainDTO.setHash(hashedValue);
 
-                    System.out.println("jehjdhjwdhjhdjwhdjwhdjwhdjhw");
                     approval.setStatus(Status.buffered);
                     approvalRepository.save(approval);
                     rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.APPROVAL_REQUEST_QUEUE_KEY
@@ -103,13 +107,18 @@ public class ApprovalService {
                 } catch (Exception e) {
                     log.error(e.getMessage());
                     log.error("error processing approval id {}", approvalId);
-                    NotificationMessageDTO notificationMessageDTO = NotificationMessageDTO.builder()
-                            .message(e.getMessage())
-                            .type("error")
-                            .userId(userId)
+                    String errorMessage = "approval id " + approvalId + " could not be processed because of" +
+                            "internal error";
+
+                    Notification notification = Notification.builder()
+                            .id(UlidCreator.getUlid().toString())
+                            .message(errorMessage)
                             .timestamp(new Timestamp(System.currentTimeMillis()))
+                            .type(NotificationType.ERROR)
+                            .user(user)
                             .build();
 
+                    notificationRepository.save(notification);
 
                 }
             }
