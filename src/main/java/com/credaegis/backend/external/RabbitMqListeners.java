@@ -14,6 +14,9 @@ import com.credaegis.backend.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.ulid.UlidCreator;
 import com.rabbitmq.client.Channel;
+import io.minio.MinioClient;
+import io.minio.RemoveObjectArgs;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -36,6 +39,7 @@ public class RabbitMqListeners {
     private final NotificationRepository notificationRepository;
     private final ApprovalRepository approvalRepository;
     private final CertificateRepository certificateRepository;
+    private final MinioClient minioClient;
     private final UserRepository userRepository;
 
 
@@ -66,6 +70,7 @@ public class RabbitMqListeners {
 
 
     //on-chain approval
+    @Transactional
     @RabbitListener(queues = Constants.APPROVAL_RESPONSE_QUEUE)
     public void receiveApprovalRequest(ApprovalBlockchainDTO message, @Header(AmqpHeaders.DELIVERY_TAG) long tag,
                                        Channel channel,@Header(AmqpHeaders.CONSUMER_TAG) String consumerTag
@@ -87,10 +92,18 @@ public class RabbitMqListeners {
                 notification.setMessage(errorMessage);
                 notification.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 notification.setUser(user);
-                notification.setType("duplicate_certificate");
+                notification.setType(NotificationType.ERROR);
                 notificationRepository.save(notification);
                 notificationRepository.save(notification);
                 approvalRepository.save(approval);
+
+                String approvalPath = approval.getEvent().getCluster().getId() + "/"
+                        + approval.getEvent().getId() + "/" + approval.getId();
+
+                minioClient.removeObject(RemoveObjectArgs.builder()
+                                .object(approvalPath)
+                                .bucket("approvals")
+                        .build());
 
             }
 
@@ -117,8 +130,8 @@ public class RabbitMqListeners {
 
 
         } catch (Exception e) {
-            log.error("Error in receiving approval request: {}", e.getMessage());
-            e.printStackTrace();
+            log.error("Error in receiving approval request: {}", e);
+            //dead letter queue
             channel.basicNack(tag, false, false);
         }
 

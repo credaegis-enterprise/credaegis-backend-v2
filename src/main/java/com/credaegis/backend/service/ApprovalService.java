@@ -62,19 +62,7 @@ public class ApprovalService {
                 try {
                     Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
                     if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
-                        String errorMessage = "approval id " + approvalId + " could not be processed because of" +
-                                "insufficient permission";
-
-                        Notification notification = Notification.builder()
-                                .id(UlidCreator.getUlid().toString())
-                                .message(errorMessage)
-                                .timestamp(new Timestamp(System.currentTimeMillis()))
-                                .type(NotificationType.WARNING)
-                                .user(user)
-                                .build();
-
-                        notificationRepository.save(notification);
-                        continue;
+                          throw ExceptionFactory.insufficientPermission();
 
                     }
 
@@ -110,15 +98,6 @@ public class ApprovalService {
                     String errorMessage = "approval id " + approvalId + " could not be processed because of" +
                             "internal error";
 
-                    Notification notification = Notification.builder()
-                            .id(UlidCreator.getUlid().toString())
-                            .message(errorMessage)
-                            .timestamp(new Timestamp(System.currentTimeMillis()))
-                            .type(NotificationType.ERROR)
-                            .user(user)
-                            .build();
-
-                    notificationRepository.save(notification);
 
                 }
             }

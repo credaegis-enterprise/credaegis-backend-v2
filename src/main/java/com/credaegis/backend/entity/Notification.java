@@ -26,6 +26,7 @@ public class Notification {
         private String message;
 
         @Column(nullable = false)
+        @Enumerated(EnumType.STRING)
         private NotificationType type;
 
         @Column(name = "timestamp",nullable = false)
