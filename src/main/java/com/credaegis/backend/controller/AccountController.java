@@ -2,6 +2,7 @@ package com.credaegis.backend.controller;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
+import com.credaegis.backend.entity.Notification;
 import com.credaegis.backend.http.request.AccountInfoModificationRequest;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
@@ -21,6 +22,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = Constants.ROUTEV1 + "/account")
 @AllArgsConstructor
@@ -31,6 +34,32 @@ public class AccountController {
     private final AccountService accountService;
 
 
+
+    @GetMapping(path = "/notifications")
+    public ResponseEntity<CustomApiResponse<List<Notification>>> getNotifications(@AuthenticationPrincipal CustomUser customUser) {
+        List<Notification> notifications = accountService.getNotifications(customUser.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(notifications, "Notifications", true)
+        );
+    }
+
+    @DeleteMapping(path = "/delete/notifications/{id}")
+    public ResponseEntity<CustomApiResponse<Void>> deleteNotification(@AuthenticationPrincipal CustomUser customUser,
+                                                                      @PathVariable String id) {
+        accountService.deleteNotification(id, customUser.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "Notification deleted", true)
+        );
+    }
+
+
+    @DeleteMapping(path = "/delete/notifications/all")
+    public ResponseEntity<CustomApiResponse<Void>> deleteAllNotifications(@AuthenticationPrincipal CustomUser customUser) {
+        accountService.deleteAllNotifications(customUser.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null, "All notifications deleted", true)
+        );
+    }
 
 
 

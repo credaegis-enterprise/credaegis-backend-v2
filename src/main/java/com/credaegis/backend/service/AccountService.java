@@ -21,7 +21,6 @@ import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
-import io.minio.errors.MinioException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -58,10 +57,19 @@ public class AccountService {
     private final MinioClient minioClient;
 
 
-//    public List<Notification> getNotifications(String userId){
-    //      return notificationRepository.findByTypeAndUser_Id()
-//
-//    }
+    public List<Notification> getNotifications(String userId){
+          return notificationRepository.findByUser_Id(userId);
+
+    }
+
+
+    public void deleteNotification(String notificationId, String userId) {
+        notificationRepository.deleteByIdAndUser_Id(notificationId, userId);
+    }
+
+    public void deleteAllNotifications(String userId) {
+        notificationRepository.deleteByUser_Id(userId);
+    }
 
 
     public void removeBrandLogo(String userId) {
