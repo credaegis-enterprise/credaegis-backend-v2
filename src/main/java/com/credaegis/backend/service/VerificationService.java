@@ -1,11 +1,14 @@
 package com.credaegis.backend.service;
 
 
+import com.credaegis.backend.dto.CertificateVerificationBlockchainResultDTO;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.http.response.custom.CertificateVerificationResponse;
 import com.credaegis.backend.dto.CertificateVerificationInfoDTO;
 import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.utility.CheckSumUtility;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -17,9 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -30,7 +31,8 @@ public class VerificationService {
     private final CheckSumUtility checkSumUtility;
     private final RestTemplate restTemplate;
 
-    @Value("${credaegis.async.url}")
+
+    @Value("${credaegis.blockchain.url}")
     private String asyncEndPoint;
 
     public VerificationService(CertificateRepository certificateRepository,CheckSumUtility checkSumUtility,
@@ -45,12 +47,31 @@ public class VerificationService {
     //This service is used for verification by blockchain
     public void verifyAuthenticityBlockchain(List<MultipartFile> certificateFiles) throws IOException {
         List<String> hashes = new ArrayList<>();
+        Map<String,String> nameHashMap = new HashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper();
         for (MultipartFile file : certificateFiles) {
-            hashes.add(checkSumUtility.hashCertificate(file.getBytes()));
+            String hash = checkSumUtility.hashCertificate(file.getBytes());
+            nameHashMap.put(hash, file.getOriginalFilename());
+            hashes.add(hash);
         }
 
-        ResponseEntity<String> response = restTemplate.postForEntity(asyncEndPoint+"/help",hashes,String.class);
-        System.out.println(response.getBody());
+        ResponseEntity<String> response = restTemplate.postForEntity(asyncEndPoint+"" +
+                "/verify",hashes, String.class);
+        List<CertificateVerificationBlockchainResultDTO> verificationResult = objectMapper.readValue(response.getBody(),
+                new TypeReference<List<CertificateVerificationBlockchainResultDTO>>() {
+                });
+
+        List<CertificateVerificationResponse> certificateVerificationResponseList = new ArrayList<>();
+        for(CertificateVerificationBlockchainResultDTO result:verificationResult){
+            Optional<Certificate> optionalCertificate = certificateRepository.findByCertificateHash(result.getHash());
+            CertificateVerificationResponse certificateVerificationResponse = new CertificateVerificationResponse();
+            if(!result.getIsVerified()){
+                if(!optionalCertificate.isPresent()){
+                    certificateVerificationResponse.
+                }
+            }
+
+        }
 
     }
 
