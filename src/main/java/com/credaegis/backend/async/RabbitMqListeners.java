@@ -1,17 +1,14 @@
-package com.credaegis.backend.external;
+package com.credaegis.backend.async;
 
 
-import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ApprovalBlockchainDTO;
-import com.credaegis.backend.dto.NotificationMessageDTO;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.repository.ApprovalRepository;
 import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.repository.NotificationRepository;
 import com.credaegis.backend.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.ulid.UlidCreator;
 import com.rabbitmq.client.Channel;
 import io.minio.MinioClient;
@@ -22,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
