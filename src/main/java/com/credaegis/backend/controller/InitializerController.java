@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -25,7 +26,6 @@ import java.util.List;
 @RequestMapping(value = Constants.ROUTEV1+"/test")
 @AllArgsConstructor
 public class InitializerController {
-
 
    private final InitializerService initializerService;
    private final RoleRepository roleRepository;
@@ -50,6 +50,11 @@ public class InitializerController {
    @PostMapping (path = "/check")
    public ResponseEntity<CustomApiResponse<List<User>>> check(Authentication authentication){
        CustomUser user = (CustomUser) authentication.getPrincipal();
+
+           RestTemplate restTemplate = new RestTemplate();
+            String url = "http://localhost:8083/help";
+            ResponseEntity<String> response = restTemplate.getForEntity(url,String.class);
+            System.out.println(response.getBody());
 
       return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>(
               userRepository.findAll(),"sss",true

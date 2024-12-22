@@ -1,5 +1,6 @@
 
-export SERVER_PORT=8080
+export SERVER_PORT=8081
+export CREDAEGIS_ASYNC_URL=http://localhost:8083
 
 export DATABASE_URL=jdbc:mysql://localhost:3306/credaegis_v2
 export DATABASE_USER=root

@@ -8,7 +8,12 @@ import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.utility.CheckSumUtility;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -17,13 +22,40 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 @Transactional
 public class VerificationService {
 
+
     private final CertificateRepository certificateRepository;
     private final CheckSumUtility checkSumUtility;
+    private final RestTemplate restTemplate;
 
+    @Value("${credaegis.async.url}")
+    private String asyncEndPoint;
+
+    public VerificationService(CertificateRepository certificateRepository,CheckSumUtility checkSumUtility,
+                               RestTemplate restTemplate){
+
+        this.restTemplate = restTemplate;
+        this.certificateRepository = certificateRepository;
+        this.checkSumUtility = checkSumUtility;
+    }
+
+
+    //This service is used for verification by blockchain
+    public void verifyAuthenticityBlockchain(List<MultipartFile> certificateFiles) throws IOException {
+        List<String> hashes = new ArrayList<>();
+        for (MultipartFile file : certificateFiles) {
+            hashes.add(checkSumUtility.hashCertificate(file.getBytes()));
+        }
+
+        ResponseEntity<String> response = restTemplate.postForEntity(asyncEndPoint+"/help",hashes,String.class);
+        System.out.println(response.getBody());
+
+    }
+
+
+    //off-chain solution
     public List<CertificateVerificationResponse> verifyAuthenticity(List<MultipartFile> certificateFiles) throws IOException {
 
         List<CertificateVerificationResponse> certificateVerificationResponseList = new ArrayList<>();
