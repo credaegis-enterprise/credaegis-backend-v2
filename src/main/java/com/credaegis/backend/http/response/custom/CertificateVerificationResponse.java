@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 public class CertificateVerificationResponse {
 
 
-    private  String certificateName;
+    private String certificateName;
     private Boolean isIssued;
+    private Boolean infoFound;
 
     @JsonProperty("info")
     private CertificateVerificationInfoDTO certificateVerificationInfoDTO;

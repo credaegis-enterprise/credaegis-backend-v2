@@ -65,9 +65,20 @@ public class VerificationService {
         for(CertificateVerificationBlockchainResultDTO result:verificationResult){
             Optional<Certificate> optionalCertificate = certificateRepository.findByCertificateHash(result.getHash());
             CertificateVerificationResponse certificateVerificationResponse = new CertificateVerificationResponse();
+            certificateVerificationResponse.setCertificateName(nameHashMap.get(result.getHash()));
             if(!result.getIsVerified()){
-                if(!optionalCertificate.isPresent()){
-                    certificateVerificationResponse.
+                if(optionalCertificate.isEmpty()){
+                    certificateVerificationResponse.setIsIssued(false);
+                    certificateVerificationResponse.setCertificateVerificationInfoDTO(null);
+                    certificateVerificationResponseList.add(certificateVerificationResponse);
+                }
+            }
+            else{
+                if(optionalCertificate.isEmpty()){
+                    certificateVerificationResponse.setIsIssued(true);
+                    certificateVerificationResponse.setCertificateVerificationInfoDTO(null);
+                    certificateVerificationResponse.setInfoFound(false);
+
                 }
             }
 
