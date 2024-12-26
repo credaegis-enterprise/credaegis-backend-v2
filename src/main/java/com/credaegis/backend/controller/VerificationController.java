@@ -22,21 +22,19 @@ public class VerificationController {
     private VerificationService verificationService;
 
 
-
     @PostMapping(path = "/blockchain/verify")
-   public ResponseEntity<Void> verifyCertificatesBlockchain(@RequestParam("certificates") List<MultipartFile> multipartFiles)
+    public ResponseEntity<CustomApiResponse<List<CertificateVerificationResponse>>> verifyCertificatesBlockchain(@RequestParam("certificates") List<MultipartFile> multipartFiles)
             throws IOException {
 
 
-        if(multipartFiles.size() > 10)
+        if (multipartFiles.size() > 10)
             throw ExceptionFactory.customValidationError("Can't process more than 10 files");
-                verificationService.verifyAuthenticityBlockchain(multipartFiles);
+        List<CertificateVerificationResponse> certificateVerificationResponseList = verificationService.verifyAuthenticityBlockchain(multipartFiles);
 
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(certificateVerificationResponseList,"verification results",true)
+        );
     }
-
-
-
 
 
     @PostMapping(path = "/verify")
@@ -45,13 +43,13 @@ public class VerificationController {
             throws IOException {
 
 
-        if(multipartFiles.size() > 10)
+        if (multipartFiles.size() > 10)
             throw ExceptionFactory.customValidationError("Can't process more than 10 files");
         List<CertificateVerificationResponse> certificateVerificationResponseList =
                 verificationService.verifyAuthenticity(multipartFiles);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(certificateVerificationResponseList,"verification result",true)
+                new CustomApiResponse<>(certificateVerificationResponseList, "verification result", true)
         );
 
     }

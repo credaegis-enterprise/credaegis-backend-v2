@@ -45,7 +45,7 @@ public class VerificationService {
 
 
     //This service is used for verification by blockchain
-    public void verifyAuthenticityBlockchain(List<MultipartFile> certificateFiles) throws IOException {
+    public List<CertificateVerificationResponse> verifyAuthenticityBlockchain(List<MultipartFile> certificateFiles) throws IOException {
         List<String> hashes = new ArrayList<>();
         Map<String,String> nameHashMap = new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -57,6 +57,8 @@ public class VerificationService {
 
         ResponseEntity<String> response = restTemplate.postForEntity(asyncEndPoint+"" +
                 "/verify",hashes, String.class);
+
+        System.out.println(response.getBody());
         List<CertificateVerificationBlockchainResultDTO> verificationResult = objectMapper.readValue(response.getBody(),
                 new TypeReference<List<CertificateVerificationBlockchainResultDTO>>() {
                 });
@@ -66,23 +68,42 @@ public class VerificationService {
             Optional<Certificate> optionalCertificate = certificateRepository.findByCertificateHash(result.getHash());
             CertificateVerificationResponse certificateVerificationResponse = new CertificateVerificationResponse();
             certificateVerificationResponse.setCertificateName(nameHashMap.get(result.getHash()));
-            if(!result.getIsVerified()){
-                if(optionalCertificate.isEmpty()){
-                    certificateVerificationResponse.setIsIssued(false);
-                    certificateVerificationResponse.setCertificateVerificationInfoDTO(null);
-                    certificateVerificationResponseList.add(certificateVerificationResponse);
-                }
-            }
-            else{
-                if(optionalCertificate.isEmpty()){
-                    certificateVerificationResponse.setIsIssued(true);
-                    certificateVerificationResponse.setCertificateVerificationInfoDTO(null);
-                    certificateVerificationResponse.setInfoFound(false);
+            if(!result.getIsVerified())
+                certificateVerificationResponse.setIsIssued(false);
+            else
+                certificateVerificationResponse.setIsIssued(true);
 
-                }
+            if(optionalCertificate.isEmpty()){
+                certificateVerificationResponse.setInfoFound(false);
+                certificateVerificationResponse.setCertificateVerificationInfoDTO(null);
+                certificateVerificationResponseList.add(certificateVerificationResponse);
+                continue;
             }
 
+            Certificate certificate = optionalCertificate.get();
+            certificateVerificationResponse.setInfoFound(true);
+            CertificateVerificationInfoDTO info = CertificateVerificationInfoDTO.builder()
+                    .certificateName(nameHashMap.get(result.getHash()))
+                    .certificateId(certificate.getId())
+                    .recipientName(certificate.getRecipientName())
+                    .recipientEmail(certificate.getRecipientEmail())
+                    .clusterName(certificate.getEvent().getCluster().getName())
+                    .organizationName(certificate.getEvent().getCluster().getOrganization().getName())
+                    .revoked(certificate.getRevoked())
+                    .issuedDate(certificate.getIssuedDate())
+                    .comments(certificate.getComments())
+                    .expiryDate(certificate.getExpiryDate())
+                    .clusterName(certificate.getEvent().getCluster().getName())
+                    .eventName(certificate.getEvent().getName())
+                    .build();
+
+
+
+            certificateVerificationResponse.setCertificateVerificationInfoDTO(info);
+            certificateVerificationResponseList.add(certificateVerificationResponse);
         }
+
+        return certificateVerificationResponseList;
 
     }
 
