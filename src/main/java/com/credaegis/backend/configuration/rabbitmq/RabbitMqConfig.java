@@ -27,6 +27,12 @@ public class RabbitMqConfig {
         return new Queue(Constants.APPROVAL_REQUEST_QUEUE,true);
     }
 
+
+    @Bean
+    Queue CertificateRevokeRequestQueue(){
+        return new Queue()
+    }
+
     @Bean
     Queue approvalResponseQueue(){
         return new Queue(Constants.APPROVAL_RESPONSE_QUEUE,true);
@@ -38,6 +44,11 @@ public class RabbitMqConfig {
     }
 
 
+
+    @Bean
+    Binding certificateRevokeBinding(){
+
+    }
 
 
     @Bean

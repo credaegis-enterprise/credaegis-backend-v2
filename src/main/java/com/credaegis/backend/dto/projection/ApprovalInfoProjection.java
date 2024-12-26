@@ -1,6 +1,6 @@
 package com.credaegis.backend.dto.projection;
 
-import com.credaegis.backend.entity.Status;
+import com.credaegis.backend.entity.ApprovalStatus;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -13,7 +13,7 @@ public interface ApprovalInfoProjection {
     public String getRecipientEmail();
     public Date getExpiryDate();
     public String getComment();
-    public Status getStatus();
+    public ApprovalStatus getStatus();
     public Timestamp getCreatedOn();
     public Timestamp getUpdatedOn();
     public String getEventId();

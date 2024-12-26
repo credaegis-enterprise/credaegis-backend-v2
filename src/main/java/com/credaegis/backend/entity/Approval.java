@@ -1,13 +1,11 @@
 package com.credaegis.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -39,7 +37,7 @@ public class Approval  {
 
     @Column(name = "approval_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private ApprovalStatus approvalStatus;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)

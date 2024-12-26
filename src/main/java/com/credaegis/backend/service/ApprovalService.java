@@ -4,7 +4,6 @@ package com.credaegis.backend.service;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ApprovalBlockchainDTO;
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
-import com.credaegis.backend.dto.NotificationMessageDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
@@ -29,8 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +82,7 @@ public class ApprovalService {
                     approvalBlockchainDTO.setApprovalId(approvalId);
                     approvalBlockchainDTO.setHash(hashedValue);
 
-                    approval.setStatus(Status.buffered);
+                    approval.setApprovalStatus(ApprovalStatus.buffered);
                     approvalRepository.save(approval);
                     rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.APPROVAL_REQUEST_QUEUE_KEY
                     ,approvalBlockchainDTO);
@@ -120,13 +117,13 @@ public class ApprovalService {
     }
 
     public List<ApprovalInfoProjection> getAllApprovals(String userOrganizationId) {
-        return approvalRepository.getApprovalInfo(Status.pending, userOrganizationId);
+        return approvalRepository.getApprovalInfo(ApprovalStatus.pending, userOrganizationId);
     }
 
 
-    public Map<String, Long> getCount(String userOrganizationId, Status status) {
+    public Map<String, Long> getCount(String userOrganizationId, ApprovalStatus approvalStatus) {
         Map<String, Long> countMap = new HashMap<>();
-        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndStatus(userOrganizationId, status);
+        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndStatus(userOrganizationId, approvalStatus);
         countMap.put("count", count);
         return countMap;
 
@@ -137,7 +134,7 @@ public class ApprovalService {
         if (!cluster.getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.getApprovalInfoByClusterAndStatus(cluster, Status.pending);
+        return approvalRepository.getApprovalInfoByClusterAndStatus(cluster, ApprovalStatus.pending);
     }
 
     public List<ApprovalInfoProjection> getAllEventApprovals(String eventId, String userOrganizationId) {
@@ -145,7 +142,7 @@ public class ApprovalService {
         if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.getApprovalInfoByEventAndStatus(event, Status.pending);
+        return approvalRepository.getApprovalInfoByEventAndStatus(event, ApprovalStatus.pending);
     }
 
     public ViewApprovalDTO viewApprovalCertificate(String approvalId, String userOrganizationId) {
@@ -219,7 +216,8 @@ public class ApprovalService {
                 certificate.setIssuedDate(new Date(System.currentTimeMillis()));
                 certificate.setEvent(approval.getEvent());
                 certificate.setIssuedByUser(user);
-                approval.setStatus(Status.approved);
+                certificate.setStatus(CertificateStatus.verified);
+                approval.setApprovalStatus(ApprovalStatus.approved);
 
                 //right now storing everything in off-chain database
                 approvalRepository.save(approval);
@@ -284,7 +282,7 @@ public class ApprovalService {
                 approval.setRecipientEmail(info.getRecipientEmail());
                 approval.setRecipientName(info.getRecipientName());
                 approval.setEvent(event);
-                approval.setStatus(Status.pending);
+                approval.setApprovalStatus(ApprovalStatus.pending);
                 approval.setComments(info.getComments());
                 approval.setExpiryDate(info.getExpiryDate());
                 approvalRepository.save(approval);

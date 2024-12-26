@@ -4,7 +4,7 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ViewApprovalDTO;
-import com.credaegis.backend.entity.Status;
+import com.credaegis.backend.entity.ApprovalStatus;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalModificationRequest;
 import com.credaegis.backend.http.request.ApprovalsIdRequest;
@@ -59,7 +59,7 @@ public class ApprovalController {
     public ResponseEntity<CustomApiResponse<Map<String,Long>>> getCount(@RequestParam String status,
                                                                         @AuthenticationPrincipal CustomUser customUser) {
 
-        Map<String, Long> count = approvalService.getCount( customUser.getOrganizationId(), Status.valueOf(status));
+        Map<String, Long> count = approvalService.getCount( customUser.getOrganizationId(), ApprovalStatus.valueOf(status));
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(count, "count fetched", true)
         );

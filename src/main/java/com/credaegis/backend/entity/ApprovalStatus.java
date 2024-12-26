@@ -1,6 +1,6 @@
 package com.credaegis.backend.entity;
 
-public enum Status {
+public enum ApprovalStatus {
     pending,
     approved,
     rejected,

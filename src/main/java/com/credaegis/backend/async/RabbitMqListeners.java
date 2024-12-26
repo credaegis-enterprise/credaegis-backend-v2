@@ -82,7 +82,7 @@ public class RabbitMqListeners {
                         approval.getRecipientName() + "," + "" + approval.getRecipientEmail() +
                         " is already issued and checksum found, rejected this certificate.";
 
-                approval.setStatus(Status.rejected);
+                approval.setApprovalStatus(ApprovalStatus.rejected);
                 Notification notification = new Notification();
                 notification.setId(UlidCreator.getUlid().toString());
                 notification.setMessage(errorMessage);
@@ -114,8 +114,9 @@ public class RabbitMqListeners {
             certificate.setRecipientEmail(approval.getRecipientEmail());
             certificate.setIssuedDate(new Date(System.currentTimeMillis()));
             certificate.setEvent(approval.getEvent());
+            certificate.setStatus(CertificateStatus.verified);
             certificate.setIssuedByUser(user);
-            approval.setStatus(Status.approved);
+            approval.setApprovalStatus(ApprovalStatus.approved);
 
             approvalRepository.save(approval);
             certificateRepository.save(certificate);

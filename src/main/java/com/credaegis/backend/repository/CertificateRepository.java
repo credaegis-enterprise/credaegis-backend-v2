@@ -18,6 +18,8 @@ import java.util.Optional;
 public interface  CertificateRepository extends JpaRepository<Certificate,String> {
     Optional<Certificate> findByCertificateHash(String hashedValue);
 
+
+
     @Modifying
     @Query("UPDATE Certificate c SET c.revoked = true, c.revokedDate = CURRENT_DATE WHERE c.id IN :ids AND c.event.cluster.organization.id = :organizationId")
     void revokeCertificates(@Param("ids") List<String> certificateIds,@Param("organizationId") String organizationId);
@@ -30,7 +32,7 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
                     "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
                     "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail," +
                     "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName" +
-                    "  FROM Certificate c WHERE c.event.cluster.organization.id = :organizationId")
+                    "  FROM Certificate c WHERE c.event.cluster.organization.id = :organizationId AND c.status != 'buffered'")
     Page<CertificateInfoProjection> getLatestCertificateInfo(Pageable pageable, @Param("organizationId") String organizationId);
 
 
@@ -40,7 +42,7 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
                     "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
                     "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail," +
                     "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName" +
-                    "  FROM Certificate c WHERE c.event.cluster.id = :clusterId AND c.event.cluster.organization.id = :organizationId")
+                    "  FROM Certificate c WHERE c.event.cluster.id = :clusterId AND c.event.cluster.organization.id = :organizationId AND c.status != 'buffered'")
     Page<CertificateInfoProjection> getLatestCertificateInfoByCluster(Pageable pageable, String clusterId, String organizationId);
 
 
@@ -51,7 +53,7 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
                     "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
                     "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail," +
                     "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName" +
-                    "  FROM Certificate c WHERE c.event.id = :eventId AND c.event.cluster.organization.id = :organizationId")
+                    "  FROM Certificate c WHERE c.event.id = :eventId AND c.event.cluster.organization.id = :organizationId AND c.status != 'buffered'")
     Page<CertificateInfoProjection> getLatestCertificateInfoByEvent(Pageable pageable, String eventId, String organizationId);
 
     Long countByEvent_Cluster_Organization_Id(String userOrganizationId);

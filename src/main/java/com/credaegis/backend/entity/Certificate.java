@@ -47,6 +47,10 @@ public class Certificate  {
 
     private String comments;
 
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private CertificateStatus status;
+
 
     @ManyToOne
     @JoinColumn(name="user_id",nullable = false)
