@@ -29,8 +29,13 @@ public class RabbitMqConfig {
 
 
     @Bean
-    Queue CertificateRevokeRequestQueue(){
-        return new Queue()
+    Queue certificateRevokeResponseQueue(){
+        return new Queue(Constants.CERTIFICATE_REVOKE_RESPONSE_QUEUE,true);
+    }
+
+    @Bean
+    Queue certificateRevokeRequestQueue(){
+        return new Queue(Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE,true);
     }
 
     @Bean
@@ -46,8 +51,14 @@ public class RabbitMqConfig {
 
 
     @Bean
-    Binding certificateRevokeBinding(){
+    Binding certificateRevokeRequestBinding(Queue certificateRevokeRequestQueue,DirectExchange exchange){
+        return  BindingBuilder.bind(certificateRevokeRequestQueue).to(exchange).with(Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE_KEY);
+    }
 
+
+    @Bean
+    Binding certificateRevokeResponseBinding(Queue certificateRevokeResponseQueue,DirectExchange exchange){
+        return BindingBuilder.bind(certificateRevokeResponseQueue).to(exchange).with(Constants.CERTIFICATE_REVOKE_RESPONSE_QUEUE_KEY);
     }
 
 
