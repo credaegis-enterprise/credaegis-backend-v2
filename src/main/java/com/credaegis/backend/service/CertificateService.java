@@ -3,6 +3,7 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.CertificateInfoDTO;
+import com.credaegis.backend.dto.RevocationBlockchainDTO;
 import com.credaegis.backend.dto.projection.CertificateInfoProjection;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
@@ -30,7 +31,7 @@ public class CertificateService {
     private final RabbitTemplate rabbitTemplate;
 
 
-    public void revokeCertificatesBlockchain(List<String> certificateIds, String userOrganizationId) {
+    public void revokeCertificatesBlockchain(List<String> certificateIds, String userOrganizationId,String userId) {
 
         for (String certificateId : certificateIds) {
 
@@ -39,7 +40,12 @@ public class CertificateService {
                 if (!certificate.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
                     throw ExceptionFactory.insufficientPermission();
 
-                rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE_KEY,certificateId);
+                RevocationBlockchainDTO revocationBlockchainDTO = new RevocationBlockchainDTO();
+                revocationBlockchainDTO.setRevokerId(userId);
+                revocationBlockchainDTO.setCertificateId(certificateId);
+                revocationBlockchainDTO.setHash(certificate.getCertificateHash());
+
+                rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE_KEY,revocationBlockchainDTO);
 
             } catch (Exception e) {
 

@@ -46,7 +46,8 @@ public class CertificateController {
     public ResponseEntity<CustomApiResponse<Void>> revokeCertitficatesBlockchain(@RequestBody @Valid CertificateRevokeRequest certificateRevokeRequest,
                                                                                  @AuthenticationPrincipal CustomUser customUser) {
 
-        certificateService.revokeCertificatesBlockchain(certificateRevokeRequest.getCertificateIds(),customUser.getOrganizationId());
+        certificateService.revokeCertificatesBlockchain(certificateRevokeRequest.getCertificateIds(),customUser.getOrganizationId(),
+                customUser.getId());
         return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>(null,"processing revocation",true));
     }
 
