@@ -75,7 +75,36 @@ public class RabbitMqListeners {
                                      Channel channel, @Header(AmqpHeaders.CONSUMER_TAG) String consumerTag)
             throws IOException {
 
-        System.out.println(objectMapper.writeValueAsString(message));
+        try {
+
+            Certificate certificate = certificateRepository.findByCertificateHash(message.getHash()).orElseThrow(ExceptionFactory::resourceNotFound);
+            User user = userRepository.findById(message.getRevokerId()).orElseThrow(ExceptionFactory::resourceNotFound);
+            if (!message.getRevoked()) {
+                String errorMessage = "Revocation request for certificate with name: " +
+                        certificate.getCertificateName() + "of the recipient " +
+                        certificate.getRecipientName() + ", " + certificate.getRecipientEmail() +
+                        "is already revoked";
+                Notification notification = new Notification();
+                notification.setId(UlidCreator.getUlid().toString());
+                notification.setMessage(errorMessage);
+                notification.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                notification.setUser(user);
+                notification.setType(NotificationType.ERROR);
+                notificationRepository.save(notification);
+                notificationRepository.save(notification);
+            } else {
+
+                certificate.setRevoked(true);
+                certificate.setStatus(CertificateStatus.revoked);
+                certificateRepository.save(certificate);
+
+            }
+            channel.basicAck(tag, false);
+        } catch (Exception e) {
+            //dead letter queue
+            log.error("Error in processing revocation request: {}", e);
+            channel.basicNack(tag, false, false);
+        }
 
     }
 
