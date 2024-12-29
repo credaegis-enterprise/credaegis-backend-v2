@@ -3,12 +3,14 @@ package com.credaegis.backend.async;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ApprovalBlockchainDTO;
+import com.credaegis.backend.dto.RevocationBlockchainDTO;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.repository.ApprovalRepository;
 import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.repository.NotificationRepository;
 import com.credaegis.backend.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.ulid.UlidCreator;
 import com.rabbitmq.client.Channel;
 import io.minio.MinioClient;
@@ -16,6 +18,7 @@ import io.minio.RemoveObjectArgs;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -37,6 +40,7 @@ public class RabbitMqListeners {
     private final CertificateRepository certificateRepository;
     private final MinioClient minioClient;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
 
 //    @RabbitListener(queues = Constants.NOTIFICATION_QUEUE)
@@ -65,20 +69,23 @@ public class RabbitMqListeners {
 //    }
 
 
-//
-//    @Transactional
-//    @RabbitListener(queues = Constants.CERTIFICATE_REVOKE_RESPONSE_QUEUE)
-//    public void receiveRevokeRequest(){
-//
-//    }
+    @Transactional
+    @RabbitListener(queues = Constants.CERTIFICATE_REVOKE_RESPONSE_QUEUE)
+    public void receiveRevokeRequest(RevocationBlockchainDTO message, @Header(AmqpHeaders.DELIVERY_TAG) long tag,
+                                     Channel channel, @Header(AmqpHeaders.CONSUMER_TAG) String consumerTag)
+            throws IOException {
+
+        System.out.println(objectMapper.writeValueAsString(message));
+
+    }
 
 
     //on-chain approval
     @Transactional
     @RabbitListener(queues = Constants.APPROVAL_RESPONSE_QUEUE)
     public void receiveApprovalRequest(ApprovalBlockchainDTO message, @Header(AmqpHeaders.DELIVERY_TAG) long tag,
-                                       Channel channel,@Header(AmqpHeaders.CONSUMER_TAG) String consumerTag
-                                       ) throws IOException {
+                                       Channel channel, @Header(AmqpHeaders.CONSUMER_TAG) String consumerTag
+    ) throws IOException {
 
         try {
 
@@ -105,29 +112,27 @@ public class RabbitMqListeners {
                         + approval.getEvent().getId() + "/" + approval.getId();
 
                 minioClient.removeObject(RemoveObjectArgs.builder()
-                                .object(approvalPath)
-                                .bucket("approvals")
+                        .object(approvalPath)
+                        .bucket("approvals")
                         .build());
 
-            }
+            } else {
 
-            else{
+                Certificate certificate = new Certificate();
+                certificate.setId(UlidCreator.getUlid().toString());
+                certificate.setCertificateName(approval.getApprovalCertificateName());
+                certificate.setCertificateHash(message.getHash());
+                certificate.setComments(approval.getComments());
+                certificate.setRecipientName(approval.getRecipientName());
+                certificate.setRecipientEmail(approval.getRecipientEmail());
+                certificate.setIssuedDate(new Date(System.currentTimeMillis()));
+                certificate.setEvent(approval.getEvent());
+                certificate.setStatus(CertificateStatus.verified);
+                certificate.setIssuedByUser(user);
+                approval.setStatus(ApprovalStatus.approved);
 
-            Certificate certificate = new Certificate();
-            certificate.setId(UlidCreator.getUlid().toString());
-            certificate.setCertificateName(approval.getApprovalCertificateName());
-            certificate.setCertificateHash(message.getHash());
-            certificate.setComments(approval.getComments());
-            certificate.setRecipientName(approval.getRecipientName());
-            certificate.setRecipientEmail(approval.getRecipientEmail());
-            certificate.setIssuedDate(new Date(System.currentTimeMillis()));
-            certificate.setEvent(approval.getEvent());
-            certificate.setStatus(CertificateStatus.verified);
-            certificate.setIssuedByUser(user);
-            approval.setStatus(ApprovalStatus.approved);
-
-            approvalRepository.save(approval);
-            certificateRepository.save(certificate);
+                approvalRepository.save(approval);
+                certificateRepository.save(certificate);
 
             }
 

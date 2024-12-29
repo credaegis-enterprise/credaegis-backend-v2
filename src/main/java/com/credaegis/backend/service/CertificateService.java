@@ -6,6 +6,7 @@ import com.credaegis.backend.dto.CertificateInfoDTO;
 import com.credaegis.backend.dto.RevocationBlockchainDTO;
 import com.credaegis.backend.dto.projection.CertificateInfoProjection;
 import com.credaegis.backend.entity.Certificate;
+import com.credaegis.backend.entity.CertificateStatus;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.repository.CertificateRepository;
 import jakarta.transaction.Transactional;
@@ -44,6 +45,8 @@ public class CertificateService {
                 revocationBlockchainDTO.setRevokerId(userId);
                 revocationBlockchainDTO.setCertificateId(certificateId);
                 revocationBlockchainDTO.setHash(certificate.getCertificateHash());
+                certificate.setStatus(CertificateStatus.buffered);
+                certificateRepository.save(certificate);
 
                 rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE_KEY,revocationBlockchainDTO);
 
