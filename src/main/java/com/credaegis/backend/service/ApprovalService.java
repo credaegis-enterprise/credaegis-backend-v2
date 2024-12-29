@@ -82,7 +82,7 @@ public class ApprovalService {
                     approvalBlockchainDTO.setApprovalId(approvalId);
                     approvalBlockchainDTO.setHash(hashedValue);
 
-                    approval.setApprovalStatus(ApprovalStatus.buffered);
+                    approval.setStatus(ApprovalStatus.buffered);
                     approvalRepository.save(approval);
                     rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.APPROVAL_REQUEST_QUEUE_KEY
                     ,approvalBlockchainDTO);
@@ -123,7 +123,7 @@ public class ApprovalService {
 
     public Map<String, Long> getCount(String userOrganizationId, ApprovalStatus approvalStatus) {
         Map<String, Long> countMap = new HashMap<>();
-        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndApprovalStatus(userOrganizationId, approvalStatus);
+        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndStatus(userOrganizationId, approvalStatus);
         countMap.put("count", count);
         return countMap;
 
@@ -134,7 +134,7 @@ public class ApprovalService {
         if (!cluster.getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.getApprovalInfoByClusterAndApprovalStatus(cluster, ApprovalStatus.pending);
+        return approvalRepository.getApprovalInfoByClusterAndStatus(cluster, ApprovalStatus.pending);
     }
 
     public List<ApprovalInfoProjection> getAllEventApprovals(String eventId, String userOrganizationId) {
@@ -142,7 +142,7 @@ public class ApprovalService {
         if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.getApprovalInfoByEventAndApprovalStatus(event, ApprovalStatus.pending);
+        return approvalRepository.getApprovalInfoByEventAndStatus(event, ApprovalStatus.pending);
     }
 
     public ViewApprovalDTO viewApprovalCertificate(String approvalId, String userOrganizationId) {
@@ -217,7 +217,7 @@ public class ApprovalService {
                 certificate.setEvent(approval.getEvent());
                 certificate.setIssuedByUser(user);
                 certificate.setStatus(CertificateStatus.verified);
-                approval.setApprovalStatus(ApprovalStatus.approved);
+                approval.setStatus(ApprovalStatus.approved);
 
                 //right now storing everything in off-chain database
                 approvalRepository.save(approval);
@@ -282,7 +282,7 @@ public class ApprovalService {
                 approval.setRecipientEmail(info.getRecipientEmail());
                 approval.setRecipientName(info.getRecipientName());
                 approval.setEvent(event);
-                approval.setApprovalStatus(ApprovalStatus.pending);
+                approval.setStatus(ApprovalStatus.pending);
                 approval.setComments(info.getComments());
                 approval.setExpiryDate(info.getExpiryDate());
                 approvalRepository.save(approval);

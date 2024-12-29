@@ -37,7 +37,7 @@ public class Approval  {
 
     @Column(name = "approval_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ApprovalStatus approvalStatus;
+    private ApprovalStatus status;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
