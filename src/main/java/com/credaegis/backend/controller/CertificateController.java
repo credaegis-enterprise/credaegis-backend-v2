@@ -42,6 +42,14 @@ public class CertificateController {
             );
     }
 
+    @PutMapping(path = "/blockchain/revoke")
+    public ResponseEntity<CustomApiResponse<Void>> revokeCertitficatesBlockchain(@RequestBody @Valid CertificateRevokeRequest certificateRevokeRequest,
+                                                                                 @AuthenticationPrincipal CustomUser customUser) {
+
+        certificateService.revokeCertificatesBlockchain(certificateRevokeRequest.getCertificateIds(),customUser.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>(null,"processing revocation",true));
+    }
+
 
 
     @PutMapping(path = "/revoke")

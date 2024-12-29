@@ -123,7 +123,7 @@ public class ApprovalService {
 
     public Map<String, Long> getCount(String userOrganizationId, ApprovalStatus approvalStatus) {
         Map<String, Long> countMap = new HashMap<>();
-        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndStatus(userOrganizationId, approvalStatus);
+        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndApprovalStatus(userOrganizationId, approvalStatus);
         countMap.put("count", count);
         return countMap;
 
@@ -134,7 +134,7 @@ public class ApprovalService {
         if (!cluster.getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.getApprovalInfoByClusterAndStatus(cluster, ApprovalStatus.pending);
+        return approvalRepository.getApprovalInfoByClusterAndApprovalStatus(cluster, ApprovalStatus.pending);
     }
 
     public List<ApprovalInfoProjection> getAllEventApprovals(String eventId, String userOrganizationId) {
@@ -142,7 +142,7 @@ public class ApprovalService {
         if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.getApprovalInfoByEventAndStatus(event, ApprovalStatus.pending);
+        return approvalRepository.getApprovalInfoByEventAndApprovalStatus(event, ApprovalStatus.pending);
     }
 
     public ViewApprovalDTO viewApprovalCertificate(String approvalId, String userOrganizationId) {

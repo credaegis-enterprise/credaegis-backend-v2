@@ -16,43 +16,43 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
 
 
 
-    Long countByEvent_Cluster_Organization_IdAndStatus(String organizationId, ApprovalStatus approvalStatus);
+    Long countByEvent_Cluster_Organization_IdAndApprovalStatus(String organizationId, ApprovalStatus approvalStatus);
 
 
     @Modifying
-    @Query("UPDATE Approval a SET a.status = 'rejected' WHERE a.id in :appIds AND a.event.cluster.organization.id = :id")
+    @Query("UPDATE Approval a SET a.approvalStatus = 'rejected' WHERE a.id in :appIds AND a.event.cluster.organization.id = :id")
     void rejectCertificates(@Param("id") String userOrganizationId, @Param("appIds") List<String> approvalIds);
 
 
     @Query("SELECT a.id AS id,a.approvalCertificateName AS approvalCertificateName," +
             "a.recipientName  AS recipientName,a.recipientEmail AS recipientEmail," +
-            "a.expiryDate AS expiryDate,a.comments AS comment,a.status AS status," +
+            "a.expiryDate AS expiryDate,a.comments AS comment,a.approvalStatus AS status," +
             "a.createdOn AS createdOn,a.updatedOn AS updatedOn," +
             "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
-            "FROM Approval a WHERE  a.status = :status AND a.event.cluster.organization.id = :userOrganizationId")
+            "FROM Approval a WHERE  a.approvalStatus = :status AND a.event.cluster.organization.id = :userOrganizationId")
     List<ApprovalInfoProjection> getApprovalInfo(@Param("approvalStatus")
                                                  ApprovalStatus approvalStatus, @Param("userOrganizationId") String userOrganizationId);
 
 
     @Query("SELECT a.id AS id,a.approvalCertificateName AS approvalCertificateName," +
             "a.recipientName  AS recipientName,a.recipientEmail AS recipientEmail," +
-            "a.expiryDate AS expiryDate,a.comments AS comment,a.status AS status," +
+            "a.expiryDate AS expiryDate,a.comments AS comment,a.approvalStatus AS status," +
             "a.createdOn AS createdOn,a.updatedOn AS updatedOn," +
             "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
-            "FROM Approval a WHERE a.event.cluster = :cluster AND a.status = :status")
-    List<ApprovalInfoProjection> getApprovalInfoByClusterAndStatus(Cluster cluster, ApprovalStatus approvalStatus);
+            "FROM Approval a WHERE a.event.cluster = :cluster AND a.approvalStatus = :status")
+    List<ApprovalInfoProjection> getApprovalInfoByClusterAndApprovalStatus(Cluster cluster, ApprovalStatus approvalStatus);
 
 
     @Query("SELECT a.id AS id,a.approvalCertificateName AS approvalCertificateName," +
             "a.recipientName  AS recipientName,a.recipientEmail AS recipientEmail," +
-            "a.expiryDate AS expiryDate,a.comments AS comment,a.status AS status," +
+            "a.expiryDate AS expiryDate,a.comments AS comment,a.approvalStatus AS status," +
             "a.createdOn AS createdOn,a.updatedOn AS updatedOn," +
             "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
-            "FROM Approval a WHERE a.event = :event AND a.status = :status")
-    List<ApprovalInfoProjection> getApprovalInfoByEventAndStatus(Event event, ApprovalStatus approvalStatus);
+            "FROM Approval a WHERE a.event = :event AND a.approvalStatus = :status")
+    List<ApprovalInfoProjection> getApprovalInfoByEventAndApprovalStatus(Event event, ApprovalStatus approvalStatus);
 
 
 }

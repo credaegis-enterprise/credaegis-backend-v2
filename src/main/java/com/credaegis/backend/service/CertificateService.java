@@ -1,6 +1,7 @@
 package com.credaegis.backend.service;
 
 
+import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.CertificateInfoDTO;
 import com.credaegis.backend.dto.projection.CertificateInfoProjection;
 import com.credaegis.backend.entity.Certificate;
@@ -9,6 +10,7 @@ import com.credaegis.backend.repository.CertificateRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ import java.util.Optional;
 public class CertificateService {
 
     private final CertificateRepository certificateRepository;
+    private final RabbitTemplate rabbitTemplate;
 
 
     public void revokeCertificatesBlockchain(List<String> certificateIds, String userOrganizationId) {
@@ -36,7 +39,11 @@ public class CertificateService {
                 if (!certificate.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
                     throw ExceptionFactory.insufficientPermission();
 
+                rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE_KEY,certificateId);
+
             } catch (Exception e) {
+
+                //dead letter queue
                 log.error(e.getMessage());
                 log.error("error processing certificate id {}", certificateId);
                 String errorMessage = "certificate id " + certificateId + " could not be processed because of" +

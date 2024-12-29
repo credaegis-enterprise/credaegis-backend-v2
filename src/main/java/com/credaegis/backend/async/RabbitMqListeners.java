@@ -65,12 +65,12 @@ public class RabbitMqListeners {
 //    }
 
 
-
-    @Transactional
-    @RabbitListener(queues = Constants.CERTIFICATE_REVOKE_RESPONSE_QUEUE)
-    public void receiveRevokeRequest(){
-
-    }
+//
+//    @Transactional
+//    @RabbitListener(queues = Constants.CERTIFICATE_REVOKE_RESPONSE_QUEUE)
+//    public void receiveRevokeRequest(){
+//
+//    }
 
 
     //on-chain approval
