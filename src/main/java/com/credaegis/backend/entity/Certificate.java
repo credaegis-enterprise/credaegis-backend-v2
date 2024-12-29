@@ -45,6 +45,11 @@ public class Certificate  {
     @Column(name = "revoked_date",nullable = true)
     private Date revokedDate;
 
+    @ManyToOne
+    @JoinColumn(name = "revoker_id",nullable = true)
+    @JsonBackReference
+    private User revokedByUser;
+
     private String comments;
 
     @Column(name = "status")

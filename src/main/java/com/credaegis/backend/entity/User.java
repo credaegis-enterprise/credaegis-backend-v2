@@ -75,11 +75,18 @@ public class  User {
     @JsonManagedReference
     private List<Event> events;
 
+
+    @OneToMany
+    @JsonProperty("revoked_certificates")
+    @JsonIgnore
+    @JsonManagedReference
+    private List<Certificate> revokedCertificates;
+
     @OneToMany(mappedBy = "issuedByUser")
     @JsonProperty("issued_certificates")
     @JsonIgnore
     @JsonManagedReference
-    private List<Certificate> certificates;
+    private List<Certificate> issuedCertificates;
 
 
     @OneToMany(mappedBy = "user")
