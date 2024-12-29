@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -31,8 +32,9 @@ public class Approval  {
     @Column(name = "expiry_date")
     private Date expiryDate;
 
-    private String  comments;
 
+    @Column(name = "comments")
+    private String  comments;
 
 
     @Column(name = "approval_status", nullable = false)
@@ -49,7 +51,7 @@ public class Approval  {
     @Column(name = "created_on",updatable = false)
     private Timestamp createdOn;
 
-    @CreationTimestamp
+    @UpdateTimestamp
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 

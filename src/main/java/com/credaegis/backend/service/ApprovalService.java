@@ -286,9 +286,10 @@ public class ApprovalService {
                 approval.setComments(info.getComments());
                 approval.setExpiryDate(info.getExpiryDate());
                 approvalRepository.save(approval);
+
             } catch (Exception e) {
 
-                //error queue here
+                //dead letter queue here
                 log.error(e.getMessage());
                 log.error("error uploading file {}", info.getFileName());
             }

@@ -31,8 +31,8 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
             "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
             "FROM Approval a WHERE  a.status = :status AND a.event.cluster.organization.id = :userOrganizationId")
-    List<ApprovalInfoProjection> getApprovalInfo(@Param("approvalStatus")
-                                                 ApprovalStatus approvalStatus, @Param("userOrganizationId") String userOrganizationId);
+    List<ApprovalInfoProjection> getApprovalInfo(@Param("status")
+                                                 ApprovalStatus status, @Param("userOrganizationId") String userOrganizationId);
 
 
     @Query("SELECT a.id AS id,a.approvalCertificateName AS approvalCertificateName," +
@@ -42,7 +42,7 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
             "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
             "FROM Approval a WHERE a.event.cluster = :cluster AND a.status = :status")
-    List<ApprovalInfoProjection> getApprovalInfoByClusterAndStatus(Cluster cluster, ApprovalStatus approvalStatus);
+    List<ApprovalInfoProjection> getApprovalInfoByClusterAndStatus(Cluster cluster, ApprovalStatus status);
 
 
     @Query("SELECT a.id AS id,a.approvalCertificateName AS approvalCertificateName," +
@@ -52,7 +52,7 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
             "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
             "FROM Approval a WHERE a.event = :event AND a.status = :status")
-    List<ApprovalInfoProjection> getApprovalInfoByEventAndStatus(Event event, ApprovalStatus approvalStatus);
+    List<ApprovalInfoProjection> getApprovalInfoByEventAndStatus(Event event, ApprovalStatus status);
 
 
 }
