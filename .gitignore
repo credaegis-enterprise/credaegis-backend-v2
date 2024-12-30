@@ -5,7 +5,8 @@ target/
 !**/src/test/**/target/
 
 
-env.sh
+env.local.sh
+env.prod.sh
 ### STS ###
 .apt_generated
 .classpath
