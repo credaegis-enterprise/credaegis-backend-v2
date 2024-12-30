@@ -76,7 +76,7 @@ public class  User {
     private List<Event> events;
 
 
-    @OneToMany
+    @OneToMany(mappedBy = "revokedByUser")
     @JsonProperty("revoked_certificates")
     @JsonIgnore
     @JsonManagedReference
