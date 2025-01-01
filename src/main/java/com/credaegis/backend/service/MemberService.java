@@ -14,6 +14,7 @@ import com.credaegis.backend.repository.UserRepository;
 import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class MemberService {
     private final ClusterRepository clusterRepository;
     private final OrganizationRepository organizationRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     public void createMember(MemberCreationRequest memberCreationRequest, String userOrganizationId) {
@@ -47,7 +49,7 @@ public class MemberService {
                 User user = new User();
                 Role role = new Role();
                 user.setId(UlidCreator.getUlid().toString());
-                user.setPassword("sgce");
+                user.setPassword(passwordEncoder.encode("sgce"));
                 user.setUsername(memberCreationRequest.getUsername());
                 user.setEmail(memberCreationRequest.getEmail());
                 user.setCluster(cluster);
