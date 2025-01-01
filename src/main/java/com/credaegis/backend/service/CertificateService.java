@@ -85,6 +85,18 @@ public class CertificateService {
         return certificateRepository.getLatestCertificateInfo(pageable, userOrganizationId).getContent();
     }
 
+
+
+    public Long getIssuedCountEvent(String userOrganizationId, String eventId) {
+        Long count = certificateRepository.countByEvent_IdAndEvent_Cluster_Organization_Id(eventId, userOrganizationId);
+        return count;
+    }
+
+    public Long getIssuedCountCluster(String userOrganizationId, String clusterId) {
+       Long count = certificateRepository.countByEvent_Cluster_IdAndEvent_Cluster_Organization_Id(clusterId, userOrganizationId);
+         return count;
+    }
+
     public List<CertificateInfoProjection> getLatestCertificatesCluster(int page, int size, String userOrganizationId, String clusterId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate")));
         return certificateRepository.getLatestCertificateInfoByCluster(pageable, clusterId, userOrganizationId).getContent();

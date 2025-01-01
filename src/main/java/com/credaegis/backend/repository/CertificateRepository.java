@@ -1,9 +1,7 @@
 package com.credaegis.backend.repository;
 
-import com.credaegis.backend.dto.CertificateInfoDTO;
 import com.credaegis.backend.dto.projection.CertificateInfoProjection;
 import com.credaegis.backend.entity.Certificate;
-import com.credaegis.backend.entity.Organization;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface  CertificateRepository extends JpaRepository<Certificate,String> {
@@ -61,4 +58,8 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
     Page<CertificateInfoProjection> getLatestCertificateInfoByEvent(Pageable pageable, String eventId, String organizationId);
 
     Long countByEvent_Cluster_Organization_Id(String userOrganizationId);
+
+    Long countByEvent_Cluster_IdAndEvent_Cluster_Organization_Id(String clusterId, String userOrganizationId);
+
+    Long countByEvent_IdAndEvent_Cluster_Organization_Id(String eventId, String userOrganizationId);
 }

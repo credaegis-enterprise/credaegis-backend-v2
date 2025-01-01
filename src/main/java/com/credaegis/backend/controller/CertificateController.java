@@ -8,6 +8,7 @@ import com.credaegis.backend.dto.projection.CertificateInfoProjection;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.http.request.CertificateRevokeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
+import com.credaegis.backend.http.response.custom.CertificateListResponse;
 import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.service.CertificateService;
 import jakarta.validation.Valid;
@@ -63,14 +64,16 @@ public class CertificateController {
     }
 
     @GetMapping(path="/cluster/{id}/get-latest")
-    public ResponseEntity<CustomApiResponse<List<CertificateInfoProjection>>> getLatestCertificatesCluster(@RequestParam("page") int page,
-                                                                                             @RequestParam("size") int size,
-                                                                                             @PathVariable String id,
-                                                                                             @AuthenticationPrincipal CustomUser customUser) {
-
+    public ResponseEntity<CustomApiResponse<CertificateListResponse>> getLatestCertificatesCluster(@RequestParam("page") int page,
+                                                                                                   @RequestParam("size") int size,
+                                                                                                   @PathVariable String id,
+                                                                                                   @AuthenticationPrincipal CustomUser customUser) {
+        CertificateListResponse certificateListResponse = new CertificateListResponse();
+        certificateListResponse.setCount(certificateService.getIssuedCountCluster(customUser.getOrganizationId(),id));
+        certificateListResponse.setCertificateInfoProjection(certificateService.getLatestCertificatesCluster(page,size, customUser.getOrganizationId(), id));
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(
-                        certificateService.getLatestCertificatesCluster(page,size, customUser.getOrganizationId(), id),
+                        certificateListResponse,
                         null,true
                 )
         );
@@ -78,14 +81,16 @@ public class CertificateController {
     }
 
     @GetMapping(path="/event/{id}/get-latest")
-    public ResponseEntity<CustomApiResponse<List<CertificateInfoProjection>>> getLatestCertificatesEvent(@RequestParam("page") int page,
+    public ResponseEntity<CustomApiResponse<CertificateListResponse>> getLatestCertificatesEvent(@RequestParam("page") int page,
                                                                                            @RequestParam("size") int size,
                                                                                            @PathVariable String id,
                                                                                            @AuthenticationPrincipal CustomUser customUser) {
-
+        CertificateListResponse certificateListResponse = new CertificateListResponse();
+        certificateListResponse.setCount(certificateService.getIssuedCountEvent(customUser.getOrganizationId(),id));
+        certificateListResponse.setCertificateInfoProjection(certificateService.getLatestCertificatesEvent(page,size, customUser.getOrganizationId(), id));
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(
-                        certificateService.getLatestCertificatesEvent(page,size, customUser.getOrganizationId(), id),
+                        certificateListResponse,
                         null,true
                 )
         );
@@ -96,7 +101,6 @@ public class CertificateController {
     public ResponseEntity<CustomApiResponse<List<CertificateInfoProjection>>> getLatestCertificates(@RequestParam("page") int page,
                                                                                              @RequestParam("size") int size,
                                                                                              @AuthenticationPrincipal CustomUser customUser) {
-
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(
                         certificateService.getLatestCertificates(page,size, customUser.getOrganizationId()),
