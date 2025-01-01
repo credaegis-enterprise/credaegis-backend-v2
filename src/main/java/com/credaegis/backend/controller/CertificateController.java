@@ -98,12 +98,16 @@ public class CertificateController {
     }
 
     @GetMapping(path = "/get-latest")
-    public ResponseEntity<CustomApiResponse<List<CertificateInfoProjection>>> getLatestCertificates(@RequestParam("page") int page,
+    public ResponseEntity<CustomApiResponse<CertificateListResponse>> getLatestCertificates(@RequestParam("page") int page,
                                                                                              @RequestParam("size") int size,
-                                                                                             @AuthenticationPrincipal CustomUser customUser) {
+                                                                                                    @AuthenticationPrincipal CustomUser customUser) {
+
+        CertificateListResponse certificateListResponse = new CertificateListResponse();
+        certificateListResponse.setCertificateInfoProjection(certificateService.getLatestCertificates(page,size, customUser.getOrganizationId()));
+        certificateListResponse.setCount(certificateService.getTotalIssuedCertificateCount(customUser.getOrganizationId()).get("count"));
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(
-                        certificateService.getLatestCertificates(page,size, customUser.getOrganizationId()),
+                        certificateListResponse,
                         null,true
                 )
         );
