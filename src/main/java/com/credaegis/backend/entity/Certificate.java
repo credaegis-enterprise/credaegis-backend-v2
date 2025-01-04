@@ -53,7 +53,7 @@ public class Certificate  {
     private String comments;
 
 
-    @Column(name = "persisted")
+    @Column(name = "persisted",nullable = false)
     private Boolean persisted;
 
     @Column(name = "status")

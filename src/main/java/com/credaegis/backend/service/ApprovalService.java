@@ -176,7 +176,24 @@ public class ApprovalService {
 
     @Transactional
     public void rejectCertificates(String userOrganizationId, List<String> approvalIdList) {
-        approvalRepository.rejectCertificates(userOrganizationId, approvalIdList);
+        for(String approvalId:approvalIdList){
+            try {
+            Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+            if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
+                throw ExceptionFactory.insufficientPermission();
+            String approvalPath = approval.getEvent().getCluster().getId() + "/"
+                    + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
+
+                approval.setStatus(ApprovalStatus.rejected);
+                minioClient.removeObject(RemoveObjectArgs.builder()
+                        .object(approvalPath)
+                        .bucket("approvals")
+                        .build());
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                log.error("error removing file with Id {}", approvalId);
+            }
+        }
     }
 
 
