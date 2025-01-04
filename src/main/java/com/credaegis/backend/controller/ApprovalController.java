@@ -43,9 +43,11 @@ public class ApprovalController {
     @PostMapping(path = "/blockchain/approve")
     public ResponseEntity<CustomApiResponse<Void>> approveBlock(@Valid @RequestBody ApprovalsIdRequest
                                                                                approvalsIdRequest,
-                                                                       @RequestParam Boolean persist,
+                                                                       @RequestParam(required = false,defaultValue = "false") Boolean persist,
                                                                        @AuthenticationPrincipal CustomUser customUser) throws IOException {
 
+
+        System.out.println(persist);
         approvalService.approveCertifcatesBlockchain
                 (customUser.getId(), customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds(),persist);
         return ResponseEntity.status(HttpStatus.OK).body(
