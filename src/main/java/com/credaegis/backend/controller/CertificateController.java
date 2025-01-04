@@ -4,6 +4,8 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.CertificateInfoDTO;
+import com.credaegis.backend.dto.ViewApprovalDTO;
+import com.credaegis.backend.dto.ViewCertificateDTO;
 import com.credaegis.backend.dto.projection.CertificateInfoProjection;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.http.request.CertificateRevokeRequest;
@@ -14,8 +16,11 @@ import com.credaegis.backend.service.CertificateService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import okhttp3.Response;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +36,20 @@ public class CertificateController {
 
     private final CertificateService certificateService;
 
+
+
+    @GetMapping(path = "/view/{id}")
+    public ResponseEntity<InputStreamResource> viewApproval(@PathVariable String id, @AuthenticationPrincipal CustomUser customUser) {
+
+        ViewCertificateDTO viewCertificateDTO = certificateService.viewCertificate(id,customUser.getOrganizationId());
+        InputStreamResource resource = new InputStreamResource(viewCertificateDTO.getCertificateFileStream());
+        return ResponseEntity.status(HttpStatus.OK).header(
+                        HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + viewCertificateDTO.getCertificateFileName())
+                .header("Content-Security-Policy", "frame-ancestors 'self' http://localhost:3000")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(resource);
+
+    }
 
     @GetMapping(path = "/issued/get-count")
     public ResponseEntity<CustomApiResponse<Map<String,Long>>> getTotalCount(@AuthenticationPrincipal CustomUser customUser){

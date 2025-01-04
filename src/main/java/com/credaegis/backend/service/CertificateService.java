@@ -4,11 +4,16 @@ package com.credaegis.backend.service;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.CertificateInfoDTO;
 import com.credaegis.backend.dto.RevocationBlockchainDTO;
+import com.credaegis.backend.dto.ViewApprovalDTO;
+import com.credaegis.backend.dto.ViewCertificateDTO;
 import com.credaegis.backend.dto.projection.CertificateInfoProjection;
+import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.entity.CertificateStatus;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.repository.CertificateRepository;
+import io.minio.GetObjectArgs;
+import io.minio.MinioClient;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +35,34 @@ import java.util.Optional;
 public class CertificateService {
 
     private final CertificateRepository certificateRepository;
+    private final MinioClient minioClient;
     private final RabbitTemplate rabbitTemplate;
+
+
+    public ViewCertificateDTO viewCertificate(String certificateId, String userOrganizationId) {
+       Certificate certificate = certificateRepository.findById(certificateId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (!certificate.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
+            throw ExceptionFactory.insufficientPermission();
+
+        String approvalPath = certificate.getEvent().getCluster().getId() + "/"
+                + certificate.getEvent().getId() + "/" + certificate.getId() + "/" + certificate.getCertificateName();
+
+        try {
+            InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                    .bucket("approvals")
+                    .object(approvalPath)
+                    .build());
+
+            ViewCertificateDTO viewCertificateDTO = new ViewCertificateDTO(stream, certificate.getCertificateName());
+            return viewCertificateDTO;
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw ExceptionFactory.internalError();
+        }
+
+
+    }
 
 
     public void revokeCertificatesBlockchain(List<String> certificateIds, String userOrganizationId,String userId) {
