@@ -1,5 +1,7 @@
 package com.credaegis.backend.http.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -7,7 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PasswordResetRequest {
 
+
+    @NotBlank(message = "new password cannot be empty")
     private String newPassword;
+
+    @NotBlank(message = "reset token cannot be empty")
     private String resetToken;
+
+    @Email(message = "email cannot be empty")
     private String email;
 }

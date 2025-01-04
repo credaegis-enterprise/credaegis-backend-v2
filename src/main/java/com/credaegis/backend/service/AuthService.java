@@ -48,6 +48,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
 
+    @Value("${credaegis.base.url}")
+    private String baseUrl;
+
 
 
     public void resetPassword(String newPassword, String resetToken,String email){
@@ -86,6 +89,8 @@ public class AuthService {
         emailDTO.setRecipientEmail(recipientEmail);
         emailDTO.setSubject("Password reset link");
         emailDTO.setContentType("html");
+
+        String resetLink = baseUrl+"/reset-password?token="+user.getPasswordResetToken()+"&email="+recipientEmail;
         emailDTO.setContent(
                 "<html>" +
                         "<body style='margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;'>" +
@@ -101,7 +106,7 @@ public class AuthService {
                         "<table align='center' border='0' cellpadding='0' cellspacing='0' style='margin: 20px auto;'>" +
                         "<tr>" +
                         "<td align='center' bgcolor='#007bff' style='border-radius: 5px;'>" +
-                        "<a href='https://example.com/reset-password?token=YOUR_TOKEN' " +
+                        "<a href= '"+resetLink+"' " +
                         "style='display: inline-block; padding: 10px 20px; color: #ffffff; text-decoration: none; font-size: 16px;'>" +
                         "Reset Password" +
                         "</a>" +
@@ -121,7 +126,7 @@ public class AuthService {
                         "</html>"
         );
 
-//        rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.EMAIL_QUEUE_KEY,emailDTO);
+        rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.EMAIL_QUEUE_KEY,emailDTO);
 
 
     }
