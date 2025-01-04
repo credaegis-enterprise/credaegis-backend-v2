@@ -97,7 +97,7 @@ public class AuthService {
                         "<td style='padding: 20px;'>" +
                         "<h2 style='color: #333333;'>Password Reset Request</h2>" +
                         "<p style='color: #555555;'>Hello,</p>" +
-                        "<p style='color: #555555;'>We received a request to reset your password. Please click the button below to reset your password:</p>" +
+                        "<p style='color: #555555;'>We received a request to reset your password. The link is valid for 2 minutes, Please click the button below to reset your password:</p>" +
                         "<table align='center' border='0' cellpadding='0' cellspacing='0' style='margin: 20px auto;'>" +
                         "<tr>" +
                         "<td align='center' bgcolor='#007bff' style='border-radius: 5px;'>" +

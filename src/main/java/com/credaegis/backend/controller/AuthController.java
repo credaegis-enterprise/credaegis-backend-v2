@@ -26,7 +26,7 @@ public class AuthController {
 
 
 
-    @PostMapping(path = "/forgot-password")
+    @PostMapping(path = "/reset-password")
     public ResponseEntity<CustomApiResponse<Void>> forgotPasswordController(@RequestBody PasswordResetRequest passwordResetRequest){
 
         authService.resetPassword(passwordResetRequest.getNewPassword(),passwordResetRequest.getResetToken(),passwordResetRequest.getEmail());
