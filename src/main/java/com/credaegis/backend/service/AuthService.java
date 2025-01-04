@@ -25,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,25 @@ public class AuthService {
     private final UserRepository userRepository;
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
     private final RabbitTemplate rabbitTemplate;
+    private final PasswordEncoder passwordEncoder;
 
 
+
+
+    public void resetPassword(String newPassword, String resetToken,String email){
+
+        User user = userRepository.findByEmail(email).orElseThrow(()->ExceptionFactory.customValidationError("Invalid Email"));
+        if(!user.getPasswordResetToken().equals(resetToken))
+            throw ExceptionFactory.customValidationError("Incorrect reset token entered");
+
+        if(System.currentTimeMillis() - user.getPasswordResetTokenCreationTime().getTime() > 120000)
+            throw ExceptionFactory.customValidationError("Token has been expired");
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetTokenCreationTime(null);
+        userRepository.save(user);
+    }
 
     public void forgotPassword(String recipientEmail) {
 
@@ -54,14 +72,15 @@ public class AuthService {
                 () -> ExceptionFactory.customValidationError("Invalid email")
         );
 
-        if(!user.getPasswordResetToken().isEmpty()){
+        if(user.getPasswordResetToken()!=null){
             if(System.currentTimeMillis() - user.getPasswordResetTokenCreationTime().getTime() < 120000)
-                throw ExceptionFactory.customValidationError("Password reset link already sent, please wait for"+
-                        (120000 - (System.currentTimeMillis() - user.getPasswordResetTokenCreationTime().getTime()))/1000+" seconds");
+                throw ExceptionFactory.customValidationError("Password reset link already sent, please wait for "+
+                        (120000 - (System.currentTimeMillis() - user.getPasswordResetTokenCreationTime().getTime()))/1000+" seconds for trying again");
         }
 
         user.setPasswordResetToken(UUID.randomUUID().toString());
         user.setPasswordResetTokenCreationTime(new Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
 
         EmailDTO emailDTO = new EmailDTO();
         emailDTO.setRecipientEmail(recipientEmail);

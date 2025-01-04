@@ -3,6 +3,7 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.http.request.LoginRequest;
 import com.credaegis.backend.http.request.MfaLoginRequest;
+import com.credaegis.backend.http.request.PasswordResetRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.LoginResponse;
 import com.credaegis.backend.http.response.custom.SessionCheckResponse;
@@ -23,6 +24,14 @@ public class AuthController {
 
     private final AuthService authService;
 
+
+
+    @PostMapping(path = "/forgot-password")
+    public ResponseEntity<CustomApiResponse<Void>> forgotPasswordController(@RequestBody PasswordResetRequest passwordResetRequest){
+
+        authService.resetPassword(passwordResetRequest.getNewPassword(),passwordResetRequest.getResetToken(),passwordResetRequest.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>(null,"Password reset success, login with new password",true));
+    }
 
     @PostMapping(path = "/forgot-password")
     public ResponseEntity<CustomApiResponse<Void>> forgotPasswordController(@RequestParam String email){
