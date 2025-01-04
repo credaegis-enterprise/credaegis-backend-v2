@@ -138,7 +138,7 @@ public class RabbitMqListeners {
                 approvalRepository.save(approval);
 
                 String approvalPath = approval.getEvent().getCluster().getId() + "/"
-                        + approval.getEvent().getId() + "/" + approval.getId();
+                        + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
 
                 minioClient.removeObject(RemoveObjectArgs.builder()
                         .object(approvalPath)

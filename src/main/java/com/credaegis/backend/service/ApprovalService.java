@@ -65,7 +65,7 @@ public class ApprovalService {
 
         //    creating path to retrieve file
                     String approvalPath = approval.getEvent().getCluster().getId() + "/"
-                            + approval.getEvent().getId() + "/" + approval.getId();
+                            + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
 
 
                     InputStream stream = minioClient.getObject(GetObjectArgs.builder()
@@ -151,7 +151,7 @@ public class ApprovalService {
             throw ExceptionFactory.insufficientPermission();
 
         String approvalPath = approval.getEvent().getCluster().getId() + "/"
-                + approval.getEvent().getId() + "/" + approval.getId();
+                + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
 
         try {
             InputStream stream = minioClient.getObject(GetObjectArgs.builder()
@@ -189,7 +189,7 @@ public class ApprovalService {
 
                 //creating path to retrieve file
                 String approvalPath = approval.getEvent().getCluster().getId() + "/"
-                        + approval.getEvent().getId() + "/" + approval.getId();
+                        + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
 
 
                 InputStream stream = minioClient.getObject(GetObjectArgs.builder()
@@ -264,14 +264,12 @@ public class ApprovalService {
         String clusterId = event.getCluster().getId();
         String approvalPath = clusterId + "/" + eventId;
         for (ApprovalsInfoDTO info : approvalsInfoDTOS) {
-//            if (!approvalsCertificatesMap.containsKey(info.getFileName())) {
-//                to be done
-//            }
+//
             try {
                 String approvalCertificateId = UlidCreator.getUlid().toString();
                 MultipartFile uploadCertificate = approvalsCertificatesMap.get(info.getFileName());
                 minioClient.putObject(PutObjectArgs.builder().bucket("approvals")
-                        .object(approvalPath + "/" + approvalCertificateId)
+                        .object(approvalPath + "/" + approvalCertificateId + "/" + info.getFileName())
                         .stream(uploadCertificate.getInputStream(), uploadCertificate.getSize(), -1)
                         .build());
 
