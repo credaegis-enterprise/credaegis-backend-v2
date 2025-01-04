@@ -18,63 +18,73 @@ public class RabbitMqConfig {
     //if needed different config for each listener then use multiple listener container factor
 
     @Bean
-    Queue notificationQueue(){
-        return new Queue(Constants.NOTIFICATION_QUEUE,true);
+    Queue notificationQueue() {
+        return new Queue(Constants.NOTIFICATION_QUEUE, true);
     }
 
     @Bean
-    Queue approvalRequestQueue(){
-        return new Queue(Constants.APPROVAL_REQUEST_QUEUE,true);
+    Queue approvalRequestQueue() {
+        return new Queue(Constants.APPROVAL_REQUEST_QUEUE, true);
     }
 
 
     @Bean
-    Queue certificateRevokeResponseQueue(){
-        return new Queue(Constants.CERTIFICATE_REVOKE_RESPONSE_QUEUE,true);
+    Queue emailQueue() {
+        return new Queue(Constants.EMAIL_QUEUE, true);
+    }
+
+
+    @Bean
+    Queue certificateRevokeResponseQueue() {
+        return new Queue(Constants.CERTIFICATE_REVOKE_RESPONSE_QUEUE, true);
     }
 
     @Bean
-    Queue certificateRevokeRequestQueue(){
-        return new Queue(Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE,true);
+    Queue certificateRevokeRequestQueue() {
+        return new Queue(Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE, true);
     }
 
     @Bean
-    Queue approvalResponseQueue(){
-        return new Queue(Constants.APPROVAL_RESPONSE_QUEUE,true);
+    Queue approvalResponseQueue() {
+        return new Queue(Constants.APPROVAL_RESPONSE_QUEUE, true);
     }
 
     @Bean
-    DirectExchange exchange(){
+    DirectExchange exchange() {
         return new DirectExchange(Constants.DIRECT_EXCHANGE);
     }
 
 
-
     @Bean
-    Binding certificateRevokeRequestBinding(Queue certificateRevokeRequestQueue,DirectExchange exchange){
-        return  BindingBuilder.bind(certificateRevokeRequestQueue).to(exchange).with(Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE_KEY);
+    Binding certificateRevokeRequestBinding(Queue certificateRevokeRequestQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(certificateRevokeRequestQueue).to(exchange).with(Constants.CERTIFICATE_REVOKE_REQUEST_QUEUE_KEY);
     }
 
 
     @Bean
-    Binding certificateRevokeResponseBinding(Queue certificateRevokeResponseQueue,DirectExchange exchange){
+    Binding certificateRevokeResponseBinding(Queue certificateRevokeResponseQueue, DirectExchange exchange) {
         return BindingBuilder.bind(certificateRevokeResponseQueue).to(exchange).with(Constants.CERTIFICATE_REVOKE_RESPONSE_QUEUE_KEY);
     }
 
 
     @Bean
-    Binding approvalResponseBinding(Queue approvalResponseQueue,DirectExchange exchange){
+    Binding approvalResponseBinding(Queue approvalResponseQueue, DirectExchange exchange) {
         return BindingBuilder.bind(approvalResponseQueue).to(exchange).with(Constants.APPROVAL_RESPONSE_QUEUE_KEY);
     }
 
     @Bean
-    Binding notificationBinding(Queue notificationQueue,DirectExchange exchange){
+    Binding notificationBinding(Queue notificationQueue, DirectExchange exchange) {
         return BindingBuilder.bind(notificationQueue).to(exchange).with(Constants.NOTIFICATION_QUEUE_KEY);
     }
 
     @Bean
-    Binding approvalRequestBinding(Queue approvalRequestQueue,DirectExchange exchange){
+    Binding approvalRequestBinding(Queue approvalRequestQueue, DirectExchange exchange) {
         return BindingBuilder.bind(approvalRequestQueue).to(exchange).with(Constants.APPROVAL_REQUEST_QUEUE_KEY);
+    }
+
+    @Bean
+    Binding emailBinding(Queue emailQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(emailQueue).to(exchange).with(Constants.EMAIL_QUEUE_KEY);
     }
 
 
@@ -84,10 +94,9 @@ public class RabbitMqConfig {
     }
 
 
-
     //sender configuration
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         return rabbitTemplate;

@@ -1,17 +1,24 @@
 package com.credaegis.backend.service;
 
 import com.credaegis.backend.configuration.security.principal.CustomUser;
+import com.credaegis.backend.constant.Constants;
+import com.credaegis.backend.dto.EmailDTO;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.LoginRequest;
 import com.credaegis.backend.http.request.MfaLoginRequest;
 import com.credaegis.backend.repository.UserRepository;
+import com.github.f4b6a3.ulid.UlidCreator;
 import dev.samstevens.totp.code.CodeVerifier;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,17 +29,84 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.util.Properties;
+import java.util.UUID;
+
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthService {
-
 
     private final AuthenticationManager customAuthenticationManager;
     private final CodeVerifier codeVerifier;
     private final UserRepository userRepository;
-
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    private final RabbitTemplate rabbitTemplate;
+
+
+
+    public void forgotPassword(String recipientEmail) {
+
+
+        User user = userRepository.findByEmail(recipientEmail).orElseThrow(
+                () -> ExceptionFactory.customValidationError("Invalid email")
+        );
+
+        if(!user.getPasswordResetToken().isEmpty()){
+            if(System.currentTimeMillis() - user.getPasswordResetTokenCreationTime().getTime() < 120000)
+                throw ExceptionFactory.customValidationError("Password reset link already sent, please wait for"+
+                        (120000 - (System.currentTimeMillis() - user.getPasswordResetTokenCreationTime().getTime()))/1000+" seconds");
+        }
+
+        user.setPasswordResetToken(UUID.randomUUID().toString());
+        user.setPasswordResetTokenCreationTime(new Timestamp(System.currentTimeMillis()));
+
+        EmailDTO emailDTO = new EmailDTO();
+        emailDTO.setRecipientEmail(recipientEmail);
+        emailDTO.setSubject("Password reset link");
+        emailDTO.setContentType("html");
+        emailDTO.setContent(
+                "<html>" +
+                        "<body style='margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;'>" +
+                        "<table align='center' width='100%' border='0' cellpadding='0' cellspacing='0' style='margin: 0; padding: 20px;'>" +
+                        "<tr>" +
+                        "<td align='center'>" +
+                        "<table width='600px' border='0' cellpadding='0' cellspacing='0' style='background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>" +
+                        "<tr>" +
+                        "<td style='padding: 20px;'>" +
+                        "<h2 style='color: #333333;'>Password Reset Request</h2>" +
+                        "<p style='color: #555555;'>Hello,</p>" +
+                        "<p style='color: #555555;'>We received a request to reset your password. Please click the button below to reset your password:</p>" +
+                        "<table align='center' border='0' cellpadding='0' cellspacing='0' style='margin: 20px auto;'>" +
+                        "<tr>" +
+                        "<td align='center' bgcolor='#007bff' style='border-radius: 5px;'>" +
+                        "<a href='https://example.com/reset-password?token=YOUR_TOKEN' " +
+                        "style='display: inline-block; padding: 10px 20px; color: #ffffff; text-decoration: none; font-size: 16px;'>" +
+                        "Reset Password" +
+                        "</a>" +
+                        "</td>" +
+                        "</tr>" +
+                        "</table>" +
+                        "<p style='color: #555555;'>If you did not request this, you can safely ignore this email.</p>" +
+                        "<p style='color: #555555;'>Thanks,</p>" +
+                        "<p style='color: #555555;'>The Team</p>" +
+                        "</td>" +
+                        "</tr>" +
+                        "</table>" +
+                        "</td>" +
+                        "</tr>" +
+                        "</table>" +
+                        "</body>" +
+                        "</html>"
+        );
+
+//        rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.EMAIL_QUEUE_KEY,emailDTO);
+
+
+    }
+
 
     public Boolean login(@Valid LoginRequest loginRequest, HttpServletRequest
             request, HttpServletResponse response) {
@@ -53,6 +127,7 @@ public class AuthService {
         return false;
 
     }
+
 
     public void mfaLogin(@Valid MfaLoginRequest mfaLoginRequest, HttpServletRequest
             request, HttpServletResponse response) {

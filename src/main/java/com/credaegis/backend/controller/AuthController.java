@@ -23,6 +23,14 @@ public class AuthController {
 
     private final AuthService authService;
 
+
+    @PostMapping(path = "/forgot-password")
+    public ResponseEntity<CustomApiResponse<Void>> forgotPasswordController(@RequestParam String email){
+
+        authService.forgotPassword(email);
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>(null,"Password reset link sent to email",true));
+    }
+
     @PostMapping(path = "/login")
     public ResponseEntity<CustomApiResponse<LoginResponse>> loginController(@Valid @RequestBody LoginRequest loginRequest,
                                                                             HttpServletRequest request, HttpServletResponse response){

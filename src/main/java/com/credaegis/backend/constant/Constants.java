@@ -29,6 +29,10 @@ public class Constants {
     public static final String CERTIFICATE_REVOKE_RESPONSE_QUEUE = "REVOKE_RESPONSE_QUEUE";
     public static final String CERTIFICATE_REVOKE_RESPONSE_QUEUE_KEY = "revoke_response";
 
+    public static final String EMAIL_QUEUE = "EMAIL_QUEUE";
+    public static final String EMAIL_QUEUE_KEY = "email";
+
+
 
 
 }

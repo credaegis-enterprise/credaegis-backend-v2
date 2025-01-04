@@ -43,6 +43,15 @@ public class  User {
     @Column(name = "brand_logo_enabled", nullable = false)
     private Boolean brandLogoEnabled = false;
 
+
+    @Column(name = "password_reset_token", nullable = true)
+    @JsonIgnore
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_token_creation_time", nullable = true)
+    @JsonIgnore
+    private Timestamp passwordResetTokenCreationTime;
+
     @Column(nullable = false)
     private Boolean deactivated = false;
 

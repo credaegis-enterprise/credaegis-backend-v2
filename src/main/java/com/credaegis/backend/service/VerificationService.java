@@ -3,6 +3,7 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.dto.CertificateVerificationBlockchainResultDTO;
 import com.credaegis.backend.entity.Certificate;
+import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.http.response.custom.CertificateVerificationResponse;
 import com.credaegis.backend.dto.CertificateVerificationInfoDTO;
 import com.credaegis.backend.repository.CertificateRepository;
@@ -12,8 +13,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -24,6 +27,7 @@ import java.util.*;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class VerificationService {
 
 
@@ -34,14 +38,6 @@ public class VerificationService {
 
     @Value("${credaegis.blockchain.url}")
     private String asyncEndPoint;
-
-    public VerificationService(CertificateRepository certificateRepository,CheckSumUtility checkSumUtility,
-                               RestTemplate restTemplate){
-
-        this.restTemplate = restTemplate;
-        this.certificateRepository = certificateRepository;
-        this.checkSumUtility = checkSumUtility;
-    }
 
 
     //This service is used for verification by blockchain
@@ -55,8 +51,16 @@ public class VerificationService {
             hashes.add(hash);
         }
 
-        ResponseEntity<String> response = restTemplate.postForEntity(asyncEndPoint+"" +
+
+        ResponseEntity<String> response;
+
+        try{
+        response = restTemplate.postForEntity(asyncEndPoint+"" +
                 "/verify",hashes, String.class);
+        }catch (Exception e){
+            throw new CustomException("Blockchain verification service is down", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
 
         System.out.println(response.getBody());
         List<CertificateVerificationBlockchainResultDTO> verificationResult = objectMapper.readValue(response.getBody(),
