@@ -185,6 +185,7 @@ public class ApprovalService {
                     + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
 
                 approval.setStatus(ApprovalStatus.rejected);
+                approvalRepository.save(approval);
                 minioClient.removeObject(RemoveObjectArgs.builder()
                         .object(approvalPath)
                         .bucket("approvals")
