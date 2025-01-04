@@ -8,6 +8,7 @@ import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.LoginRequest;
 import com.credaegis.backend.http.request.MfaLoginRequest;
 import com.credaegis.backend.repository.UserRepository;
+import com.credaegis.backend.utility.PasswordUtility;
 import com.github.f4b6a3.ulid.UlidCreator;
 import dev.samstevens.totp.code.CodeVerifier;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,21 +47,29 @@ public class AuthService {
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
     private final RabbitTemplate rabbitTemplate;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordUtility passwordUtility;
 
 
-    @Value("${credaegis.base.url}")
+    @Value("${credaegis.frontend.base-url}")
     private String baseUrl;
 
 
 
-    public void resetPassword(String newPassword, String resetToken,String email){
+    public void resetPassword(String newPassword,String confirmPassword, String resetToken,String email){
 
-        User user = userRepository.findByEmail(email).orElseThrow(()->ExceptionFactory.customValidationError("Invalid Email"));
+        User user = userRepository.findByEmail(email).orElseThrow(()->ExceptionFactory.customValidationError("Email not found, incorrect email entered"));
+
+        if(!passwordUtility.isSamePassword(newPassword,confirmPassword))
+            throw ExceptionFactory.customValidationError("Passwords do not match");
+
         if(!user.getPasswordResetToken().equals(resetToken))
             throw ExceptionFactory.customValidationError("Incorrect reset token entered");
 
         if(System.currentTimeMillis() - user.getPasswordResetTokenCreationTime().getTime() > 120000)
             throw ExceptionFactory.customValidationError("Token has been expired");
+
+
+
 
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setPasswordResetToken(null);
@@ -72,7 +81,7 @@ public class AuthService {
 
 
         User user = userRepository.findByEmail(recipientEmail).orElseThrow(
-                () -> ExceptionFactory.customValidationError("Invalid email")
+                () -> ExceptionFactory.customValidationError("Email not found, incorrect email entered")
         );
 
         if(user.getPasswordResetToken()!=null){

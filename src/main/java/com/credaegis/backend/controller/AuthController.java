@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping(path = "/reset-password")
     public ResponseEntity<CustomApiResponse<Void>> forgotPasswordController(@Valid @RequestBody PasswordResetRequest passwordResetRequest){
 
-        authService.resetPassword(passwordResetRequest.getNewPassword(),passwordResetRequest.getResetToken(),passwordResetRequest.getEmail());
+        authService.resetPassword(passwordResetRequest.getNewPassword(),passwordResetRequest.getConfirmPassword(),passwordResetRequest.getResetToken(),passwordResetRequest.getEmail());
         return ResponseEntity.status(HttpStatus.OK).body(new CustomApiResponse<>(null,"Password reset success, login with new password",true));
     }
 

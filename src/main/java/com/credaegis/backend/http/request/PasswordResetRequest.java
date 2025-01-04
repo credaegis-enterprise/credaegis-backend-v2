@@ -13,6 +13,9 @@ public class PasswordResetRequest {
     @NotBlank(message = "new password cannot be empty")
     private String newPassword;
 
+    @NotBlank(message = "confirm password cannot be empty")
+    private String confirmPassword;
+
     @NotBlank(message = "reset token cannot be empty")
     private String resetToken;
 
