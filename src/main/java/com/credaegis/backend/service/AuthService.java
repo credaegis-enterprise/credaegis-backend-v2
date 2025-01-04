@@ -62,10 +62,10 @@ public class AuthService {
         if(!passwordUtility.isSamePassword(newPassword,confirmPassword))
             throw ExceptionFactory.customValidationError("Passwords do not match");
 
-        if(!user.getPasswordResetToken().equals(resetToken))
+        if(user.getPasswordResetToken()==null || !user.getPasswordResetToken().equals(resetToken))
             throw ExceptionFactory.customValidationError("Incorrect reset token entered");
 
-        if(System.currentTimeMillis() - user.getPasswordResetTokenCreationTime().getTime() > 120000)
+        if(System.currentTimeMillis() - user.getPasswordResetTokenCreationTime().getTime() > 300000)
             throw ExceptionFactory.customValidationError("Token has been expired");
 
 
