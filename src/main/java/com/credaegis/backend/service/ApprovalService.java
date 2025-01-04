@@ -18,6 +18,7 @@ import com.github.f4b6a3.ulid.UlidCreator;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class ApprovalService {
     private final RabbitTemplate rabbitTemplate;
 
 
-    public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList) throws IOException {
+    public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList,Boolean persist) throws IOException {
 
 
 
@@ -81,9 +82,12 @@ public class ApprovalService {
                     approvalBlockchainDTO.setUserId(userId);
                     approvalBlockchainDTO.setApprovalId(approvalId);
                     approvalBlockchainDTO.setHash(hashedValue);
+                    approvalBlockchainDTO.setPersist(persist);
 
                     approval.setStatus(ApprovalStatus.buffered);
                     approvalRepository.save(approval);
+
+
                     rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.APPROVAL_REQUEST_QUEUE_KEY
                     ,approvalBlockchainDTO);
 

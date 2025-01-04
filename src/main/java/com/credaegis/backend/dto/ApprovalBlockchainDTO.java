@@ -14,5 +14,6 @@ public class ApprovalBlockchainDTO {
     private String hash;
     private Boolean stored;
     private String userId;
+    private Boolean persist;
 
 }

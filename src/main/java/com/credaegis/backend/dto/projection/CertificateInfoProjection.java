@@ -11,6 +11,7 @@ public interface CertificateInfoProjection {
     public String getIssuerEmail();
     public Date getIssuedDate();
     public Date getExpiryDate();
+    public Boolean getPersisted();
     public Boolean getRevoked();
     public Date getRevokedDate();
     public String getComments();

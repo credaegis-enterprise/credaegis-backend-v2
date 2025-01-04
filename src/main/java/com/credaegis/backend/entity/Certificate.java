@@ -52,6 +52,10 @@ public class Certificate  {
 
     private String comments;
 
+
+    @Column(name = "persisted")
+    private Boolean persisted;
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private CertificateStatus status;

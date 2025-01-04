@@ -149,6 +149,7 @@ public class RabbitMqListeners {
 
                 Certificate certificate = new Certificate();
                 certificate.setId(approval.getId());
+                certificate.setPersisted(message.getPersist());
                 certificate.setCertificateName(approval.getApprovalCertificateName());
                 certificate.setCertificateHash(message.getHash());
                 certificate.setComments(approval.getComments());
@@ -159,9 +160,19 @@ public class RabbitMqListeners {
                 certificate.setStatus(CertificateStatus.verified);
                 certificate.setIssuedByUser(user);
                 approval.setStatus(ApprovalStatus.approved);
-
                 approvalRepository.save(approval);
                 certificateRepository.save(certificate);
+
+                if(!message.getPersist()){
+                    String certificatePath = certificate.getEvent().getCluster().getId() + "/"
+                            + certificate.getEvent().getId() + "/" + certificate.getId() + "/" + certificate.getCertificateName();
+                    minioClient.removeObject(RemoveObjectArgs.builder()
+                            .object(certificatePath)
+                            .bucket("approvals")
+                            .build());
+                }
+
+
 
             }
 
