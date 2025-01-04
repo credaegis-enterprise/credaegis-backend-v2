@@ -51,8 +51,6 @@ public class ApprovalService {
 
     public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList,Boolean persist) throws IOException {
 
-
-
             User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
             for (String approvalId : approvalIdList) {
 
@@ -150,6 +148,7 @@ public class ApprovalService {
     }
 
     public ViewApprovalDTO viewApprovalCertificate(String approvalId, String userOrganizationId) {
+
         Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
@@ -200,6 +199,7 @@ public class ApprovalService {
 
     @Transactional
     public void approveCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
+
         for (String approvalId : approvalIdList) {
             try {
                 System.out.println(approvalId);
@@ -226,7 +226,6 @@ public class ApprovalService {
                     throw ExceptionFactory.customValidationError("Certificate hash already exists");
                 }
 
-
                 //creating new certificate approving them blockchain integration here(blockchain queue)
                 Certificate certificate = new Certificate();
                 certificate.setId(approval.getId());
@@ -245,7 +244,6 @@ public class ApprovalService {
                 approvalRepository.save(approval);
                 certificateRepository.save(certificate);
 
-
             } catch (Exception e) {
 
                 //error queue here
@@ -259,6 +257,8 @@ public class ApprovalService {
     @Transactional
     public void uploadApprovals(String eventId, String userId, String userOrganizationId,
                                 List<MultipartFile> approvalsCertificates, String approvalsInfo) throws JsonProcessingException {
+
+
 
         Event event = eventRepository.findById(eventId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
@@ -308,7 +308,6 @@ public class ApprovalService {
                 approvalRepository.save(approval);
 
             } catch (Exception e) {
-
                 //dead letter queue here
                 log.error(e.getMessage());
                 log.error("error uploading file {}", info.getFileName());
