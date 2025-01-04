@@ -207,7 +207,7 @@ public class ApprovalService {
 
                 //creating new certificate approving them blockchain integration here(blockchain queue)
                 Certificate certificate = new Certificate();
-                certificate.setId(UlidCreator.getUlid().toString());
+                certificate.setId(approval.getId());
                 certificate.setCertificateName(approval.getApprovalCertificateName());
                 certificate.setCertificateHash(hashedValue);
                 certificate.setComments(approval.getComments());

@@ -148,7 +148,7 @@ public class RabbitMqListeners {
             } else {
 
                 Certificate certificate = new Certificate();
-                certificate.setId(UlidCreator.getUlid().toString());
+                certificate.setId(approval.getId());
                 certificate.setCertificateName(approval.getApprovalCertificateName());
                 certificate.setCertificateHash(message.getHash());
                 certificate.setComments(approval.getComments());

@@ -1,6 +1,7 @@
 package com.credaegis.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,10 @@ public class Approval  {
     @Column(name = "approval_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private ApprovalStatus status;
+
+    @OneToOne
+    @JsonManagedReference
+    private Certificate certificate;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
