@@ -40,6 +40,7 @@ public class ApprovalController {
 
 
 
+    //approval route using blockchain
     @PostMapping(path = "/blockchain/approve")
     public ResponseEntity<CustomApiResponse<Void>> approveBlock(@Valid @RequestBody ApprovalsIdRequest
                                                                                approvalsIdRequest,
