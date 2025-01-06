@@ -36,7 +36,7 @@ public class VerificationService {
     private final RestTemplate restTemplate;
 
 
-    @Value("${credaegis.blockchain.url}")
+    @Value("${credaegis.async-blockchain.service.url}")
     private String asyncEndPoint;
 
 
