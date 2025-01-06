@@ -8,9 +8,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController(value = Constants.ROUTEV1+"/web3")
+@RestController
+@RequestMapping(value = Constants.ROUTEV1+"/web3")
 @AllArgsConstructor
 public class BlockchainController {
 
@@ -22,4 +24,6 @@ public class BlockchainController {
                 new CustomApiResponse<>(blockchainService.getBalance(),"Account balance",true)
         );
     }
+
+
 }
