@@ -9,12 +9,15 @@ import org.springframework.stereotype.Service;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.utils.Convert;
+
+import java.math.BigDecimal;
 
 @Data
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class BlockchainService {
+public class Web3Service {
 
     private final Web3j web3j;
 
@@ -22,20 +25,20 @@ public class BlockchainService {
     private String contractAddress;
 
 
-    public Long getBalance() {
-
+    public String getBalance() {
         try {
             EthGetBalance ethGetBalance = web3j.ethGetBalance(
                     contractAddress,
                     DefaultBlockParameterName.LATEST
             ).send();
-            return ethGetBalance.getBalance().longValue();
-        } catch (Exception e) {
 
+            BigDecimal balanceInWei = new BigDecimal(ethGetBalance.getBalance());
+            BigDecimal balanceInEther = Convert.fromWei(balanceInWei, Convert.Unit.ETHER);
+            log.info("Balance in Ether: {}", balanceInEther);
+            return balanceInEther.toPlainString();
+        } catch (Exception e) {
             log.error("Error fetching balance: {}", e.getMessage());
             return null;
         }
     }
-
-
 }
