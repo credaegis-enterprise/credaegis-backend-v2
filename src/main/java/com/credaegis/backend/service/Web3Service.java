@@ -2,6 +2,7 @@ package com.credaegis.backend.service;
 
 
 import com.credaegis.backend.dto.ContractStateDTO;
+import com.credaegis.backend.dto.HashBatchInfoDTO;
 import com.credaegis.backend.exception.custom.CustomException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
@@ -18,6 +19,8 @@ import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @RequiredArgsConstructor
@@ -39,9 +42,44 @@ public class Web3Service {
 
 
 
+    public HashBatchInfoDTO getBatchInfo(String id) {
+        System.out.println("id: "+id);
+        ResponseEntity<String> response;
+        Map<String,String> idHashMap = new HashMap<>();
+        idHashMap.put("id",id);
+
+        ContractStateDTO contractStateDTO = getContractState();
+        if( Integer.parseInt(id) > Integer.parseInt(contractStateDTO.getCurrentBatchIndex()) || Integer.parseInt(id) < 1){
+            throw new CustomException("Batch not found, the current batch index is: "+contractStateDTO.getCurrentBatchIndex(), HttpStatus.NOT_FOUND);
+        }
+        try {
+            response = restTemplate.getForEntity(asyncEndPoint + "/batch/{id}" , String.class, idHashMap);
+            log.info("Batch info: {}", response.getBody());
+            HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
+            return hashBatchInfoDTO;
+        } catch (Exception e) {
+            throw new CustomException("Blockchain verification service is down", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    public HashBatchInfoDTO getCurrentBatchInfo() {
+        ResponseEntity<String> response;
+        try {
+            response = restTemplate.getForEntity(asyncEndPoint + "/current-batch", String.class);
+            log.info("Current batch info: {}", response.getBody());
+            HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
+            return hashBatchInfoDTO;
+        } catch (Exception e) {
+            throw new CustomException("Blockchain verification service is down", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     public ContractStateDTO getContractState() {
 
         ResponseEntity<String> response;
+
 
         try{
             response = restTemplate.getForEntity(asyncEndPoint+"/contract-state", String.class);
