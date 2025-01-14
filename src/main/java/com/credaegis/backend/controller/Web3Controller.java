@@ -2,6 +2,7 @@ package com.credaegis.backend.controller;
 
 
 import com.credaegis.backend.constant.Constants;
+import com.credaegis.backend.dto.ContractStateDTO;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.service.Web3Service;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,15 @@ public class Web3Controller {
     @GetMapping("/get-balance")
     public ResponseEntity<CustomApiResponse<String>> getBalance(){
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(web3Service.getBalance(),"Account balance in Ethers",true)
+                new CustomApiResponse<>(web3Service.getBalance(),"Account balance in Ethers (Avalanche)",true)
+        );
+    }
+
+    @GetMapping("/besu/contract-state")
+    public ResponseEntity<CustomApiResponse<ContractStateDTO>> getContractState(){
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(     web3Service.getContractState(),"Contract state",true)
         );
     }
 
