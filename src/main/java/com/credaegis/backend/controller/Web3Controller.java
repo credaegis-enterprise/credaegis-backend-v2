@@ -5,6 +5,7 @@ import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ContractStateDTO;
 import com.credaegis.backend.dto.HashBatchInfoDTO;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
+import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
 import com.credaegis.backend.service.Web3Service;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,14 @@ public class Web3Controller {
 
     private final Web3Service web3Service;
 
+    @GetMapping("/info")
+    public ResponseEntity<CustomApiResponse<BlockchainInfoResponse>> getWeb3Info(){
 
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>( web3Service.getBlockchainInfo(),"Blockchain info",true)
+        );
+    }
 
     @GetMapping("/besu/batch/{id}")
     public ResponseEntity<CustomApiResponse<HashBatchInfoDTO>> getBatchInfo(@PathVariable  String id){
@@ -36,6 +44,9 @@ public class Web3Controller {
                 new CustomApiResponse<>(web3Service.getBalance(),"Account balance in Ethers (Avalanche)",true)
         );
     }
+
+
+
 
 
     @GetMapping("/besu/current-batch")

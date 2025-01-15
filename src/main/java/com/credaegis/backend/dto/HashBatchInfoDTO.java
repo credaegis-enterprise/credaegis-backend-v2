@@ -14,6 +14,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HashBatchInfoDTO {
 
+
+    private String batchId;
     private List<String> hashes;
     private String merkleRoot;
 }

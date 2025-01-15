@@ -3,7 +3,9 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.dto.ContractStateDTO;
 import com.credaegis.backend.dto.HashBatchInfoDTO;
+import com.credaegis.backend.dto.Web3InfoDTO;
 import com.credaegis.backend.exception.custom.CustomException;
+import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthChainId;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.core.methods.response.NetVersion;
+import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
@@ -40,6 +45,42 @@ public class Web3Service {
 
     private final RestTemplate restTemplate;
 
+
+
+    public BlockchainInfoResponse getBlockchainInfo() {
+
+        try {
+
+            Web3ClientVersion web3ClientVersion = web3j.web3ClientVersion().send();
+            String clientVersion = web3ClientVersion.getWeb3ClientVersion();
+
+            NetVersion netVersion = web3j.netVersion().send();
+            String networkId = netVersion.getNetVersion();
+
+            Web3InfoDTO web3InfoDTO = Web3InfoDTO
+            .builder()
+                    .networkId(networkId)
+                    .clientVersion(clientVersion)
+                    .networkName("Avalanche")
+                    .build();
+
+
+            ContractStateDTO contractStateDTO = getContractState();
+
+            HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
+            hashBatchInfoDTO.setBatchId(contractStateDTO.getCurrentBatchIndex());
+            BlockchainInfoResponse blockchainInfoResponse =
+                    BlockchainInfoResponse.builder()
+                            .hashBatchInfoDTO(hashBatchInfoDTO)
+                            .web3InfoDTO(web3InfoDTO)
+                            .build();
+
+            return blockchainInfoResponse;
+        } catch (Exception e) {
+            log.error("Error fetching blockchain information: {}", e.getMessage());
+            throw new CustomException("Blockchain verification service is down", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
     public HashBatchInfoDTO getBatchInfo(String id) {
