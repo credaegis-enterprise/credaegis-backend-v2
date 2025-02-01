@@ -1,19 +1,28 @@
 package com.credaegis.backend.utility;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class MerkleTreeUtility {
 
-    public static String calculateMerkleRoot(List<String> hashes) throws NoSuchAlgorithmException {
-        if (hashes.size() % 2 != 0) {
-            hashes.add(sha256("padding_value"));
-        }
+    public static String calculateMerkleRoot(List<String> hashes) {
 
-        return computeMerkleRoot(hashes);
+        try {
+            if (hashes.size() % 2 != 0) {
+                hashes.add(sha256("padding_value"));
+            }
+
+            return computeMerkleRoot(hashes);
+        } catch (NoSuchAlgorithmException e) {
+            log.error(e.getMessage());
+            return null;
+        }
     }
 
     private static String computeMerkleRoot(List<String> layer) throws NoSuchAlgorithmException {

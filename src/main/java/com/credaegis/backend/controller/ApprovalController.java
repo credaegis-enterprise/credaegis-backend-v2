@@ -49,7 +49,7 @@ public class ApprovalController {
 
 
         System.out.println(persist);
-        approvalService.approveCertifcatesBlockchain
+        approvalService.approveCertifcatesBlockchainPrivate
                 (customUser.getId(), customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds(),persist);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "Requests to approve are processing", true));

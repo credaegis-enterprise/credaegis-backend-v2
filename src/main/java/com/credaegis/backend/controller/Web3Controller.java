@@ -10,10 +10,7 @@ import com.credaegis.backend.service.Web3Service;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = Constants.ROUTEV1+"/web3")
@@ -21,6 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class Web3Controller {
 
     private final Web3Service web3Service;
+
+
+
+    @GetMapping("/besu/current-batch/merkle-root")
+    public ResponseEntity<CustomApiResponse<String>> getMerkleRootCurrentBatch(){
+        web3Service.getCurrentBatchMerkleRoot();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null,"Merkle root of current batch",true)
+        );
+    }
+
 
     @GetMapping("/info")
     public ResponseEntity<CustomApiResponse<BlockchainInfoResponse>> getWeb3Info(){

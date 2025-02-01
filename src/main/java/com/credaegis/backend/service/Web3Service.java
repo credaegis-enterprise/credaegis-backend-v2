@@ -5,7 +5,9 @@ import com.credaegis.backend.dto.ContractStateDTO;
 import com.credaegis.backend.dto.HashBatchInfoDTO;
 import com.credaegis.backend.dto.Web3InfoDTO;
 import com.credaegis.backend.exception.custom.CustomException;
+import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
+import com.credaegis.backend.utility.MerkleTreeUtility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthChainId;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.NetVersion;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
@@ -25,6 +26,7 @@ import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -43,10 +45,23 @@ public class Web3Service {
     private String asyncEndPoint;
 
 
+
+
     private final RestTemplate restTemplate;
 
 
 
+    public void getCurrentBatchMerkleRoot() {
+        HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
+        List<String> hashes = hashBatchInfoDTO.getHashes();
+        if(hashes.size() == 0){
+            throw ExceptionFactory.customValidationError("No hashes found in the current batch");
+        }
+        System.out.println("merkle root: "+MerkleTreeUtility.calculateMerkleRoot(hashes));
+    }
+
+
+    //public info
     public BlockchainInfoResponse getBlockchainInfo() {
 
         try {
@@ -142,7 +157,7 @@ public class Web3Service {
 
             BigDecimal balanceInWei = new BigDecimal(ethGetBalance.getBalance());
             BigDecimal balanceInEther = Convert.fromWei(balanceInWei, Convert.Unit.ETHER);
-            log.info("Balance in Ether (Avalanche): {}", balanceInEther);
+            log.info("Balance in AVAX: {}", balanceInEther);
             return balanceInEther.toPlainString();
         } catch (Exception e) {
             log.error("Error fetching balance: {}", e.getMessage());

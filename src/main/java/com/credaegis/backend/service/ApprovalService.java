@@ -49,7 +49,9 @@ public class ApprovalService {
     private final RabbitTemplate rabbitTemplate;
 
 
-    public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList,Boolean persist) throws IOException {
+
+    //private approval service
+    public void approveCertifcatesBlockchainPrivate(String userId, String userOrganizationId, List<String> approvalIdList, Boolean persist) throws IOException {
 
             User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
             for (String approvalId : approvalIdList) {

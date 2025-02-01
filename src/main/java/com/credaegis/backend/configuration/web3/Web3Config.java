@@ -16,6 +16,10 @@ public class Web3Config {
     @Value("${credaegis.web3.rpc-url}")
     private String rpcUrl;
 
+
+
+
+
     @Bean
     Web3j connect(){
         try{
