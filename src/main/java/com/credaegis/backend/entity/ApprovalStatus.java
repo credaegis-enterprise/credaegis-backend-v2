@@ -4,5 +4,5 @@ public enum ApprovalStatus {
     pending,
     approved,
     rejected,
-    buffered
+    buffered,
 }

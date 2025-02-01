@@ -1,5 +1,7 @@
 package com.credaegis.backend.dto.projection;
 
+import com.credaegis.backend.entity.CertificateStatus;
+
 import java.sql.Date;
 
 public interface CertificateInfoProjection {
@@ -16,6 +18,7 @@ public interface CertificateInfoProjection {
     public Date getRevokedDate();
     public String getComments();
     public String getCertificateName();
+    public CertificateStatus getStatus();
     public String getEventName();
     public String getClusterName();
 

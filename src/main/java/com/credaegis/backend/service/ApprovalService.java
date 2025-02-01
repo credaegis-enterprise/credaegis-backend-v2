@@ -237,7 +237,7 @@ public class ApprovalService {
                 certificate.setIssuedDate(new Date(System.currentTimeMillis()));
                 certificate.setEvent(approval.getEvent());
                 certificate.setIssuedByUser(user);
-                certificate.setStatus(CertificateStatus.verified);
+                certificate.setStatus(CertificateStatus.privateVerified);
                 approval.setStatus(ApprovalStatus.approved);
 
                 //right now storing everything in off-chain database
