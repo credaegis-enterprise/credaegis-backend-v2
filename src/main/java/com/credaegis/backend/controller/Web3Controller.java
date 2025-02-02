@@ -1,6 +1,7 @@
 package com.credaegis.backend.controller;
 
 
+import com.credaegis.backend.configuration.web3.HashStore;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ContractStateDTO;
 import com.credaegis.backend.dto.HashBatchInfoDTO;
@@ -8,17 +9,17 @@ import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
 import com.credaegis.backend.service.Web3Service;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = Constants.ROUTEV1+"/web3")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Web3Controller {
 
     private final Web3Service web3Service;
-
 
 
     @GetMapping("/besu/current-batch/merkle-root")
