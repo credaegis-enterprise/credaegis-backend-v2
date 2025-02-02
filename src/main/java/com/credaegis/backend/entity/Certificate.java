@@ -52,7 +52,6 @@ public class Certificate  {
 
     private String comments;
 
-
     @Column(name = "persisted",nullable = false)
     private Boolean persisted;
 
@@ -60,6 +59,10 @@ public class Certificate  {
     @Enumerated(EnumType.STRING)
     private CertificateStatus status;
 
+    @ManyToOne
+    @JoinColumn(name = "batch_id",nullable = true)
+    @JsonBackReference
+    private BatchInfo batchInfo;
 
     @ManyToOne
     @JoinColumn(name="user_id",nullable = false)
