@@ -38,7 +38,8 @@ public class HttpSecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(request -> request.requestMatchers
-                                (Constants.ROUTEV1 + "/auth/**", Constants.ROUTEV1 + "/test/**", Constants.ROUTEV1 + "/external/**").
+                                (Constants.ROUTEV1 + "/auth/**", Constants.ROUTEV1 + "/test/**", Constants.ROUTEV1 + "/external/**",
+                                        Constants.ROUTEV1 + "/web3/public/txn/**").
                         permitAll().requestMatchers(Constants.ROUTEV1 + "/**").hasRole(Constants.ADMIN).
                         anyRequest().authenticated()).
                 logout((logout) ->

@@ -21,13 +21,11 @@ import org.springframework.web.client.RestTemplate;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.RemoteFunctionCall;
-import org.web3j.protocol.core.methods.response.EthGetBalance;
-import org.web3j.protocol.core.methods.response.NetVersion;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
-import org.web3j.protocol.core.methods.response.Web3ClientVersion;
+import org.web3j.protocol.core.methods.response.*;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,10 +47,32 @@ public class Web3Service {
     @Value("${credaegis.async-blockchain.service.url}")
     private String asyncEndPoint;
 
+    @Value("${credaegis.web3.chain-id}")
+    private String chainId;
+
+    @Value("${credaegis.web3.txn.url}")
+    private String snowTraceTxnUrl;
+
     private final RestTemplate restTemplate;
 
 
+    public String getTxnDetails(String hash){
+        try {
+            System.out.println("hash: " + hash);
+            TransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(hash).send().getTransactionReceipt().get();
+            BigInteger effectiveGasPrice = new BigInteger(transactionReceipt.getEffectiveGasPrice().substring(2),16);
+            BigInteger gasUsed = transactionReceipt.getGasUsed();
+            BigInteger totalCost = effectiveGasPrice.multiply(gasUsed);
+            BigDecimal totalFeeAvax = new BigDecimal(totalCost).divide(BigDecimal.TEN.pow(18));
+            System.out.println("totalFeeAvax: " + totalFeeAvax);
+            System.out.println("transactionReceipt: " + transactionReceipt);
+            return snowTraceTxnUrl+hash+"?"+"chainid="+chainId;
+        } catch (Exception e) {
+            log.error("Error fetching transaction receipt: {}", e.getMessage());
+            throw new CustomException("Error fetching transaction receipt", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
+    }
     public void verifyMerkleRootPublic(String merkleRoot) {
         try {
             System.out.println("merkleRoot: " + merkleRoot);

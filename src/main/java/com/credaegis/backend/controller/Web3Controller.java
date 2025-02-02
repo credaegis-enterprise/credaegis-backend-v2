@@ -1,14 +1,12 @@
 package com.credaegis.backend.controller;
 
 
-import com.credaegis.backend.configuration.web3.HashStore;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ContractStateDTO;
 import com.credaegis.backend.dto.HashBatchInfoDTO;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
 import com.credaegis.backend.service.Web3Service;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +21,13 @@ public class Web3Controller {
 
 
 
+
+    @GetMapping("/public/txn/{hash}")
+    public ResponseEntity<CustomApiResponse<String>> getTransactionReceipt(@PathVariable String hash){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(web3Service.getTxnDetails(hash),"Transaction receipt fetched",true)
+        );
+    }
     @PostMapping("/public/store/current/merkle-root")
     public ResponseEntity<CustomApiResponse<Void>> storeCurrentMerkleRootToPublic(){
        web3Service.storeCurrentBatchMerkleRootToPublic();

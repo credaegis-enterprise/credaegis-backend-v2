@@ -18,4 +18,7 @@ public class HashBatchInfoDTO {
     private String batchId;
     private List<String> hashes;
     private String merkleRoot;
+    private String txnHash;
+    private String txnFee;
+    private String pushTime;
 }
