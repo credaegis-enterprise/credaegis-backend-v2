@@ -1,6 +1,7 @@
 package com.credaegis.backend.configuration.web3;
 
 
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +10,7 @@ import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
 import org.web3j.utils.Convert;
@@ -30,6 +32,9 @@ public class Web3Config {
     @Value("${credaegis.web3.private-key}")
     private String privateKey;
 
+    @Value("${credaegis.web3.chain-id}")
+    private Long chainId;
+
 
     //Loading the contract deploayed on the public blockchain
 
@@ -42,7 +47,11 @@ public class Web3Config {
                 BigInteger.valueOf(5_000_000)
         );
 
-        HashStore contract = HashStore.load(contractAddress,web3j,credentials,gasProvider);
+        RawTransactionManager transactionManager = new RawTransactionManager(
+                web3j, credentials, chainId);
+
+
+        HashStore contract = HashStore.load(contractAddress,web3j,transactionManager,gasProvider);
         log.info("Contract loaded: " + contract.getContractAddress());
         return contract;
 
@@ -63,4 +72,16 @@ public class Web3Config {
         }
 
     }
+
+//    @PreDestroy
+//    public void shutdownWeb3j(Web3j web3j) {
+//        if (web3j != null) {
+//            try {
+//                web3j.shutdown();
+//                log.info("Web3j client shut down successfully.");
+//            } catch (Exception e) {
+//                log.error("Error shutting down Web3j client: {}", e.getMessage(), e);
+//            }
+//        }
+//    }
 }

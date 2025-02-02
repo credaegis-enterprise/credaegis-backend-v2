@@ -1,6 +1,7 @@
 package com.credaegis.backend.service;
 
 
+import com.credaegis.backend.configuration.web3.HashStore;
 import com.credaegis.backend.dto.ContractStateDTO;
 import com.credaegis.backend.dto.HashBatchInfoDTO;
 import com.credaegis.backend.dto.Web3InfoDTO;
@@ -21,10 +22,12 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.NetVersion;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ public class Web3Service {
 
     private final Web3j web3j;
     private final ObjectMapper objectMapper;
+    private final HashStore hashStore;
 
     @Value("${credaegis.web3.contract-address}")
     private String contractAddress;
@@ -44,20 +48,31 @@ public class Web3Service {
     @Value("${credaegis.async-blockchain.service.url}")
     private String asyncEndPoint;
 
-
-
-
     private final RestTemplate restTemplate;
 
 
+    public void storeCurrentBatchMerkleRootToPublic() {
+//        String merkleRoot = getCurrentBatchMerkleRoot();
+        try {
+            TransactionReceipt transactionReceipt = hashStore.storeHash(new ArrayList<>(List.of("abj"))).send();
+            String transc = objectMapper.writeValueAsString(transactionReceipt);
+            log.info("Transaction receipt: {}", transc);
+        } catch (Exception e) {
+            log.error("Error storing merkle root to public blockchain: {}", e.getMessage());
+            throw new CustomException("Error storing merkle root to public blockchain", HttpStatus.INTERNAL_SERVER_ERROR);
 
-    public void getCurrentBatchMerkleRoot() {
+        }
+
+    }
+
+
+    public String getCurrentBatchMerkleRoot() {
         HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
         List<String> hashes = hashBatchInfoDTO.getHashes();
-        if(hashes.size() == 0){
+        if (hashes.size() == 0) {
             throw ExceptionFactory.customValidationError("No hashes found in the current batch");
         }
-        System.out.println("merkle root: "+MerkleTreeUtility.calculateMerkleRoot(hashes));
+        return MerkleTreeUtility.calculateMerkleRoot(hashes);
     }
 
 
@@ -73,7 +88,7 @@ public class Web3Service {
             String networkId = netVersion.getNetVersion();
 
             Web3InfoDTO web3InfoDTO = Web3InfoDTO
-            .builder()
+                    .builder()
                     .networkId(networkId)
                     .clientVersion(clientVersion)
                     .networkName("Avalanche")
@@ -99,17 +114,17 @@ public class Web3Service {
 
 
     public HashBatchInfoDTO getBatchInfo(String id) {
-        System.out.println("id: "+id);
+        System.out.println("id: " + id);
         ResponseEntity<String> response;
-        Map<String,String> idHashMap = new HashMap<>();
-        idHashMap.put("id",id);
+        Map<String, String> idHashMap = new HashMap<>();
+        idHashMap.put("id", id);
 
         ContractStateDTO contractStateDTO = getContractState();
-        if( Integer.parseInt(id) > Integer.parseInt(contractStateDTO.getCurrentBatchIndex()) || Integer.parseInt(id) < 1){
-            throw new CustomException("Batch not found, the current batch index is: "+contractStateDTO.getCurrentBatchIndex(), HttpStatus.NOT_FOUND);
+        if (Integer.parseInt(id) > Integer.parseInt(contractStateDTO.getCurrentBatchIndex()) || Integer.parseInt(id) < 1) {
+            throw new CustomException("Batch not found, the current batch index is: " + contractStateDTO.getCurrentBatchIndex(), HttpStatus.NOT_FOUND);
         }
         try {
-            response = restTemplate.getForEntity(asyncEndPoint + "/batch/{id}" , String.class, idHashMap);
+            response = restTemplate.getForEntity(asyncEndPoint + "/batch/{id}", String.class, idHashMap);
             log.info("Batch info: {}", response.getBody());
             HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
             return hashBatchInfoDTO;
@@ -137,12 +152,12 @@ public class Web3Service {
         ResponseEntity<String> response;
 
 
-        try{
-            response = restTemplate.getForEntity(asyncEndPoint+"/contract-state", String.class);
+        try {
+            response = restTemplate.getForEntity(asyncEndPoint + "/contract-state", String.class);
             log.info("Contract state: {}", response.getBody());
             ContractStateDTO contractStateDTO = objectMapper.readValue(response.getBody(), ContractStateDTO.class);
             return contractStateDTO;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new CustomException("Blockchain verification service is down", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

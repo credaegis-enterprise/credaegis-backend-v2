@@ -22,16 +22,27 @@ public class Web3Controller {
     private final Web3Service web3Service;
 
 
-    @GetMapping("/besu/current-batch/merkle-root")
-    public ResponseEntity<CustomApiResponse<String>> getMerkleRootCurrentBatch(){
-        web3Service.getCurrentBatchMerkleRoot();
+
+    @PostMapping("/public/store/current/merkle-root")
+    public ResponseEntity<CustomApiResponse<Void>> storeCurrentMerkleRootToPublic(){
+       web3Service.storeCurrentBatchMerkleRootToPublic();
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null,"Merkle root of current batch",true)
+                new CustomApiResponse<>(null,"Merkle root stored to public blockchain",true)
         );
     }
 
 
-    @GetMapping("/info")
+
+    @GetMapping("/private/current-batch/merkle-root")
+    public ResponseEntity<CustomApiResponse<String>> getMerkleRootCurrentBatch(){
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(web3Service.getCurrentBatchMerkleRoot(),"Merkle root of current batch",true)
+        );
+    }
+
+
+    @GetMapping("/public/info")
     public ResponseEntity<CustomApiResponse<BlockchainInfoResponse>> getWeb3Info(){
 
 
@@ -40,14 +51,14 @@ public class Web3Controller {
         );
     }
 
-    @GetMapping("/besu/batch/{id}")
+    @GetMapping("/private/batch/{id}")
     public ResponseEntity<CustomApiResponse<HashBatchInfoDTO>> getBatchInfo(@PathVariable  String id){
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(web3Service.getBatchInfo(id),"Batch info",true)
         );
     }
 
-    @GetMapping("/get-balance")
+    @GetMapping("/public/get-balance")
     public ResponseEntity<CustomApiResponse<String>> getBalance(){
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(web3Service.getBalance(),"Account balance in Ethers (Avalanche)",true)
@@ -58,7 +69,7 @@ public class Web3Controller {
 
 
 
-    @GetMapping("/besu/current-batch")
+    @GetMapping("/private/current-batch")
     public ResponseEntity<CustomApiResponse<HashBatchInfoDTO>> getCurrentBatchInfo(){
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -67,7 +78,7 @@ public class Web3Controller {
     }
 
 
-    @GetMapping("/besu/contract-state")
+    @GetMapping("/private/contract-state")
     public ResponseEntity<CustomApiResponse<ContractStateDTO>> getContractState(){
 
         return ResponseEntity.status(HttpStatus.OK).body(
