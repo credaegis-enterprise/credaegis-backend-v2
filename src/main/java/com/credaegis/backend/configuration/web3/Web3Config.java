@@ -36,7 +36,7 @@ public class Web3Config {
     private Long chainId;
 
 
-    //Loading the contract deploayed on the public blockchain
+    //Loading the contract deployed on the public blockchain
 
     @Bean
     HashStore hashStore(Web3j web3j){

@@ -25,6 +25,15 @@ public class BatchInfo {
     @Column(name = "hash_count", nullable = false)
     private Integer hashCount;
 
+
+    @Column(name = "push_time", nullable = true)
+    private Timestamp pushTime;
+
+
+    @Column(name = "txn_hash", nullable = true)
+    private String txnHash;
+
+
     @CreationTimestamp
     @Column(name = "created_on", nullable = false)
     private Timestamp createdOn;
