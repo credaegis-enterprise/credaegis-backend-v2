@@ -32,6 +32,15 @@ public class Web3Controller {
     }
 
 
+    @GetMapping("/public/verify/merkle-root/{merkleRoot}")
+    public ResponseEntity<CustomApiResponse<Void>> verifyMerkleRootPublic(@PathVariable String merkleRoot){
+        web3Service.verifyMerkleRootPublic(merkleRoot);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null,"Merkle root verified",true)
+        );
+    }
+
+
 
     @GetMapping("/private/current-batch/merkle-root")
     public ResponseEntity<CustomApiResponse<String>> getMerkleRootCurrentBatch(){

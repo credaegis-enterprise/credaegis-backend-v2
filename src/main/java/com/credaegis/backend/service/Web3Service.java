@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.NetVersion;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -49,6 +50,20 @@ public class Web3Service {
     private String asyncEndPoint;
 
     private final RestTemplate restTemplate;
+
+
+
+    public void verifyMerkleRootPublic(String merkleRoot) {
+        try {
+            System.out.println("merkleRoot: " + merkleRoot);
+            List test =  hashStore.verifyHashesByValue(List.of(merkleRoot)).send();
+            String transc = objectMapper.writeValueAsString(test);
+            log.info("Transaction receipt: {}", transc);
+        } catch (Exception e) {
+            log.error("Error verifying merkle root from public blockchain: {}", e.getMessage());
+            throw new CustomException("Error verifying merkle root from public blockchain", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
     public void storeCurrentBatchMerkleRootToPublic() {
@@ -92,10 +107,12 @@ public class Web3Service {
                     .networkId(networkId)
                     .clientVersion(clientVersion)
                     .networkName("Avalanche")
+                    .balance(getBalance())
                     .build();
 
 
             ContractStateDTO contractStateDTO = getContractState();
+
 
             HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
             hashBatchInfoDTO.setBatchId(contractStateDTO.getCurrentBatchIndex());

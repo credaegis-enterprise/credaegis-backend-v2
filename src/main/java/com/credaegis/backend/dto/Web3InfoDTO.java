@@ -16,4 +16,5 @@ public class Web3InfoDTO {
     private String networkName;
     private String networkId;
     private String clientVersion;
+    private String balance;
 }
