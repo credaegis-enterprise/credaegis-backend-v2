@@ -17,7 +17,6 @@ public class MerkleTreeUtility {
             if (hashes.size() % 2 != 0) {
                 hashes.add(sha256("padding_value"));
             }
-
             return computeMerkleRoot(hashes);
         } catch (NoSuchAlgorithmException e) {
             log.error(e.getMessage());

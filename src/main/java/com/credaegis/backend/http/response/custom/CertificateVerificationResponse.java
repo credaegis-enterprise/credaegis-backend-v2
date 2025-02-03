@@ -14,6 +14,8 @@ public class CertificateVerificationResponse {
     private String certificateName;
     private Boolean isIssued;
     private Boolean infoFound;
+    private Boolean isPublicVerified;
+    private String merkleRoot;
 
     @JsonProperty("info")
     private CertificateVerificationInfoDTO certificateVerificationInfoDTO;

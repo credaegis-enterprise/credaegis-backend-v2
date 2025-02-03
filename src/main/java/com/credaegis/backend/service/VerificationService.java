@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.web3j.protocol.Web3jService;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,16 +35,22 @@ public class VerificationService {
     private final CertificateRepository certificateRepository;
     private final CheckSumUtility checkSumUtility;
     private final RestTemplate restTemplate;
+    private final Web3Service web3Service;
 
 
     @Value("${credaegis.async-blockchain.service.url}")
     private String asyncEndPoint;
 
 
+
+
     //This service is used for verification by blockchain
     public List<CertificateVerificationResponse> verifyAuthenticityBlockchain(List<MultipartFile> certificateFiles) throws IOException {
         List<String> hashes = new ArrayList<>();
-        Map<String,String> nameHashMap = new HashMap<>();
+
+
+
+        Map<String, String> nameHashMap = new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
         for (MultipartFile file : certificateFiles) {
             String hash = checkSumUtility.hashCertificate(file.getBytes());
@@ -52,12 +59,13 @@ public class VerificationService {
         }
 
 
+        Map<String,Boolean> publicVerificationResponse = web3Service.verifyMerkleRootPublic(hashes);
         ResponseEntity<String> response;
 
-        try{
-        response = restTemplate.postForEntity(asyncEndPoint+"" +
-                "/verify",hashes, String.class);
-        }catch (Exception e){
+        try {
+            response = restTemplate.postForEntity(asyncEndPoint + "" +
+                    "/verify", hashes, String.class);
+        } catch (Exception e) {
             throw new CustomException("Blockchain verification service is down", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -68,16 +76,17 @@ public class VerificationService {
                 });
 
         List<CertificateVerificationResponse> certificateVerificationResponseList = new ArrayList<>();
-        for(CertificateVerificationBlockchainResultDTO result:verificationResult){
+        for (CertificateVerificationBlockchainResultDTO result : verificationResult) {
             Optional<Certificate> optionalCertificate = certificateRepository.findByCertificateHash(result.getHash());
             CertificateVerificationResponse certificateVerificationResponse = new CertificateVerificationResponse();
             certificateVerificationResponse.setCertificateName(nameHashMap.get(result.getHash()));
-            if(!result.getIsVerified())
+            certificateVerificationResponse.setIsPublicVerified(publicVerificationResponse.get(result.getHash()));
+            if (!result.getIsVerified())
                 certificateVerificationResponse.setIsIssued(false);
             else
                 certificateVerificationResponse.setIsIssued(true);
 
-            if(optionalCertificate.isEmpty()){
+            if (optionalCertificate.isEmpty()) {
                 certificateVerificationResponse.setInfoFound(false);
                 certificateVerificationResponse.setCertificateVerificationInfoDTO(null);
                 certificateVerificationResponseList.add(certificateVerificationResponse);
@@ -100,7 +109,6 @@ public class VerificationService {
                     .clusterName(certificate.getEvent().getCluster().getName())
                     .eventName(certificate.getEvent().getName())
                     .build();
-
 
 
             certificateVerificationResponse.setCertificateVerificationInfoDTO(info);

@@ -5,12 +5,18 @@ import com.credaegis.backend.configuration.web3.HashStore;
 import com.credaegis.backend.dto.ContractStateDTO;
 import com.credaegis.backend.dto.HashBatchInfoDTO;
 import com.credaegis.backend.dto.Web3InfoDTO;
+import com.credaegis.backend.entity.BatchInfo;
+import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
+import com.credaegis.backend.repository.BatchInfoRepository;
+import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.utility.MerkleTreeUtility;
+import com.credaegis.backend.utility.Web3Utility;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Integer.parseInt;
+
 @Data
 @RequiredArgsConstructor
 @Service
@@ -40,6 +48,9 @@ public class Web3Service {
     private final Web3j web3j;
     private final ObjectMapper objectMapper;
     private final HashStore hashStore;
+    private final BatchInfoRepository batchInfoRepository;
+    private final CertificateRepository certificateRepository;
+    private final RestTemplate restTemplate;
 
     @Value("${credaegis.web3.contract-address}")
     private String contractAddress;
@@ -57,19 +68,13 @@ public class Web3Service {
     @Value("${credaegis.web3.txn.url}")
     private String snowTraceTxnUrl;
 
-    private final RestTemplate restTemplate;
+
 
 
     public String getTxnDetails(String hash){
         try {
             System.out.println("hash: " + hash);
             TransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(hash).send().getTransactionReceipt().get();
-            BigInteger effectiveGasPrice = new BigInteger(transactionReceipt.getEffectiveGasPrice().substring(2),16);
-            BigInteger gasUsed = transactionReceipt.getGasUsed();
-            BigInteger totalCost = effectiveGasPrice.multiply(gasUsed);
-            BigDecimal totalFeeAvax = new BigDecimal(totalCost).divide(BigDecimal.TEN.pow(18));
-            System.out.println("totalFeeAvax: " + totalFeeAvax);
-            System.out.println("transactionReceipt: " + transactionReceipt);
             return snowTraceTxnUrl+hash+"?"+"chainid="+chainId;
         } catch (Exception e) {
             log.error("Error fetching transaction receipt: {}", e.getMessage());
@@ -93,12 +98,43 @@ public class Web3Service {
         }
     }
 
+    @Transactional
     public void storeCurrentBatchMerkleRootToPublic() {
+
         String merkleRoot = getCurrentBatchMerkleRoot();
+        HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
+        ResponseEntity<String> response;
+       try{
+
+              response = restTemplate.postForEntity(asyncEndPoint + "/finalize/{merkleRoot}",null,merkleRoot);
+              log.info("Response from async service: {}", response.getBody());
+
+
+
+
+       }
+       catch (Exception e) {
+            log.error("Error storing merkle root to private blockchain: {}", e.getMessage());
+            throw new CustomException("Error storing merkle root to private blockchain", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+
+
         try {
-            TransactionReceipt transactionReceipt = hashStore.storeHash(new ArrayList<>(List.of("abj"))).send();
+
+            TransactionReceipt transactionReceipt = hashStore.storeHash(new ArrayList<>(List.of(merkleRoot))).send();
             String transc = objectMapper.writeValueAsString(transactionReceipt);
             log.info("Transaction receipt: {}", transc);
+            BatchInfo batchInfo = new BatchInfo();
+            batchInfo.setId(parseInt(contractStateDTO.getCurrentBatchIndex()));
+            batchInfo.setMerkleRoot(merkleRoot);
+            batchInfo.setPushTime(new java.sql.Timestamp(System.currentTimeMillis()));
+            batchInfo.setHashCount(parseInt(contractStateDTO.getBatchHashCount()));
+            batchInfo.setTxnHash(transactionReceipt.getTransactionHash());
+            batchInfo.setTxnFee(Web3Utility.covertToAVAX(transactionReceipt).toPlainString());
+            batchInfoRepository.save(batchInfo);
+
+
         } catch (Exception e) {
             log.error("Error storing merkle root to public blockchain: {}", e.getMessage());
             throw new CustomException("Error storing merkle root to public blockchain", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -111,6 +147,7 @@ public class Web3Service {
     public String getCurrentBatchMerkleRoot() {
         HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
         List<String> hashes = hashBatchInfoDTO.getHashes();
+        log.info("Hashes for merkle root calc: {}", hashes);
         if (hashes.size() == 0) {
             throw ExceptionFactory.customValidationError("No hashes found in the current batch");
         }
@@ -164,7 +201,7 @@ public class Web3Service {
         idHashMap.put("id", id);
 
         ContractStateDTO contractStateDTO = getContractState();
-        if (Integer.parseInt(id) > Integer.parseInt(contractStateDTO.getCurrentBatchIndex()) || Integer.parseInt(id) < 1) {
+        if (parseInt(id) > parseInt(contractStateDTO.getCurrentBatchIndex()) || parseInt(id) < 1) {
             throw new CustomException("Batch not found, the current batch index is: " + contractStateDTO.getCurrentBatchIndex(), HttpStatus.NOT_FOUND);
         }
         try {
@@ -184,6 +221,7 @@ public class Web3Service {
             response = restTemplate.getForEntity(asyncEndPoint + "/current-batch", String.class);
             log.info("Current batch info: {}", response.getBody());
             HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
+            hashBatchInfoDTO.setBatchId(getContractState().getCurrentBatchIndex());
             return hashBatchInfoDTO;
         } catch (Exception e) {
             throw new CustomException("Blockchain verification service is down", HttpStatus.INTERNAL_SERVER_ERROR);
