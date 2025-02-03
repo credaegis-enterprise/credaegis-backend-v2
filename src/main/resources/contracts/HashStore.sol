@@ -1,12 +1,13 @@
-
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract HashStore {
 
-    mapping(string => bool) private storedHash;
-    mapping(string => uint256) private hashToId;
-    uint256 private currentHashCount = 1;
+    mapping(string => bool) private storedHash;  // Tracks if hash is already stored
+    mapping(string => uint256) private hashToId; // Maps hash to unique ID
+    uint256 private currentHashCount = 1;         // Keeps track of hash IDs
 
+    string[] private hashesArray;
     event HashStored(uint256 indexed id, string hash, string message);
 
     // Struct for storing hash storage results
@@ -15,7 +16,7 @@ contract HashStore {
         bool stored;
     }
 
-// Function to store hashes by taking input hashes as array and returns array of objects
+    // Function to store hashes by taking input hashes as an array and returning array of objects
     function storeHash(string[] memory hashes) public returns (StoreResult[] memory) {
         uint256 length = hashes.length;
         StoreResult[] memory results = new StoreResult[](length);
@@ -36,6 +37,10 @@ contract HashStore {
                 continue; // Skip storing this hash again
             }
 
+
+            hashesArray.push(currentHash);
+
+            // Mark the hash as stored in the mapping
             storedHash[currentHash] = true;
             hashToId[currentHash] = currentHashCount;
 
@@ -49,18 +54,15 @@ contract HashStore {
 
             // Increment the hash count being stored
             currentHashCount++;
-
         }
 
         return results; // Return the result for each hash processed
     }
 
-
-
     // Struct for verification results
     struct VerificationResult {
         string verifiedHashes;
-        bool verificationResults;
+        bool verificationResults;  // Only need the verification result
     }
 
     // Function to verify hashes in bulk
@@ -72,10 +74,10 @@ contract HashStore {
             string memory hashToVerify = hashesToVerify[i]; // to store current being handled from array
             bool isVerified = false;
 
+            // Check if the hash is stored
             if (storedHash[hashToVerify]) {
                 isVerified = true;
             }
-
 
             results[i] = VerificationResult({
                 verifiedHashes: hashToVerify,
@@ -84,5 +86,10 @@ contract HashStore {
         }
 
         return results;
+    }
+
+    // Function to get the stored hashes (for debugging or access purposes)
+    function getStoredHashes() public view returns (string[] memory) {
+        return hashesArray;
     }
 }

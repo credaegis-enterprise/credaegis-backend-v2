@@ -9,6 +9,7 @@ import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
 import com.credaegis.backend.utility.MerkleTreeUtility;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.response.*;
 import org.web3j.utils.Convert;
 
@@ -77,21 +77,24 @@ public class Web3Service {
         }
 
     }
-    public void verifyMerkleRootPublic(String merkleRoot) {
+    public Map<String,Boolean> verifyMerkleRootPublic(List<String> merkleRoots) {
         try {
-            System.out.println("merkleRoot: " + merkleRoot);
-            List test =  hashStore.verifyHashesByValue(List.of(merkleRoot)).send();
-            String transc = objectMapper.writeValueAsString(test);
-            log.info("Transaction receipt: {}", transc);
+            Map<String, Boolean> verificationHashMap = new HashMap<>();
+            List<HashStore.VerificationResult> result = hashStore.verifyHashesByValue(merkleRoots).send();
+
+        for (HashStore.VerificationResult item : result) {
+            verificationHashMap.put(item.verifiedHashes, item.verificationResults);
+        }
+
+        return verificationHashMap;
         } catch (Exception e) {
             log.error("Error verifying merkle root from public blockchain: {}", e.getMessage());
             throw new CustomException("Error verifying merkle root from public blockchain", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-
     public void storeCurrentBatchMerkleRootToPublic() {
-//        String merkleRoot = getCurrentBatchMerkleRoot();
+        String merkleRoot = getCurrentBatchMerkleRoot();
         try {
             TransactionReceipt transactionReceipt = hashStore.storeHash(new ArrayList<>(List.of("abj"))).send();
             String transc = objectMapper.writeValueAsString(transactionReceipt);

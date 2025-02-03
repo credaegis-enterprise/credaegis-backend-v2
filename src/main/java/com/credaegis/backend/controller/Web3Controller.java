@@ -4,6 +4,7 @@ package com.credaegis.backend.controller;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ContractStateDTO;
 import com.credaegis.backend.dto.HashBatchInfoDTO;
+import com.credaegis.backend.http.request.MerkleRootVerificationRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
 import com.credaegis.backend.service.Web3Service;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = Constants.ROUTEV1+"/web3")
@@ -37,11 +40,11 @@ public class Web3Controller {
     }
 
 
-    @GetMapping("/public/verify/merkle-root/{merkleRoot}")
-    public ResponseEntity<CustomApiResponse<Void>> verifyMerkleRootPublic(@PathVariable String merkleRoot){
-        web3Service.verifyMerkleRootPublic(merkleRoot);
+    @GetMapping("/public/verify/merkle-roots")
+    public ResponseEntity<CustomApiResponse<Map<String,Boolean>>> verifyMerkleRootPublic(@RequestBody MerkleRootVerificationRequest merkleRoots){
+
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null,"Merkle root verified",true)
+                new CustomApiResponse<>(       web3Service.verifyMerkleRootPublic(merkleRoots.getMerkleRoots()),"Merkle root verified",true)
         );
     }
 
