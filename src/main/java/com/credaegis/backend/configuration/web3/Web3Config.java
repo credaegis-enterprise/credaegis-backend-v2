@@ -43,7 +43,7 @@ public class Web3Config {
 
         Credentials credentials = Credentials.create(privateKey);
         ContractGasProvider gasProvider = new StaticGasProvider(
-                Convert.toWei("25", Convert.Unit.GWEI).toBigInteger(),
+                Convert.toWei("5", Convert.Unit.GWEI).toBigInteger(),
                 BigInteger.valueOf(5_000_000)
         );
 

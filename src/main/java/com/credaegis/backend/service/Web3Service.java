@@ -44,6 +44,10 @@ public class Web3Service {
     @Value("${credaegis.web3.contract-address}")
     private String contractAddress;
 
+
+    @Value("${credaegis.web3.wallet-address}")
+    private String walletAddress;
+
     @Value("${credaegis.async-blockchain.service.url}")
     private String asyncEndPoint;
 
@@ -203,7 +207,7 @@ public class Web3Service {
     public String getBalance() {
         try {
             EthGetBalance ethGetBalance = web3j.ethGetBalance(
-                    contractAddress,
+                    walletAddress,
                     DefaultBlockParameterName.LATEST
             ).send();
 
