@@ -2,6 +2,7 @@ package com.credaegis.backend.service;
 
 
 import com.credaegis.backend.dto.CertificateVerificationBlockchainResultDTO;
+import com.credaegis.backend.dto.FIleInfoDTO;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.http.response.custom.CertificateVerificationResponse;
@@ -47,14 +48,13 @@ public class VerificationService {
     //This service is used for verification by blockchain
     public List<CertificateVerificationResponse> verifyAuthenticityBlockchain(List<MultipartFile> certificateFiles) throws IOException {
         List<String> hashes = new ArrayList<>();
+        List<String> merkleRoots = new ArrayList<>();
 
-
-
-        Map<String, String> nameHashMap = new HashMap<>();
+        Map<String, FIleInfoDTO> nameHashMap = new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
         for (MultipartFile file : certificateFiles) {
             String hash = checkSumUtility.hashCertificate(file.getBytes());
-            nameHashMap.put(hash, file.getOriginalFilename());
+            nameHashMap.put(hash,);
             hashes.add(hash);
         }
 
