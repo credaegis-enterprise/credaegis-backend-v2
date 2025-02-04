@@ -35,7 +35,7 @@ public class Web3Controller {
     public ResponseEntity<CustomApiResponse<Void>> storeCurrentMerkleRootToPublic(){
        web3Service.storeCurrentBatchMerkleRootToPublic();
         return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null,"Merkle root stored to public blockchain",true)
+                new CustomApiResponse<>(null,"Request is being processed",true)
         );
     }
 

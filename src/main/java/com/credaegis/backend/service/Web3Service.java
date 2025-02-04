@@ -3,6 +3,7 @@ package com.credaegis.backend.service;
 
 import com.credaegis.backend.configuration.web3.HashStore;
 import com.credaegis.backend.dto.ContractStateDTO;
+import com.credaegis.backend.dto.FinalizeBatchDTO;
 import com.credaegis.backend.dto.HashBatchInfoDTO;
 import com.credaegis.backend.dto.Web3InfoDTO;
 import com.credaegis.backend.entity.BatchInfo;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.web3j.protocol.Web3j;
@@ -98,38 +100,44 @@ public class Web3Service {
         }
     }
 
+
+    public String finalizeBatch(){
+        String merkleRoot = getCurrentBatchMerkleRoot();
+        log.info("Merkle root for current batch calculated successfully: {}", merkleRoot);
+        FinalizeBatchDTO finalizeBatchDTO;
+        ResponseEntity<String> response;
+        try{
+
+            Map<String, String> merkleRootMap = new HashMap<>();
+            merkleRootMap.put("merkleRoot", merkleRoot);
+
+            response = restTemplate.postForEntity(asyncEndPoint + "/finalize/{merkleRoot}",null, String.class, merkleRootMap);
+            finalizeBatchDTO = objectMapper.readValue(response.getBody(), FinalizeBatchDTO.class);
+            log.info("Batch finalized successfully: {}", finalizeBatchDTO);
+            return merkleRoot;
+        }
+        catch (Exception e) {
+            log.error("Error in finalizing Batch: {}", e.getMessage());
+            throw new CustomException("Error in finalizing batch", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Transactional
+    @Async
     public void storeCurrentBatchMerkleRootToPublic() {
 
-        String merkleRoot = getCurrentBatchMerkleRoot();
+        String merkleRoot = finalizeBatch();
         HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
-        ResponseEntity<String> response;
-       try{
-
-              response = restTemplate.postForEntity(asyncEndPoint + "/finalize/{merkleRoot}",null,merkleRoot);
-              log.info("Response from async service: {}", response.getBody());
-
-
-
-
-       }
-       catch (Exception e) {
-            log.error("Error storing merkle root to private blockchain: {}", e.getMessage());
-            throw new CustomException("Error storing merkle root to private blockchain", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-
-
         try {
 
             TransactionReceipt transactionReceipt = hashStore.storeHash(new ArrayList<>(List.of(merkleRoot))).send();
             String transc = objectMapper.writeValueAsString(transactionReceipt);
             log.info("Transaction receipt: {}", transc);
             BatchInfo batchInfo = new BatchInfo();
-            batchInfo.setId(parseInt(contractStateDTO.getCurrentBatchIndex()));
+            batchInfo.setId(parseInt(hashBatchInfoDTO.getBatchId()));
             batchInfo.setMerkleRoot(merkleRoot);
             batchInfo.setPushTime(new java.sql.Timestamp(System.currentTimeMillis()));
-            batchInfo.setHashCount(parseInt(contractStateDTO.getBatchHashCount()));
+            batchInfo.setHashCount(hashBatchInfoDTO.getHashes().size());
             batchInfo.setTxnHash(transactionReceipt.getTransactionHash());
             batchInfo.setTxnFee(Web3Utility.covertToAVAX(transactionReceipt).toPlainString());
             batchInfoRepository.save(batchInfo);
