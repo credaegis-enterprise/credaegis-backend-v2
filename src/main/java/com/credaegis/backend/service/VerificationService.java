@@ -46,6 +46,7 @@ public class VerificationService {
 
 
     //This service is used for verification by blockchain
+    //todo public
     public List<CertificateVerificationResponse> verifyAuthenticityBlockchain(List<MultipartFile> certificateFiles) throws IOException {
         List<String> hashes = new ArrayList<>();
         List<String> merkleRoots = new ArrayList<>();
