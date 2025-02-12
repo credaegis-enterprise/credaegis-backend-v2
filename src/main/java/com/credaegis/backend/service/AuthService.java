@@ -148,6 +148,11 @@ public class AuthService {
                 () -> ExceptionFactory.customValidationError("Invalid email")
         );
 
+
+        log.error("User role: {}", user.getRole().getRole());
+        if(!user.getRole().getRole().equals("ROLE_ADMIN"))
+            throw ExceptionFactory.customValidationError("Only admins can login here");
+
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
                 loginRequest.getEmail(),
                 loginRequest.getPassword()
@@ -169,6 +174,10 @@ public class AuthService {
         User user = userRepository.findByEmail(mfaLoginRequest.getEmail()).orElseThrow(
                 () -> ExceptionFactory.customValidationError("Invalid email")
         );
+
+        if(!user.getRole().getRole().equals("ROLE_ADMIN"))
+            throw ExceptionFactory.customValidationError("Only admins can login here");
+
         if(!user.getMfaEnabled())
             throw  ExceptionFactory.customValidationError("Mfa is not enabled in your account");
 
