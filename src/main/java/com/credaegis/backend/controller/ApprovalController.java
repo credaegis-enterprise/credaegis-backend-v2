@@ -15,6 +15,7 @@ import com.credaegis.backend.utility.CheckSumUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 
+@Slf4j
 @RestController
 @RequestMapping(value = Constants.ROUTEV1 + "/approval-control")
 @AllArgsConstructor
@@ -73,6 +75,7 @@ public class ApprovalController {
     public ResponseEntity<CustomApiResponse<Void>> modifyApproval(@RequestBody @Valid ApprovalModificationRequest approvalModificationRequest,
                                                                   @AuthenticationPrincipal CustomUser customUser) {
 
+        log.error(approvalModificationRequest.toString());
         approvalService.modifyApproval(approvalModificationRequest, customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null, "approval modified Success", true)

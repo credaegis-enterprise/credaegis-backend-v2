@@ -156,6 +156,7 @@ public class RabbitMqListeners {
                 certificate.setRecipientName(approval.getRecipientName());
                 certificate.setRecipientEmail(approval.getRecipientEmail());
                 certificate.setIssuedDate(new Date(System.currentTimeMillis()));
+                certificate.setExpiryDate(approval.getExpiryDate());
                 certificate.setEvent(approval.getEvent());
                 certificate.setStatus(CertificateStatus.verified);
                 certificate.setIssuedByUser(user);

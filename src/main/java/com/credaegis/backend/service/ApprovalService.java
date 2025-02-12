@@ -110,6 +110,9 @@ public class ApprovalService {
         if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
+
+        log.info("Approval modification request received for approval id {}", approval.getExpiryDate());
+
         approval.setComments(approvalModificationRequest.getComments());
         approval.setRecipientEmail(approvalModificationRequest.getRecipientEmail());
         approval.setRecipientName(approvalModificationRequest.getRecipientName());
