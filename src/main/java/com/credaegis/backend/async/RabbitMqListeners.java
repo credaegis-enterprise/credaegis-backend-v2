@@ -181,7 +181,7 @@ public class RabbitMqListeners {
                                 "<td style='padding: 20px;'>" +
                                 "<h2 style='color: #333333;'>Certificate Verification Successful</h2>" +
                                 "<p style='color: #555555;'>Hello,</p>" +
-                                "<p style='color: #555555;'>We are pleased to inform you that your certificate for the event"+ certificate.getEvent().getName()   +"have been successfully verified.</p>" +
+                                "<p style='color: #555555;'>We are pleased to inform you that your certificate for the event "+ certificate.getEvent().getName()   + "have been successfully verified.</p>" +
                                 "<p style='color: #555555;'>Please find your verified certificate attached below.</p>" +
                                 "<table align='center' border='0' cellpadding='0' cellspacing='0' style='margin: 20px auto;'>" +
                                 "<tr>" +
