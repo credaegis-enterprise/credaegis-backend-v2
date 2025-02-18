@@ -28,10 +28,6 @@ public class RabbitMqConfig {
     }
 
 
-    @Bean
-    Queue emailQueue() {
-        return new Queue(Constants.EMAIL_QUEUE, true);
-    }
 
 
     @Bean
@@ -82,10 +78,7 @@ public class RabbitMqConfig {
         return BindingBuilder.bind(approvalRequestQueue).to(exchange).with(Constants.APPROVAL_REQUEST_QUEUE_KEY);
     }
 
-    @Bean
-    Binding emailBinding(Queue emailQueue, DirectExchange exchange) {
-        return BindingBuilder.bind(emailQueue).to(exchange).with(Constants.EMAIL_QUEUE_KEY);
-    }
+
 
 
     @Bean

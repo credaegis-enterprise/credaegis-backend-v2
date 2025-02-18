@@ -134,7 +134,7 @@ public class AuthService {
         ;
 
 
-         emailUtility.sendEmail(recipientEmail,"Password Reset Request",htmlContent,null);
+         emailUtility.sendEmail(recipientEmail,"Password Reset Request",htmlContent,null,null);
 //        rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.EMAIL_QUEUE_KEY,emailDTO);
 
 
