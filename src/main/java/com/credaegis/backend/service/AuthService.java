@@ -8,6 +8,7 @@ import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.LoginRequest;
 import com.credaegis.backend.http.request.MfaLoginRequest;
 import com.credaegis.backend.repository.UserRepository;
+import com.credaegis.backend.utility.EmailUtility;
 import com.credaegis.backend.utility.PasswordUtility;
 import com.github.f4b6a3.ulid.UlidCreator;
 import dev.samstevens.totp.code.CodeVerifier;
@@ -48,6 +49,7 @@ public class AuthService {
     private final RabbitTemplate rabbitTemplate;
     private final PasswordEncoder passwordEncoder;
     private final PasswordUtility passwordUtility;
+    private final EmailUtility emailUtility;
 
 
     @Value("${credaegis.frontend.base-url}")
@@ -94,13 +96,9 @@ public class AuthService {
         user.setPasswordResetTokenCreationTime(new Timestamp(System.currentTimeMillis()));
         userRepository.save(user);
 
-        EmailDTO emailDTO = new EmailDTO();
-        emailDTO.setRecipientEmail(recipientEmail);
-        emailDTO.setSubject("Password reset link");
-        emailDTO.setContentType("html");
 
         String resetLink = baseUrl+"/reset-password?token="+user.getPasswordResetToken()+"&email="+recipientEmail;
-        emailDTO.setContent(
+        String htmlContent =
                 "<html>" +
                         "<body style='margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;'>" +
                         "<table align='center' width='100%' border='0' cellpadding='0' cellspacing='0' style='margin: 0; padding: 20px;'>" +
@@ -133,9 +131,11 @@ public class AuthService {
                         "</table>" +
                         "</body>" +
                         "</html>"
-        );
+        ;
 
-        rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.EMAIL_QUEUE_KEY,emailDTO);
+
+         emailUtility.sendEmail(recipientEmail,"Password Reset Request",htmlContent,null);
+//        rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.EMAIL_QUEUE_KEY,emailDTO);
 
 
     }
