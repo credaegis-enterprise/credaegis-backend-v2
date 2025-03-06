@@ -25,6 +25,8 @@ public class EventController {
 
 
 
+
+
     @GetMapping(path = "/event/cluster/search")
     public ResponseEntity<CustomApiResponse<List<EventSearchProjection>>> searchByNameAndClusterId(@RequestParam String name,
                                                                                                    @RequestParam String clusterId,

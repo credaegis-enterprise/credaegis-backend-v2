@@ -11,18 +11,22 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, String> {
 
 
+
+    Optional<Event> findByIdAndDeactivated(String id, boolean deactivated);
+
     @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName FROM Event e WHERE e.name " +
-            "LIKE %:eventName% AND (:clusterId IS NULL OR e.cluster.id = :clusterId)")
+            "LIKE %:eventName% AND (:clusterId IS NULL OR e.cluster.id = :clusterId) AND e.deactivated = false AND e.cluster.organization.id = :organizationId")
     List<EventSearchProjection> searchByNameAndClusterId(String eventName, String clusterId, String userOrganizationId);
 
 
     @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName FROM Event e WHERE e.name " +
-            "LIKE %:eventName%  AND e.cluster.organization.id = :organizationId")
+            "LIKE %:eventName%  AND e.cluster.organization.id = :organizationId AND e.deactivated = false")
     List<EventSearchProjection> searchByName(@Param("eventName") String eventName, @Param("organizationId") String userOrganizationId);
 
     @Modifying

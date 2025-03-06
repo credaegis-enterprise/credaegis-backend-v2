@@ -263,7 +263,7 @@ public class ApprovalService {
 
 
 
-        Event event = eventRepository.findById(eventId).orElseThrow(ExceptionFactory::resourceNotFound);
+        Event event = eventRepository.findByIdAndDeactivated(eventId,false).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
             throw ExceptionFactory.insufficientPermission();
 
