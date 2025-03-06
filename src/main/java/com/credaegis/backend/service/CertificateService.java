@@ -16,8 +16,10 @@ import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,12 +33,15 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CertificateService {
 
     private final CertificateRepository certificateRepository;
     private final MinioClient minioClient;
     private final RabbitTemplate rabbitTemplate;
+
+
+
 
 
     public ViewCertificateDTO viewCertificate(String certificateId, String userOrganizationId) {
