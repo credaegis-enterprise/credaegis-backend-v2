@@ -37,8 +37,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(username).orElseThrow(()->new UsernameNotFoundException("email not found"));
+
+        String clusterId = Optional.ofNullable(user.getCluster()).map(cluster -> cluster.getId()).orElse(null);
         return new CustomUser(getAuthoritesAndRoles(user.getId()),user.getId(),user.getEmail(),
-                user.getOrganization().getId(),user.getPassword(),user.getMfaEnabled());
+                user.getOrganization().getId(),user.getPassword(),user.getMfaEnabled(),clusterId);
 
     }
 

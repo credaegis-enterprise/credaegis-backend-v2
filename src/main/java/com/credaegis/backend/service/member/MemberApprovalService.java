@@ -1,14 +1,15 @@
-package com.credaegis.backend.service;
+package com.credaegis.backend.service.member;
+
 
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ApprovalBlockchainDTO;
 import com.credaegis.backend.dto.ApprovalsInfoDTO;
 import com.credaegis.backend.dto.ViewApprovalDTO;
+import com.credaegis.backend.dto.projection.ApprovalInfoProjection;
 import com.credaegis.backend.entity.*;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.ApprovalModificationRequest;
-import com.credaegis.backend.dto.projection.ApprovalInfoProjection;
 import com.credaegis.backend.repository.*;
 import com.credaegis.backend.utility.CheckSumUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +27,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class ApprovalService {
+public class MemberApprovalService {
 
     private final ApprovalRepository approvalRepository;
     private final CertificateRepository certificateRepository;
@@ -45,73 +45,15 @@ public class ApprovalService {
     private final ClusterRepository clusterRepository;
     private final CheckSumUtility checkSumUtility;
     private final UserRepository userRepository;
-    private final NotificationRepository notificationRepository;
     private final RabbitTemplate rabbitTemplate;
 
 
-    public void approveCertifcatesBlockchain(String userId, String userOrganizationId, List<String> approvalIdList,Boolean persist) throws IOException {
-
-            User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
-            for (String approvalId : approvalIdList) {
-
-                ApprovalBlockchainDTO approvalBlockchainDTO = new ApprovalBlockchainDTO();
-                try {
-                    Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
-                    if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
-                          throw ExceptionFactory.insufficientPermission();
-
-                    }
-
-        //    creating path to retrieve file
-                    String approvalPath = approval.getEvent().getCluster().getId() + "/"
-                            + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
-
-
-                    InputStream stream = minioClient.getObject(GetObjectArgs.builder()
-                            .bucket("approvals")
-                            .object(approvalPath)
-                            .build());
-
-
-                    byte [] bytes = stream.readAllBytes();
-                    stream.close();
-                    String hashedValue = checkSumUtility.hashCertificate(bytes);
-                    System.out.println(hashedValue);
-                    approvalBlockchainDTO.setUserId(userId);
-                    approvalBlockchainDTO.setApprovalId(approvalId);
-                    approvalBlockchainDTO.setHash(hashedValue);
-                    approvalBlockchainDTO.setPersist(persist);
-
-                    approval.setStatus(ApprovalStatus.buffered);
-                    approvalRepository.save(approval);
-
-
-                    rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE,Constants.APPROVAL_REQUEST_QUEUE_KEY
-                    ,approvalBlockchainDTO);
-
-
-
-                } catch (Exception e) {
-                    log.error(e.getMessage());
-                    log.error("error processing approval id {}", approvalId);
-                    String errorMessage = "approval id " + approvalId + " could not be processed because of" +
-                            "internal error";
-
-
-                }
-            }
-
-    }
-
-    public void modifyApproval(ApprovalModificationRequest approvalModificationRequest, String userOrganizationId) {
+    public void modifyApproval(ApprovalModificationRequest approvalModificationRequest, String userClusterId) {
         Approval approval = approvalRepository.findById(approvalModificationRequest.getApprovalId()).orElseThrow(
                 ExceptionFactory::resourceNotFound
         );
-        if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
+        if (!approval.getEvent().getCluster().getId().equals(userClusterId))
             throw ExceptionFactory.insufficientPermission();
-
-
-        log.info("Approval modification request received for approval id {}", approval.getExpiryDate());
 
         approval.setComments(approvalModificationRequest.getComments());
         approval.setRecipientEmail(approvalModificationRequest.getRecipientEmail());
@@ -121,39 +63,33 @@ public class ApprovalService {
 
     }
 
-    public List<ApprovalInfoProjection> getAllApprovals(String userOrganizationId) {
-        return approvalRepository.getApprovalInfo(ApprovalStatus.pending, userOrganizationId);
+
+    public List<ApprovalInfoProjection> getAllApprovals(String userClusterId) {
+        return approvalRepository.getApprovalInfo(ApprovalStatus.pending, userClusterId);
     }
 
 
-    public Map<String, Long> getCount(String userOrganizationId, ApprovalStatus approvalStatus) {
+    public Map<String, Long> getCount(String userClusterId, ApprovalStatus status) {
         Map<String, Long> countMap = new HashMap<>();
-        Long count = approvalRepository.countByEvent_Cluster_Organization_IdAndStatus(userOrganizationId, approvalStatus);
+        Long count = approvalRepository.countByEvent_Cluster_IdAndStatus(userClusterId, status);
         countMap.put("count", count);
         return countMap;
 
     }
 
-    public List<ApprovalInfoProjection> getAllClusterApprovals(String clusterId, String userOrganizationId) {
-        Cluster cluster = clusterRepository.findById(clusterId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if (!cluster.getOrganization().getId().equals(userOrganizationId))
-            throw ExceptionFactory.insufficientPermission();
 
-        return approvalRepository.getApprovalInfoByClusterAndStatus(cluster, ApprovalStatus.pending);
-    }
-
-    public List<ApprovalInfoProjection> getAllEventApprovals(String eventId, String userOrganizationId) {
+    public List<ApprovalInfoProjection> getAllEventApprovals(String eventId, String userClusterId) {
         Event event = eventRepository.findById(eventId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
+        if (!event.getCluster().getId().equals(userClusterId))
             throw ExceptionFactory.insufficientPermission();
 
         return approvalRepository.getApprovalInfoByEventAndStatus(event, ApprovalStatus.pending);
     }
 
-    public ViewApprovalDTO viewApprovalCertificate(String approvalId, String userOrganizationId) {
 
+    public ViewApprovalDTO viewApprovalCertificate(String approvalId, String userClusterId) {
         Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
+        if (!approval.getEvent().getCluster().getId().equals(userClusterId))
             throw ExceptionFactory.insufficientPermission();
 
         String approvalPath = approval.getEvent().getCluster().getId() + "/"
@@ -176,15 +112,17 @@ public class ApprovalService {
 
     }
 
+
+
     @Transactional
-    public void rejectCertificates(String userOrganizationId, List<String> approvalIdList) {
+    public void rejectCertificates(String userClusterId, List<String> approvalIdList) {
         for(String approvalId:approvalIdList){
             try {
-            Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
-            if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
-                throw ExceptionFactory.insufficientPermission();
-            String approvalPath = approval.getEvent().getCluster().getId() + "/"
-                    + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
+                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+                if (!approval.getEvent().getCluster().getId().equals(userClusterId))
+                    throw ExceptionFactory.insufficientPermission();
+                String approvalPath = approval.getEvent().getCluster().getId() + "/"
+                        + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
 
                 approval.setStatus(ApprovalStatus.rejected);
                 approvalRepository.save(approval);
@@ -201,14 +139,57 @@ public class ApprovalService {
 
 
     @Transactional
-    public void approveCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
-
+    public void approveCertificatesBlockchain(String userId, String userClusterId, List<String> approvalIdList,Boolean persist) {
         for (String approvalId : approvalIdList) {
+            ApprovalBlockchainDTO approvalBlockchainDTO = new ApprovalBlockchainDTO();
             try {
-                System.out.println(approvalId);
                 User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
                 Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
-                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
+                if (!approval.getEvent().getCluster().getId().equals(userClusterId)) {
+                    throw ExceptionFactory.insufficientPermission();
+                }
+
+                //creating path to retrieve file
+                String approvalPath = approval.getEvent().getCluster().getId() + "/"
+                        + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
+
+
+                InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                        .bucket("approvals")
+                        .object(approvalPath)
+                        .build());
+
+                String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
+                stream.close();
+                approvalBlockchainDTO.setUserId(userId);
+                approvalBlockchainDTO.setApprovalId(approvalId);
+                approvalBlockchainDTO.setHash(hashedValue);
+                approvalBlockchainDTO.setPersist(persist);
+
+                approval.setStatus(ApprovalStatus.buffered);
+                approvalRepository.save(approval);
+                rabbitTemplate.convertAndSend(Constants.DIRECT_EXCHANGE, Constants.APPROVAL_REQUEST_QUEUE_KEY
+                        ,approvalBlockchainDTO);
+
+
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                log.error("error processing approval id {}", approvalId);
+                String errorMessage = "approval id " + approvalId + " could not be processed because of" +
+                        "internal error";
+            }
+        }
+    }
+
+
+
+    @Transactional
+    public void approveCertificates(String userId, String userClusterId, List<String> approvalIdList) {
+        for (String approvalId : approvalIdList) {
+            try {
+                User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+                if (!approval.getEvent().getCluster().getId().equals(userClusterId)) {
                     throw ExceptionFactory.insufficientPermission();
                 }
 
@@ -225,13 +206,14 @@ public class ApprovalService {
                 String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
 
                 //checks whether the hash is already present in the database to correctly identify the certificate and add to error queue
-                if (certificateRepository.findByCertificateHash(hashedValue).isPresent()) {
+                if (certificateRepository.existsByCertificateHash(hashedValue)) {
                     throw ExceptionFactory.customValidationError("Certificate hash already exists");
                 }
 
+
                 //creating new certificate approving them blockchain integration here(blockchain queue)
                 Certificate certificate = new Certificate();
-                certificate.setId(approval.getId());
+                certificate.setId(approval.getId());;
                 certificate.setCertificateName(approval.getApprovalCertificateName());
                 certificate.setCertificateHash(hashedValue);
                 certificate.setComments(approval.getComments());
@@ -239,13 +221,14 @@ public class ApprovalService {
                 certificate.setRecipientEmail(approval.getRecipientEmail());
                 certificate.setIssuedDate(new Date(System.currentTimeMillis()));
                 certificate.setEvent(approval.getEvent());
+                certificate.setExpiryDate(approval.getExpiryDate());
                 certificate.setIssuedByUser(user);
-                certificate.setStatus(CertificateStatus.verified);
                 approval.setStatus(ApprovalStatus.approved);
 
                 //right now storing everything in off-chain database
                 approvalRepository.save(approval);
                 certificateRepository.save(certificate);
+
 
             } catch (Exception e) {
 
@@ -258,13 +241,11 @@ public class ApprovalService {
     }
 
     @Transactional
-    public void uploadApprovals(String eventId, String userId, String userOrganizationId,
+    public void uploadApprovals(String eventId, String userId, String userClusterId,
                                 List<MultipartFile> approvalsCertificates, String approvalsInfo) throws JsonProcessingException {
 
-
-
         Event event = eventRepository.findByIdAndDeactivated(eventId,false).orElseThrow(ExceptionFactory::resourceNotFound);
-        if (!event.getCluster().getOrganization().getId().equals(userOrganizationId))
+        if (!event.getCluster().getId().equals(userClusterId))
             throw ExceptionFactory.insufficientPermission();
 
 
@@ -289,7 +270,9 @@ public class ApprovalService {
         String clusterId = event.getCluster().getId();
         String approvalPath = clusterId + "/" + eventId;
         for (ApprovalsInfoDTO info : approvalsInfoDTOS) {
-//
+//            if (!approvalsCertificatesMap.containsKey(info.getFileName())) {
+//                to be done
+//            }
             try {
                 String approvalCertificateId = UlidCreator.getUlid().toString();
                 MultipartFile uploadCertificate = approvalsCertificatesMap.get(info.getFileName());
@@ -309,9 +292,9 @@ public class ApprovalService {
                 approval.setComments(info.getComments());
                 approval.setExpiryDate(info.getExpiryDate());
                 approvalRepository.save(approval);
-
             } catch (Exception e) {
-                //dead letter queue here
+
+                //error queue here
                 log.error(e.getMessage());
                 log.error("error uploading file {}", info.getFileName());
             }
@@ -321,3 +304,4 @@ public class ApprovalService {
 
     }
 }
+

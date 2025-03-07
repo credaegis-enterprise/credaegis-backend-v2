@@ -6,6 +6,7 @@ target/
 
 
 env.local.sh
+.env
 env.prod.sh
 ### STS ###
 .apt_generated

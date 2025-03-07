@@ -19,7 +19,11 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
 
     Optional<Certificate> findByCertificateHash(String hashedValue);
 
+    boolean existsByCertificateHash(String certificateHash);
 
+    Long countByEvent_Cluster_Id(String userClusterId);
+
+    Long countByEvent_IdAndEvent_Cluster_Id(String eventId, String userClusterId);
 
     @Modifying
     @Query("UPDATE Certificate c SET c.revoked = true, c.revokedDate = CURRENT_DATE WHERE c.id IN :ids AND c.event.cluster.organization.id = :organizationId")

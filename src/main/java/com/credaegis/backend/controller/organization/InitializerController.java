@@ -1,4 +1,4 @@
-package com.credaegis.backend.controller;
+package com.credaegis.backend.controller.organization;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
@@ -8,7 +8,7 @@ import com.credaegis.backend.entity.User;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.repository.RoleRepository;
 import com.credaegis.backend.repository.UserRepository;
-import com.credaegis.backend.service.InitializerService;
+import com.credaegis.backend.service.organization.InitializerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = Constants.ROUTEV1+"/test")
+@RequestMapping(value = Constants.ROUTE_V1_ORGANIZATION +"/test")
 @AllArgsConstructor
 public class InitializerController {
 

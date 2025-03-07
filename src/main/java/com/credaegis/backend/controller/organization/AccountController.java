@@ -1,4 +1,4 @@
-package com.credaegis.backend.controller;
+package com.credaegis.backend.controller.organization;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
@@ -7,7 +7,7 @@ import com.credaegis.backend.http.request.AccountInfoModificationRequest;
 import com.credaegis.backend.http.request.PasswordChangeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.AccountInfoResponse;
-import com.credaegis.backend.service.AccountService;
+import com.credaegis.backend.service.organization.AccountService;
 import dev.samstevens.totp.exceptions.QrGenerationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = Constants.ROUTEV1 + "/account")
+@RequestMapping(value = Constants.ROUTE_V1_ORGANIZATION + "/account")
 @AllArgsConstructor
 @Slf4j
 public class AccountController {

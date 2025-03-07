@@ -1,13 +1,10 @@
-package com.credaegis.backend.service;
+package com.credaegis.backend.service.member;
 
 
 import com.credaegis.backend.constant.Constants;
-import com.credaegis.backend.dto.CertificateInfoDTO;
 import com.credaegis.backend.dto.RevocationBlockchainDTO;
-import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.dto.ViewCertificateDTO;
 import com.credaegis.backend.dto.projection.CertificateInfoProjection;
-import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.entity.CertificateStatus;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
@@ -16,11 +13,8 @@ import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,24 +23,20 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class CertificateService {
+@AllArgsConstructor
+public class MemberCertificateService {
 
     private final CertificateRepository certificateRepository;
-    private final MinioClient minioClient;
     private final RabbitTemplate rabbitTemplate;
+    private final MinioClient minioClient;
 
 
-
-
-
-    public ViewCertificateDTO viewCertificate(String certificateId, String userOrganizationId) {
-       Certificate certificate = certificateRepository.findById(certificateId).orElseThrow(ExceptionFactory::resourceNotFound);
-        if (!certificate.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
+    public ViewCertificateDTO viewCertificate(String certificateId, String userClusterId) {
+        Certificate certificate = certificateRepository.findById(certificateId).orElseThrow(ExceptionFactory::resourceNotFound);
+        if (!certificate.getEvent().getCluster().getId().equals(userClusterId))
             throw ExceptionFactory.insufficientPermission();
 
         String approvalPath = certificate.getEvent().getCluster().getId() + "/"
@@ -70,13 +60,14 @@ public class CertificateService {
     }
 
 
-    public void revokeCertificatesBlockchain(List<String> certificateIds, String userOrganizationId,String userId) {
+    @Transactional
+    public void revokeCertificatesBlockchain(List<String> certificateIds, String userClusterId,String userId) {
 
         for (String certificateId : certificateIds) {
 
             try {
                 Certificate certificate = certificateRepository.findById(certificateId).orElseThrow(ExceptionFactory::resourceNotFound);
-                if (!certificate.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
+                if (!certificate.getEvent().getCluster().getId().equals(userClusterId))
                     throw ExceptionFactory.insufficientPermission();
 
                 RevocationBlockchainDTO revocationBlockchainDTO = new RevocationBlockchainDTO();
@@ -105,43 +96,34 @@ public class CertificateService {
     }
 
     @Transactional
-    public void revokeCertificates(List<String> certificateIds, String userOrganizationId) {
-        certificateRepository.revokeCertificates(certificateIds, userOrganizationId);
+    public void revokeCertificates(List<String> certificateIds, String userClusterId){
+        certificateRepository.revokeCertificates(certificateIds,userClusterId);
     }
 
-    public Map<String, Long> getTotalIssuedCertificateCount(String userOrganizationId) {
+    public Map<String,Long> getTotalIssuedCertificateCount(String userClusterId){
 
 
-        Long count = certificateRepository.countByEvent_Cluster_Organization_Id(userOrganizationId);
-        Map<String, Long> countMap = Map.of("count", count);
+        Long count = certificateRepository.countByEvent_Cluster_Id(userClusterId);
+        Map<String,Long> countMap = Map.of("count",count);
         return countMap;
     }
 
-    public List<CertificateInfoProjection> getLatestCertificates(int page, int size, String userOrganizationId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate")));
 
-        return certificateRepository.getLatestCertificateInfo(pageable, userOrganizationId).getContent();
-    }
-
-
-
-    public Long getIssuedCountEvent(String userOrganizationId, String eventId) {
-        Long count = certificateRepository.countByEvent_IdAndEvent_Cluster_Organization_Id(eventId, userOrganizationId);
+    public Long getIssuedCountEvent(String userClusterId, String eventId) {
+        Long count = certificateRepository.countByEvent_IdAndEvent_Cluster_Id(eventId,userClusterId);
         return count;
     }
 
-    public Long getIssuedCountCluster(String userOrganizationId, String clusterId) {
-       Long count = certificateRepository.countByEvent_Cluster_IdAndEvent_Cluster_Organization_Id(clusterId, userOrganizationId);
-         return count;
+
+    public List<CertificateInfoProjection> getLatestCertificates(int page, int size, String userClusterId){
+        Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Order.desc("issuedDate")));
+
+        return certificateRepository.getLatestCertificateInfo(pageable,userClusterId).getContent();
     }
 
-    public List<CertificateInfoProjection> getLatestCertificatesCluster(int page, int size, String userOrganizationId, String clusterId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate")));
-        return certificateRepository.getLatestCertificateInfoByCluster(pageable, clusterId, userOrganizationId).getContent();
-    }
 
-    public List<CertificateInfoProjection> getLatestCertificatesEvent(int page, int size, String userOrganizationId, String eventId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate")));
-        return certificateRepository.getLatestCertificateInfoByEvent(pageable, eventId, userOrganizationId).getContent();
+    public List<CertificateInfoProjection> getLatestCertificatesEvent(int page, int size, String userClusterId, String eventId){
+        Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Order.desc("issuedDate")));
+        return certificateRepository.getLatestCertificateInfoByEvent(pageable,eventId,userClusterId).getContent();
     }
 }

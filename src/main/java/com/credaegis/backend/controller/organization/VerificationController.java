@@ -1,10 +1,10 @@
-package com.credaegis.backend.controller;
+package com.credaegis.backend.controller.organization;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.http.response.custom.CertificateVerificationResponse;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
-import com.credaegis.backend.service.VerificationService;
+import com.credaegis.backend.service.organization.VerificationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = Constants.ROUTEV1 + "/external")
+@RequestMapping(path = Constants.ROUTE_V1_ORGANIZATION + "/external")
 @AllArgsConstructor
 public class VerificationController {
 
