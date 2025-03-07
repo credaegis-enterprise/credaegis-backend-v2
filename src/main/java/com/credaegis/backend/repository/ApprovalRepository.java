@@ -15,7 +15,7 @@ import java.util.List;
 public interface ApprovalRepository extends JpaRepository<Approval, String> {
 
 
-
+    Long countByEvent_Cluster_IdAndStatus(String clusterId, ApprovalStatus status);
     Long countByEvent_Cluster_Organization_IdAndStatus(String organizationId, ApprovalStatus approvalStatus);
 
 

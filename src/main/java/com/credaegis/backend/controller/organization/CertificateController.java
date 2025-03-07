@@ -1,23 +1,16 @@
-package com.credaegis.backend.controller;
+package com.credaegis.backend.controller.organization;
 
 
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
-import com.credaegis.backend.dto.CertificateInfoDTO;
-import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.dto.ViewCertificateDTO;
-import com.credaegis.backend.dto.projection.CertificateInfoProjection;
-import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.http.request.CertificateRevokeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.CertificateListResponse;
-import com.credaegis.backend.repository.CertificateRepository;
-import com.credaegis.backend.service.CertificateService;
+import com.credaegis.backend.service.organization.CertificateService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import okhttp3.Response;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,11 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = Constants.ROUTEV1 + "/certificate-control")
+@RequestMapping(value = Constants.ROUTE_V1_ORGANIZATION + "/certificate-control")
 @AllArgsConstructor
 public class CertificateController {
 

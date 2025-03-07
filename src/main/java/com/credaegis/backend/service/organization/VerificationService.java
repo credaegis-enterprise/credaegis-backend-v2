@@ -1,7 +1,6 @@
-package com.credaegis.backend.service;
+package com.credaegis.backend.service.organization;
 
 
-import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.CertificateVerificationBlockchainResultDTO;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.exception.custom.CustomException;
@@ -14,13 +13,9 @@ import com.credaegis.backend.utility.HttpUtility;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,7 @@
 package com.credaegis.backend.repository;
 
 import com.credaegis.backend.dto.MemberInfoDTO;
+import com.credaegis.backend.dto.projection.MemberInfoProjection;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,7 @@ public interface UserRepository extends JpaRepository<User,String> {
     Optional<User> findByEmail(String email);
     Optional<User> findByIdAndDeleted(String id,Boolean deleted);
 
+    Optional<User> findByOrganization_IdAndRole_role(String userOrganizationId, String role);
 
     @Query("SELECT new com.credaegis.backend.dto.MemberInfoDTO(u.id, u.username, u.email, u.deactivated, u.createdOn)" +
             " FROM User u WHERE u.cluster = :cluster AND u.deleted = false")
@@ -55,4 +57,11 @@ public interface UserRepository extends JpaRepository<User,String> {
     @Modifying
     @Query("UPDATE User u SET u.username = :name WHERE u.id = :id")
     void renameUser(@Param("name") String name, @Param("id") String userId);
+
+
+    @Query("SELECT u.id AS id, u.username AS username, u.email AS email, u.deactivated AS deactivated" +
+            ", u.createdOn AS createdOn,u.updatedOn AS updatedOn FROM User u WHERE u.cluster.id = :clusterId" +
+            " AND u.id != :userId AND u.deleted = false")
+    List<MemberInfoProjection> getAllMembers(@Param("clusterId") String clusterId, @Param("userId") String userId);
+
 }

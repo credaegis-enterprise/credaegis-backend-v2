@@ -2,7 +2,9 @@ package com.credaegis.backend.constant;
 
 public class Constants {
 
-    public static final String ROUTEV1 = "/api/v1/organization";
+    public static final String ROUTE_V1_ORGANIZATION = "/api/v1/organization";
+    public static final String ROUTE_V1_MEMBER = "/api/v1/member";
+
     public static final String ADMIN = "ADMIN";
     public static final String MEMBER = "MEMBER";
     public static final String CLUSTER_ADMIN = "CLUSTER_ADMIN";
