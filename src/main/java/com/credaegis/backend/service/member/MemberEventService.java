@@ -56,7 +56,7 @@ public class MemberEventService {
 
 
     public List<EventInfoProjection> getAllEvents(String userClusterId) {
-        return eventRepository.getEvents(userClusterId);
+        return eventRepository.getAllEvents(userClusterId);
     }
 
     public List<EventSearchProjection> searchByName(String eventName, String userClusterId) {
