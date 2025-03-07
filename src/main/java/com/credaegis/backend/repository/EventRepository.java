@@ -61,6 +61,12 @@ public interface EventRepository extends JpaRepository<Event, String> {
 
     boolean existsByNameAndCluster(String eventName, Cluster cluster);
 
+
+    @Query("SELECT e.id AS id ,e.name AS name,e.description AS description," +
+            "e.deactivated AS deactivated,e.createdOn AS createdOn,e.updatedOn as updatedOn " +
+            "FROM Event e WHERE  e.cluster.id = :clusterId ")
+    List<EventInfoProjection> getAllEvents(@Param("clusterId") String userClusterId);
+
     @Query("SELECT e.id AS id ,e.name AS name,e.description AS description," +
             "e.deactivated AS deactivated,e.createdOn AS createdOn,e.updatedOn as updatedOn " +
             "FROM Event e WHERE  e.cluster.id = :clusterId AND e.deactivated = false")

@@ -118,12 +118,12 @@ public class MemberCertificateService {
     public List<CertificateInfoProjection> getLatestCertificates(int page, int size, String userClusterId){
         Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Order.desc("issuedDate")));
 
-        return certificateRepository.getLatestCertificateInfo(pageable,userClusterId).getContent();
+        return certificateRepository.getLatestCertificateInfoForMember(pageable,userClusterId).getContent();
     }
 
 
     public List<CertificateInfoProjection> getLatestCertificatesEvent(int page, int size, String userClusterId, String eventId){
         Pageable pageable = PageRequest.of(page,size, Sort.by(Sort.Order.desc("issuedDate")));
-        return certificateRepository.getLatestCertificateInfoByEvent(pageable,eventId,userClusterId).getContent();
+        return certificateRepository.getLatestCertificateInfoByEventForMember(pageable,eventId,userClusterId).getContent();
     }
 }

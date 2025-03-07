@@ -65,7 +65,7 @@ public class MemberApprovalService {
 
 
     public List<ApprovalInfoProjection> getAllApprovals(String userClusterId) {
-        return approvalRepository.getApprovalInfo(ApprovalStatus.pending, userClusterId);
+        return approvalRepository.getApprovalInfoMember(ApprovalStatus.pending, userClusterId);
     }
 
 
