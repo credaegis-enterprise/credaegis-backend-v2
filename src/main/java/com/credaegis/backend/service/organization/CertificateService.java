@@ -1,13 +1,10 @@
-package com.credaegis.backend.service;
+package com.credaegis.backend.service.organization;
 
 
 import com.credaegis.backend.constant.Constants;
-import com.credaegis.backend.dto.CertificateInfoDTO;
 import com.credaegis.backend.dto.RevocationBlockchainDTO;
-import com.credaegis.backend.dto.ViewApprovalDTO;
 import com.credaegis.backend.dto.ViewCertificateDTO;
 import com.credaegis.backend.dto.projection.CertificateInfoProjection;
-import com.credaegis.backend.entity.Approval;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.entity.CertificateStatus;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
@@ -15,12 +12,9 @@ import com.credaegis.backend.repository.CertificateRepository;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Service

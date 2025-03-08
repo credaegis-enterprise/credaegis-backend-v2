@@ -1,4 +1,4 @@
-package com.credaegis.backend.service;
+package com.credaegis.backend.service.organization;
 
 
 import lombok.Data;

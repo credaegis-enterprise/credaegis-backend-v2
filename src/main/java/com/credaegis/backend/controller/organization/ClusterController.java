@@ -1,4 +1,4 @@
-package com.credaegis.backend.controller;
+package com.credaegis.backend.controller.organization;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
@@ -8,7 +8,7 @@ import com.credaegis.backend.http.request.RenameRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.ClusterInfoResponse;
 import com.credaegis.backend.dto.projection.ClusterSearchProjection;
-import com.credaegis.backend.service.ClusterService;
+import com.credaegis.backend.service.organization.ClusterService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = Constants.ROUTEV1 + "/cluster-control")
+@RequestMapping(value = Constants.ROUTE_V1_ORGANIZATION + "/cluster-control")
 @AllArgsConstructor
 public class ClusterController {
 

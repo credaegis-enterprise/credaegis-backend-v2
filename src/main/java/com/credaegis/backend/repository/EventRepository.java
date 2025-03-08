@@ -1,6 +1,7 @@
 package com.credaegis.backend.repository;
 
 import com.credaegis.backend.dto.EventInfoDTO;
+import com.credaegis.backend.dto.projection.EventInfoProjection;
 import com.credaegis.backend.entity.Cluster;
 import com.credaegis.backend.entity.Event;
 import com.credaegis.backend.dto.projection.EventSearchProjection;
@@ -15,6 +16,13 @@ import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, String> {
+
+
+
+    @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName " +
+            "FROM Event e WHERE e.name LIKE %:name% AND e.cluster.id = :id AND e.deactivated = false")
+    List<EventSearchProjection> searchEvents(@Param("name") String eventName,@Param("id") String clusterId);
+
 
 
 
@@ -52,4 +60,15 @@ public interface EventRepository extends JpaRepository<Event, String> {
 
 
     boolean existsByNameAndCluster(String eventName, Cluster cluster);
+
+
+    @Query("SELECT e.id AS id ,e.name AS name,e.description AS description," +
+            "e.deactivated AS deactivated,e.createdOn AS createdOn,e.updatedOn as updatedOn " +
+            "FROM Event e WHERE  e.cluster.id = :clusterId ")
+    List<EventInfoProjection> getAllEvents(@Param("clusterId") String userClusterId);
+
+    @Query("SELECT e.id AS id ,e.name AS name,e.description AS description," +
+            "e.deactivated AS deactivated,e.createdOn AS createdOn,e.updatedOn as updatedOn " +
+            "FROM Event e WHERE  e.cluster.id = :clusterId AND e.deactivated = false")
+    List<EventInfoProjection> getEvents(@Param("clusterId") String userClusterId);
 }

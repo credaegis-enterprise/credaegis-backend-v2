@@ -1,4 +1,5 @@
-package com.credaegis.backend.service;
+package com.credaegis.backend.service.member;
+
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.OrganizationInfoDTO;
@@ -19,8 +20,6 @@ import dev.samstevens.totp.qr.QrGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -33,7 +32,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.List;
@@ -44,8 +42,7 @@ import static dev.samstevens.totp.util.Utils.getDataUriForImage;
 @AllArgsConstructor
 @Transactional
 @Slf4j
-
-public class AccountService {
+public class MemberAccountService {
 
     private final UserRepository userRepository;
     private final PasswordUtility passwordUtility;
@@ -53,12 +50,13 @@ public class AccountService {
     private final SecretGenerator secretGenerator;
     private final QrGenerator qrGenerator;
     private final CodeVerifier codeVerifier;
-    private final NotificationRepository notificationRepository;
     private final MinioClient minioClient;
+    private final NotificationRepository notificationRepository;
+
 
 
     public List<Notification> getNotifications(String userId){
-          return notificationRepository.findByUser_Id(userId);
+        return notificationRepository.findByUser_Id(userId);
 
     }
 
@@ -69,29 +67,13 @@ public class AccountService {
 
     public void deleteAllNotifications(String userId) {
         notificationRepository.deleteByUser_Id(userId);
+
     }
 
+    public InputStream serveBrandLogo(String userOrganizationId) {
+        User user = userRepository.findByOrganization_IdAndRole_role(userOrganizationId, "ROLE_"+ Constants.ADMIN)
+                .orElseThrow(ExceptionFactory::resourceNotFound);
 
-    public void removeBrandLogo(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
-        try {
-            minioClient.removeObject(RemoveObjectArgs.builder()
-                    .bucket("brand-logo")
-                    .object(user.getId())
-                    .build());
-
-            user.setBrandLogoEnabled(false);
-            userRepository.save(user);
-        } catch (Exception e) {
-            log.error(e.toString());
-            log.error(e.getMessage());
-            throw new CustomException("Error in removing profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    public InputStream serveBrandLogo(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
         try {
             return minioClient.getObject(GetObjectArgs.builder()
                     .bucket("brand-logo")
@@ -108,30 +90,11 @@ public class AccountService {
         }
     }
 
-    public void uploadBrandLogo(String userId, MultipartFile file) {
-        User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
-        try {
 
-            minioClient.putObject(PutObjectArgs.builder()
-                    .bucket("brand-logo")
-                    .object(user.getId())
-                    .stream(
-                            file.getInputStream(), file.getSize(), -1)
-                    .contentType(file.getContentType())
-                    .build());
-
-            user.setBrandLogoEnabled(true);
-            userRepository.save(user);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new CustomException("Error in uploading profile picture", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     public void updateAccountInfo(AccountInfoModificationRequest accountInfoModificationRequest, String userId) {
         User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
         user.setUsername(accountInfoModificationRequest.getUsername());
-        user.getOrganization().setName(accountInfoModificationRequest.getOrganizationName());
         userRepository.save(user);
     }
 
@@ -197,7 +160,8 @@ public class AccountService {
             throw ExceptionFactory.customValidationError("mfa is already enabled");
         }
         if (codeVerifier.isValidCode(user.getMfaSecret(), code)) {
-            userRepository.enableMfa(true, userId);
+            user.setMfaEnabled(true);
+            userRepository.save(user);
             return true;
         } else {
             throw ExceptionFactory.customValidationError("Mfa registration failed, incorrect otp");
@@ -210,11 +174,12 @@ public class AccountService {
         if (!user.getMfaEnabled()) {
             throw ExceptionFactory.customValidationError("mfa is already disabled");
         }
-        userRepository.enableMfa(false, userId);
+        user.setMfaEnabled(false);
+        userRepository.save(user);
     }
 
 
-    private InputStream getPlaceHolderImage(){
+    private InputStream getPlaceHolderImage() {
         try {
 
             return new ClassPathResource("static/placeholder-brandlogo.png").getInputStream();

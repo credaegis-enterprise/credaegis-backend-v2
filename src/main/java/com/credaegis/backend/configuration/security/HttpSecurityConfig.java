@@ -6,6 +6,7 @@ import com.credaegis.backend.configuration.security.service.CustomUserDetailsSer
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -27,31 +28,62 @@ public class HttpSecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-    private final CustomInvalidSessionStrategy  customInvalidSessionStrategy;
+    private final CustomInvalidSessionStrategy customInvalidSessionStrategy;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
 
     @Bean
-    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain configureOrganizationSecurity(HttpSecurity http) throws Exception {
 
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
         http.csrf(AbstractHttpConfigurer::disable);
+        http.securityMatcher(Constants.ROUTE_V1_ORGANIZATION + "/**");
 
         http.authorizeHttpRequests(request -> request.requestMatchers
-                                (Constants.ROUTEV1 + "/auth/**", Constants.ROUTEV1 + "/test/**", Constants.ROUTEV1 + "/external/**").
-                        permitAll().requestMatchers(Constants.ROUTEV1 + "/**").hasRole(Constants.ADMIN).
+                                (Constants.ROUTE_V1_ORGANIZATION + "/auth/**", Constants.ROUTE_V1_ORGANIZATION + "/test/**", Constants.ROUTE_V1_ORGANIZATION + "/external/**").
+                        permitAll().requestMatchers(Constants.ROUTE_V1_ORGANIZATION + "/**").hasRole(Constants.ADMIN).
                         anyRequest().authenticated()).
                 logout((logout) ->
-                        logout.logoutUrl(Constants.ROUTEV1 + "/auth/logout").
+                        logout.logoutUrl(Constants.ROUTE_V1_ORGANIZATION + "/auth/logout").
                                 logoutSuccessHandler(customLogoutSuccessHandler))
                 .exceptionHandling(handler -> handler.
-                        authenticationEntryPoint(customAuthenticationEntryPoint));
+                        authenticationEntryPoint(customAuthenticationEntryPoint).accessDeniedHandler(customAccessDeniedHandler));
 
 //        http.sessionManagement(session->session.invalidSessionStrategy(customInvalidSessionStrategy));
 
         return http.build();
     }
 
+
+    @Order(2)
+    @Bean
+    public SecurityFilterChain configureMemberSecurity(HttpSecurity http) throws Exception {
+
+        http.formLogin(AbstractHttpConfigurer::disable);
+        http.httpBasic(AbstractHttpConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.securityMatcher(Constants.ROUTE_V1_MEMBER + "/**");
+
+        http.authorizeHttpRequests(request -> request.requestMatchers
+                                (Constants.ROUTE_V1_MEMBER + "/auth/**", Constants.ROUTE_V1_MEMBER + "/test/**", Constants.ROUTE_V1_MEMBER + "/external/**").
+                        permitAll().
+                        requestMatchers(
+                                Constants.ROUTE_V1_MEMBER + "/approval-control/**",
+                                Constants.ROUTE_V1_MEMBER + "/account/**",
+                                Constants.ROUTE_V1_MEMBER + "/event-control/**").
+                        hasAnyRole(Constants.CLUSTER_ADMIN, Constants.MEMBER).
+                        requestMatchers(Constants.ROUTE_V1_MEMBER + "/**").hasRole(Constants.CLUSTER_ADMIN)
+                        .anyRequest().authenticated()).
+                logout((logout) ->
+                        logout.logoutUrl(Constants.ROUTE_V1_MEMBER + "/auth/logout").
+                                logoutSuccessHandler(customLogoutSuccessHandler))
+                .exceptionHandling(handler -> handler.
+                        authenticationEntryPoint(customAuthenticationEntryPoint).accessDeniedHandler(customAccessDeniedHandler));
+
+        return http.build();
+    }
 
 
     @Bean

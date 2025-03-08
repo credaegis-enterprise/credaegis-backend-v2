@@ -28,11 +28,14 @@ public class CustomUser implements UserDetails {
     @Getter
     private final Boolean mfaEnabled;
 
+    @Getter
+    private final String clusterId;
+
 
     private final List<GrantedAuthority> grantedAuthorities;
 
     public CustomUser(List<GrantedAuthority> grantedAuthorities,String id, String email,
-                      String organizationId,String password,Boolean mfaEnabled) {
+                      String organizationId,String password,Boolean mfaEnabled,String clusterId) {
 
         this.grantedAuthorities = grantedAuthorities;
         this.id=id;
@@ -40,6 +43,7 @@ public class CustomUser implements UserDetails {
         this.organizationId=organizationId;
         this.password=password;
         this.mfaEnabled=mfaEnabled;
+        this.clusterId=clusterId;
 
     }
     @Override

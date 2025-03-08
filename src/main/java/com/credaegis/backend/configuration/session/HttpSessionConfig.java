@@ -15,7 +15,7 @@ public class HttpSessionConfig {
     @Bean
     CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setCookieName("ORGANIZATION_SESSION");
+        serializer.setCookieName("CREDAEGIS_SESSION");
 
         return serializer;
     }

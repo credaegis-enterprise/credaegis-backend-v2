@@ -1,4 +1,4 @@
-package com.credaegis.backend.controller;
+package com.credaegis.backend.controller.organization;
 
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
@@ -6,7 +6,7 @@ import com.credaegis.backend.http.request.EventCreationRequest;
 import com.credaegis.backend.http.request.EventModificationRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.dto.projection.EventSearchProjection;
-import com.credaegis.backend.service.EventService;
+import com.credaegis.backend.service.organization.EventService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = Constants.ROUTEV1 + "/event-control")
+@RequestMapping(value = Constants.ROUTE_V1_ORGANIZATION + "/event-control")
 @AllArgsConstructor
 public class EventController {
 

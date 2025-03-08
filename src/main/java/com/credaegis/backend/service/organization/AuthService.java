@@ -1,27 +1,22 @@
-package com.credaegis.backend.service;
+package com.credaegis.backend.service.organization;
 
-import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
-import com.credaegis.backend.dto.EmailDTO;
 import com.credaegis.backend.entity.User;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.request.LoginRequest;
 import com.credaegis.backend.http.request.MfaLoginRequest;
+import com.credaegis.backend.http.response.custom.SessionCheckResponse;
 import com.credaegis.backend.repository.UserRepository;
 import com.credaegis.backend.utility.EmailUtility;
 import com.credaegis.backend.utility.PasswordUtility;
-import com.github.f4b6a3.ulid.UlidCreator;
 import dev.samstevens.totp.code.CodeVerifier;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,9 +27,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.sql.Timestamp;
-import java.util.Properties;
 import java.util.UUID;
 
 @Slf4j
@@ -149,6 +142,11 @@ public class AuthService {
         );
 
 
+        if(user.getDeactivated())
+            throw ExceptionFactory.customValidationError("User is deactivated");
+
+
+
         log.error("User role: {}", user.getRole().getRole());
         if(!user.getRole().getRole().equals("ROLE_ADMIN"))
             throw ExceptionFactory.customValidationError("Only admins can login here");
@@ -175,6 +173,9 @@ public class AuthService {
                 () -> ExceptionFactory.customValidationError("Invalid email")
         );
 
+        if(user.getDeactivated())
+            throw ExceptionFactory.customValidationError("User is deactivated");
+
         if(!user.getRole().getRole().equals("ROLE_ADMIN"))
             throw ExceptionFactory.customValidationError("Only admins can login here");
 
@@ -199,6 +200,17 @@ public class AuthService {
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authenticationResponse);
         return securityContext;
+    }
+
+    public SessionCheckResponse sessionCheck(String userId){
+
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> ExceptionFactory.accessDeniedException("User not found")
+        );
+        return SessionCheckResponse.builder()
+                .accountType(Constants.ORGANIZATION_ACCOUNT_TYPE)
+                .role(user.getRole().getRole().substring(5))
+                .build();
     }
 
 

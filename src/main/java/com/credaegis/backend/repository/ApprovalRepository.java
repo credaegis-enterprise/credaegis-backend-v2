@@ -15,7 +15,7 @@ import java.util.List;
 public interface ApprovalRepository extends JpaRepository<Approval, String> {
 
 
-
+    Long countByEvent_Cluster_IdAndStatus(String clusterId, ApprovalStatus status);
     Long countByEvent_Cluster_Organization_IdAndStatus(String organizationId, ApprovalStatus approvalStatus);
 
 
@@ -53,6 +53,18 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
             "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
             "FROM Approval a WHERE a.event = :event AND a.status = :status")
     List<ApprovalInfoProjection> getApprovalInfoByEventAndStatus(Event event, ApprovalStatus status);
+
+
+    @Query("SELECT a.id AS id,a.approvalCertificateName AS approvalCertificateName," +
+            "a.recipientName  AS recipientName,a.recipientEmail AS recipientEmail," +
+            "a.expiryDate AS expiryDate,a.comments AS comment,a.status AS status," +
+            "a.createdOn AS createdOn,a.updatedOn AS updatedOn," +
+            "a.event.cluster.name AS clusterName,a.event.cluster.organization.name AS organizationName," +
+            "a.event.name AS eventName,a.event.id AS eventId,a.event.cluster.id AS clusterId " +
+            "FROM Approval a WHERE  a.status = :status AND a.event.cluster.id = :userClusterId")
+    List<ApprovalInfoProjection> getApprovalInfoMember(@Param("status")
+                                                 ApprovalStatus status, @Param("userClusterId") String userClusterId);
+
 
 
 }

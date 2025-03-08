@@ -1,5 +1,6 @@
-package com.credaegis.backend.controller;
+package com.credaegis.backend.controller.organization;
 
+import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.http.request.LoginRequest;
 import com.credaegis.backend.http.request.MfaLoginRequest;
@@ -7,18 +8,20 @@ import com.credaegis.backend.http.request.PasswordResetRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.LoginResponse;
 import com.credaegis.backend.http.response.custom.SessionCheckResponse;
-import com.credaegis.backend.service.AuthService;
+import com.credaegis.backend.service.organization.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = Constants.ROUTEV1+"/auth")
+@RequestMapping(value = Constants.ROUTE_V1_ORGANIZATION +"/auth")
 @AllArgsConstructor
 public class AuthController {
 
@@ -63,12 +66,11 @@ public class AuthController {
 
 
     @GetMapping(path = "/session-check")
-    public ResponseEntity<CustomApiResponse<SessionCheckResponse>> sessionCheckController(Authentication authentication){
-        if(authentication.isAuthenticated())
-
+    public ResponseEntity<CustomApiResponse<SessionCheckResponse>> sessionCheckController(@AuthenticationPrincipal CustomUser customUser,
+                                                                                          Authentication authentication){
+        if(authentication != null && authentication.isAuthenticated() )
             return ResponseEntity.status(HttpStatus.OK).
-                    body(new CustomApiResponse<>(
-                            new SessionCheckResponse(Constants.ADMIN,Constants.ORGANIZATION_ACCOUNT_TYPE),null,true));
+                    body(new CustomApiResponse<>(authService.sessionCheck(customUser.getId()),null,true));
         else
             return ResponseEntity.status(HttpStatus.FORBIDDEN).
                     body(new CustomApiResponse<>(null,"Session expired",false));
