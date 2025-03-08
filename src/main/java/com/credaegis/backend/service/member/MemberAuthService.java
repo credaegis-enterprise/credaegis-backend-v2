@@ -44,6 +44,11 @@ public class MemberAuthService {
                 () -> ExceptionFactory.customValidationError("Invalid email")
         );
 
+
+        if(user.getDeactivated())
+            throw ExceptionFactory.customValidationError("User is deactivated");
+
+
         String role = user.getRole().getRole().substring(5);
         if(!role.equals(Constants.MEMBER) && !role.equals(Constants.CLUSTER_ADMIN))
             throw ExceptionFactory.customValidationError("Only members and cluster admins can login here");
@@ -77,10 +82,15 @@ public class MemberAuthService {
                 () -> ExceptionFactory.accessDeniedException("Invalid email")
         );
 
+        if(user.getDeactivated())
+            throw ExceptionFactory.customValidationError("User is deactivated");
+
+
         String role = user.getRole().getRole().substring(5);
 
         if(!role.equals(Constants.MEMBER) && !role.equals(Constants.CLUSTER_ADMIN))
             throw ExceptionFactory.customValidationError("Only members and cluster admins can login here");
+
 
 
         if(!user.getMfaEnabled())

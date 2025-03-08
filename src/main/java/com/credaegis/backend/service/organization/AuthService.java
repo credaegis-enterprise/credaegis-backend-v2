@@ -142,6 +142,11 @@ public class AuthService {
         );
 
 
+        if(user.getDeactivated())
+            throw ExceptionFactory.customValidationError("User is deactivated");
+
+
+
         log.error("User role: {}", user.getRole().getRole());
         if(!user.getRole().getRole().equals("ROLE_ADMIN"))
             throw ExceptionFactory.customValidationError("Only admins can login here");
@@ -167,6 +172,9 @@ public class AuthService {
         User user = userRepository.findByEmail(mfaLoginRequest.getEmail()).orElseThrow(
                 () -> ExceptionFactory.customValidationError("Invalid email")
         );
+
+        if(user.getDeactivated())
+            throw ExceptionFactory.customValidationError("User is deactivated");
 
         if(!user.getRole().getRole().equals("ROLE_ADMIN"))
             throw ExceptionFactory.customValidationError("Only admins can login here");
