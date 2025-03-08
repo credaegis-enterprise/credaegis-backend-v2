@@ -143,16 +143,16 @@ public class ApprovalController {
 
     }
 
-    @PostMapping(path = "/approve")
-    public ResponseEntity<CustomApiResponse<Void>> approveCertificates(@Valid @RequestBody ApprovalsIdRequest
-                                                                               approvalsIdRequest,
-                                                                       @AuthenticationPrincipal CustomUser customUser) {
-
-        approvalService.approveCertificates
-                (customUser.getId(), customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new CustomApiResponse<>(null, "Requests to approve are processing", true));
-    }
+//    @PostMapping(path = "/approve")
+//    public ResponseEntity<CustomApiResponse<Void>> approveCertificates(@Valid @RequestBody ApprovalsIdRequest
+//                                                                               approvalsIdRequest,
+//                                                                       @AuthenticationPrincipal CustomUser customUser) {
+//
+//        approvalService.approveCertificates
+//                (customUser.getId(), customUser.getOrganizationId(), approvalsIdRequest.getApprovalCertificateIds());
+//        return ResponseEntity.status(HttpStatus.OK).body(
+//                new CustomApiResponse<>(null, "Requests to approve are processing", true));
+//    }
 
     @PutMapping(path = "/reject")
     public ResponseEntity<CustomApiResponse<Void>> rejectCertificates(@Valid @RequestBody ApprovalsIdRequest

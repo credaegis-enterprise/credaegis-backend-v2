@@ -200,62 +200,62 @@ public class ApprovalService {
     }
 
 
-    @Transactional
-    public void approveCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
-
-        for (String approvalId : approvalIdList) {
-            try {
-                System.out.println(approvalId);
-                User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
-                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
-                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
-                    throw ExceptionFactory.insufficientPermission();
-                }
-
-                //creating path to retrieve file
-                String approvalPath = approval.getEvent().getCluster().getId() + "/"
-                        + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
-
-
-                InputStream stream = minioClient.getObject(GetObjectArgs.builder()
-                        .bucket("approvals")
-                        .object(approvalPath)
-                        .build());
-
-                String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
-
-                //checks whether the hash is already present in the database to correctly identify the certificate and add to error queue
-                if (certificateRepository.findByCertificateHash(hashedValue).isPresent()) {
-                    throw ExceptionFactory.customValidationError("Certificate hash already exists");
-                }
-
-                //creating new certificate approving them blockchain integration here(blockchain queue)
-                Certificate certificate = new Certificate();
-                certificate.setId(approval.getId());
-                certificate.setCertificateName(approval.getApprovalCertificateName());
-                certificate.setCertificateHash(hashedValue);
-                certificate.setComments(approval.getComments());
-                certificate.setRecipientName(approval.getRecipientName());
-                certificate.setRecipientEmail(approval.getRecipientEmail());
-                certificate.setIssuedDate(new Date(System.currentTimeMillis()));
-                certificate.setEvent(approval.getEvent());
-                certificate.setIssuedByUser(user);
-                certificate.setStatus(CertificateStatus.verified);
-                approval.setStatus(ApprovalStatus.approved);
-
-                //right now storing everything in off-chain database
-                approvalRepository.save(approval);
-                certificateRepository.save(certificate);
-
-            } catch (Exception e) {
-
-                //error queue here
-                log.error(e.getMessage());
-            }
-
-
-        }
-    }
+//    @Transactional
+//    public void approveCertificates(String userId, String userOrganizationId, List<String> approvalIdList) {
+//
+//        for (String approvalId : approvalIdList) {
+//            try {
+//                System.out.println(approvalId);
+//                User user = userRepository.findById(userId).orElseThrow(ExceptionFactory::resourceNotFound);
+//                Approval approval = approvalRepository.findById(approvalId).orElseThrow(ExceptionFactory::resourceNotFound);
+//                if (!approval.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId)) {
+//                    throw ExceptionFactory.insufficientPermission();
+//                }
+//
+//                //creating path to retrieve file
+//                String approvalPath = approval.getEvent().getCluster().getId() + "/"
+//                        + approval.getEvent().getId() + "/" + approval.getId() + "/" + approval.getApprovalCertificateName();
+//
+//
+//                InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+//                        .bucket("approvals")
+//                        .object(approvalPath)
+//                        .build());
+//
+//                String hashedValue = checkSumUtility.hashCertificate(stream.readAllBytes());
+//
+//                //checks whether the hash is already present in the database to correctly identify the certificate and add to error queue
+//                if (certificateRepository.findByCertificateHash(hashedValue).isPresent()) {
+//                    throw ExceptionFactory.customValidationError("Certificate hash already exists");
+//                }
+//
+//                //creating new certificate approving them blockchain integration here(blockchain queue)
+//                Certificate certificate = new Certificate();
+//                certificate.setId(approval.getId());
+//                certificate.setCertificateName(approval.getApprovalCertificateName());
+//                certificate.setCertificateHash(hashedValue);
+//                certificate.setComments(approval.getComments());
+//                certificate.setRecipientName(approval.getRecipientName());
+//                certificate.setRecipientEmail(approval.getRecipientEmail());
+//                certificate.setIssuedDate(new Date(System.currentTimeMillis()));
+//                certificate.setEvent(approval.getEvent());
+//                certificate.setIssuedByUser(user);
+//                certificate.setStatus(CertificateStatus.verified);
+//                approval.setStatus(ApprovalStatus.approved);
+//
+//                //right now storing everything in off-chain database
+//                approvalRepository.save(approval);
+//                certificateRepository.save(certificate);
+//
+//            } catch (Exception e) {
+//
+//                //error queue here
+//                log.error(e.getMessage());
+//            }
+//
+//
+//        }
+//    }
 
     @Transactional
     public void uploadApprovals(String eventId, String userId, String userOrganizationId,

@@ -1,7 +1,8 @@
 package com.credaegis.backend.entity;
 
 public enum CertificateStatus {
-    verified,
+    privateVerified,
+    publicVerified,
     revoked,
     buffered
 }

@@ -1,4 +1,4 @@
-package package com.credaegis.backend.service;
+ package com.credaegis.backend.service.organization;
 
 
 import com.credaegis.backend.configuration.web3.HashStore;

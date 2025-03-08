@@ -60,6 +60,11 @@ public class Certificate  {
     @Enumerated(EnumType.STRING)
     private CertificateStatus status;
 
+    @ManyToOne
+    @JoinColumn(name = "batch_id",nullable = false)
+    @JsonBackReference
+    private BatchInfo batchInfo;
+
 
     @ManyToOne
     @JoinColumn(name="user_id",nullable = false)
