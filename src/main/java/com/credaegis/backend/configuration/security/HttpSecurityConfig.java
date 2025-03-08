@@ -29,6 +29,7 @@ public class HttpSecurityConfig {
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomInvalidSessionStrategy customInvalidSessionStrategy;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
 
     @Bean
@@ -48,7 +49,7 @@ public class HttpSecurityConfig {
                         logout.logoutUrl(Constants.ROUTE_V1_ORGANIZATION + "/auth/logout").
                                 logoutSuccessHandler(customLogoutSuccessHandler))
                 .exceptionHandling(handler -> handler.
-                        authenticationEntryPoint(customAuthenticationEntryPoint));
+                        authenticationEntryPoint(customAuthenticationEntryPoint).accessDeniedHandler(customAccessDeniedHandler));
 
 //        http.sessionManagement(session->session.invalidSessionStrategy(customInvalidSessionStrategy));
 
@@ -79,7 +80,7 @@ public class HttpSecurityConfig {
                         logout.logoutUrl(Constants.ROUTE_V1_MEMBER + "/auth/logout").
                                 logoutSuccessHandler(customLogoutSuccessHandler))
                 .exceptionHandling(handler -> handler.
-                        authenticationEntryPoint(customAuthenticationEntryPoint));
+                        authenticationEntryPoint(customAuthenticationEntryPoint).accessDeniedHandler(customAccessDeniedHandler));
 
         return http.build();
     }
