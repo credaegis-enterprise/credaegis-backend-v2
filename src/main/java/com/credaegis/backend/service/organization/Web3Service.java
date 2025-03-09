@@ -1,4 +1,4 @@
- package com.credaegis.backend.service.organization;
+package com.credaegis.backend.service.organization;
 
 
 import com.credaegis.backend.configuration.web3.HashStore;
@@ -13,19 +13,20 @@ import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
 import com.credaegis.backend.repository.BatchInfoRepository;
 import com.credaegis.backend.repository.CertificateRepository;
+import com.credaegis.backend.utility.HttpUtility;
 import com.credaegis.backend.utility.MerkleTreeUtility;
 import com.credaegis.backend.utility.Web3Utility;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
@@ -70,21 +71,24 @@ public class Web3Service {
     @Value("${credaegis.web3.txn.url}")
     private String snowTraceTxnUrl;
 
+    @Value("${credaegis.async-blockchain.service.api-key}")
+    private String apiKey;
 
 
-
-    public String getTxnDetails(String hash){
+    public String getTxnDetails(String hash) {
         try {
             System.out.println("hash: " + hash);
             TransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(hash).send().getTransactionReceipt().get();
-            return snowTraceTxnUrl+hash+"?"+"chainid="+chainId;
+            return snowTraceTxnUrl + hash + "?" + "chainid=" + chainId;
         } catch (Exception e) {
             log.error("Error fetching transaction receipt: {}", e.getMessage());
             throw new CustomException("Error fetching transaction receipt", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
-    public Map<String,Boolean> verifyMerkleRootPublic(List<String> merkleRoots) {
+
+
+    public Map<String, Boolean> verifyMerkleRootPublic(List<String> merkleRoots) {
         try {
             Map<String, Boolean> verificationHashMap = new HashMap<>();
             List<HashStore.VerificationResult> result = hashStore.verifyHashesByValue(merkleRoots).send();
@@ -101,46 +105,60 @@ public class Web3Service {
     }
 
 
-    public String finalizeBatch(){
+    public String finalizeBatch() {
         String merkleRoot = getCurrentBatchMerkleRoot();
         log.info("Merkle root for current batch calculated successfully: {}", merkleRoot);
         FinalizeBatchDTO finalizeBatchDTO;
         ResponseEntity<String> response;
-        try{
+        try {
 
             Map<String, String> merkleRootMap = new HashMap<>();
             merkleRootMap.put("merkleRoot", merkleRoot);
-
-            response = restTemplate.postForEntity(asyncEndPoint + "/finalize/{merkleRoot}",null, String.class, merkleRootMap);
+            HttpEntity<Object> requestEntity = new HttpEntity<>(HttpUtility.getApiKeyHeader(apiKey));
+            response = restTemplate.postForEntity(asyncEndPoint + "/finalize/{merkleRoot}", requestEntity, String.class, merkleRootMap);
             finalizeBatchDTO = objectMapper.readValue(response.getBody(), FinalizeBatchDTO.class);
-            log.info("Batch finalized successfully: {}", finalizeBatchDTO);
+            log.info("Batch finalized successfully in private chain: {}", finalizeBatchDTO);
+            BatchInfo batchInfo = new BatchInfo();
+            batchInfo.setId(parseInt(finalizeBatchDTO.getBatchId()));
+            batchInfoRepository.save(batchInfo);
             return merkleRoot;
-        }
-        catch (Exception e) {
-            log.error("Error in finalizing Batch: {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("Error in finalizing Batch in private chain: {}", e.getMessage());
             throw new CustomException("Error in finalizing batch", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @Transactional
-    @Async
+    @Transactional(propagation = Propagation.REQUIRED)
     public void storeCurrentBatchMerkleRootToPublic() {
-
         String merkleRoot = finalizeBatch();
         HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
+        log.info("finalized batch method finished..........");
+        BatchInfo batchInfo = batchInfoRepository.findOneById(parseInt(hashBatchInfoDTO.getBatchId())).orElseThrow(
+                () -> new CustomException("Batch not found", HttpStatus.NOT_FOUND)
+        );
+        TransactionReceipt transactionReceipt;
         try {
 
-            TransactionReceipt transactionReceipt = hashStore.storeHash(new ArrayList<>(List.of(merkleRoot))).send();
-            String transc = objectMapper.writeValueAsString(transactionReceipt);
-            log.info("Transaction receipt: {}", transc);
-            BatchInfo batchInfo = new BatchInfo();
             batchInfo.setId(parseInt(hashBatchInfoDTO.getBatchId()));
             batchInfo.setMerkleRoot(merkleRoot);
             batchInfo.setPushTime(new java.sql.Timestamp(System.currentTimeMillis()));
             batchInfo.setHashCount(hashBatchInfoDTO.getHashes().size());
-            batchInfo.setTxnHash(transactionReceipt.getTransactionHash());
-            batchInfo.setTxnFee(Web3Utility.covertToAVAX(transactionReceipt).toPlainString());
+            try {
+
+                transactionReceipt = hashStore.storeHash(new ArrayList<>(List.of(merkleRoot))).send();
+                log.info("Successfully stored to public chain");
+                batchInfo.setTxnFee(Web3Utility.covertToAVAX(transactionReceipt).toPlainString());
+                batchInfo.setTxnHash(transactionReceipt.getTransactionHash());
+                batchInfo.setPushStatus(true);
+            } catch (Exception e) {
+                log.error("Error occured in storing to public chain, {}", e.getMessage());
+                batchInfo.setPushStatus(false);
+                batchInfoRepository.save(batchInfo);
+            }
+
+
             batchInfoRepository.save(batchInfo);
+            certificateRepository.updateBatchInfo(parseInt(hashBatchInfoDTO.getBatchId()));
 
 
         } catch (Exception e) {
@@ -203,7 +221,6 @@ public class Web3Service {
 
 
     public HashBatchInfoDTO getBatchInfo(String id) {
-        System.out.println("id: " + id);
         ResponseEntity<String> response;
         Map<String, String> idHashMap = new HashMap<>();
         idHashMap.put("id", id);
@@ -213,7 +230,11 @@ public class Web3Service {
             throw new CustomException("Batch not found, the current batch index is: " + contractStateDTO.getCurrentBatchIndex(), HttpStatus.NOT_FOUND);
         }
         try {
-            response = restTemplate.getForEntity(asyncEndPoint + "/batch/{id}", String.class, idHashMap);
+
+            HttpEntity<Object> requestEntity = new HttpEntity<>(HttpUtility.getApiKeyHeader(apiKey));
+//            response = restTemplate.getForEntity(asyncEndPoint + "/batch/{id}", String.class, idHashMap);
+            String url = asyncEndPoint + "/batch/{id}";
+            response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class, idHashMap);
             log.info("Batch info: {}", response.getBody());
             HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
             return hashBatchInfoDTO;
@@ -226,7 +247,9 @@ public class Web3Service {
     public HashBatchInfoDTO getCurrentBatchInfo() {
         ResponseEntity<String> response;
         try {
-            response = restTemplate.getForEntity(asyncEndPoint + "/current-batch", String.class);
+
+            HttpEntity<Object> requestEntity = new HttpEntity<>(HttpUtility.getApiKeyHeader(apiKey));
+            response = restTemplate.exchange(asyncEndPoint + "/current-batch", HttpMethod.GET, requestEntity, String.class);
             log.info("Current batch info: {}", response.getBody());
             HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
             hashBatchInfoDTO.setBatchId(getContractState().getCurrentBatchIndex());
@@ -243,7 +266,11 @@ public class Web3Service {
 
 
         try {
-            response = restTemplate.getForEntity(asyncEndPoint + "/contract-state", String.class);
+
+            HttpEntity<Object> requestEntity = new HttpEntity<>(HttpUtility.getApiKeyHeader(apiKey));
+            response = restTemplate.exchange(asyncEndPoint + "/contract-state", HttpMethod.GET, requestEntity, String.class);
+
+//            response = restTemplate.getForEntity(asyncEndPoint + "/contract-state", String.class);
             log.info("Contract state: {}", response.getBody());
             ContractStateDTO contractStateDTO = objectMapper.readValue(response.getBody(), ContractStateDTO.class);
             return contractStateDTO;

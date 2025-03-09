@@ -204,7 +204,7 @@ public class RabbitMqListeners {
 
                 String path = certificate.getEvent().getCluster().getId() + "/" + certificate.getEvent().getId() + "/" + certificate.getId() + "/" + certificate.getCertificateName();
                 InputStream stream = minioClient.getObject(GetObjectArgs.builder().bucket("approvals").object(path).build());
-                emailUtility.sendEmail(certificate.getRecipientEmail(), "Certificate Verification Successful",htmlContent,stream,certificate.getCertificateName());
+//                emailUtility.sendEmail(certificate.getRecipientEmail(), "Certificate Verification Successful",htmlContent,stream,certificate.getCertificateName());
 
                 if(!message.getPersist()){
                     String certificatePath = certificate.getEvent().getCluster().getId() + "/"

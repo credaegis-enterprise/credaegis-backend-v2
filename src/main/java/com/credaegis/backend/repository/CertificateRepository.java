@@ -25,6 +25,11 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
 
     Long countByEvent_IdAndEvent_Cluster_Id(String eventId, String userClusterId);
 
+
+    @Modifying
+    @Query("UPDATE Certificate c SET c.batchInfo.id = :batchId")
+    void updateBatchInfo(@Param("batchId") Integer batchId);
+
     @Modifying
     @Query("UPDATE Certificate c SET c.revoked = true, c.revokedDate = CURRENT_DATE WHERE c.id IN :ids AND c.event.cluster.organization.id = :organizationId")
     void revokeCertificates(@Param("ids") List<String> certificateIds,@Param("organizationId") String organizationId);

@@ -10,6 +10,7 @@ import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
 
 import com.credaegis.backend.service.organization.Web3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,8 @@ import java.util.Map;
 public class Web3Controller {
 
     private final Web3Service web3Service;
+
+
 
 
 

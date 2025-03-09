@@ -21,8 +21,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
 
+
+        String message = authException.getClass().getSimpleName().equals("BadCredentialsException") ?  "Incorrect email pr password, please try again" :  "Unauthorized, please login";
         CustomExceptionResponse customExceptionResponse = new CustomExceptionResponse(
-                "Incorrect email or password",
+                message,
                 false
         );
 
