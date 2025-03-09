@@ -1,6 +1,7 @@
 package com.credaegis.backend.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -51,7 +52,7 @@ public class BatchInfo {
 
 
     @OneToMany(mappedBy = "batchInfo")
-    @JsonManagedReference
+    @JsonIgnore
     private List<Certificate> certificates;
 
 

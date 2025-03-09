@@ -62,7 +62,6 @@ public class Certificate  {
 
     @ManyToOne
     @JoinColumn(name = "batch_id",nullable = true)
-    @JsonBackReference
     private BatchInfo batchInfo;
 
 

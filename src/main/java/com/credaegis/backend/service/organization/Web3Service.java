@@ -34,10 +34,7 @@ import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 
@@ -271,12 +268,25 @@ public class Web3Service {
             HttpEntity<Object> requestEntity = new HttpEntity<>(HttpUtility.getApiKeyHeader(apiKey));
 //            response = restTemplate.getForEntity(asyncEndPoint + "/batch/{id}", String.class, idHashMap);
             String url = asyncEndPoint + "/batch/{id}";
+            try{
             response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class, idHashMap);
+            }
+            catch (Exception e){
+                log.error("Error : {}", e.getMessage());
+                throw new CustomException("Blockchain service is down", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
             log.info("Batch info: {}", response.getBody());
             HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
+            hashBatchInfoDTO.setBatchId(id);
+            Optional<BatchInfo> batchInfo = batchInfoRepository.findOneById(parseInt(id));
+            if(batchInfo.isPresent()){
+                hashBatchInfoDTO.setBatchInfo(batchInfo.get());
+            }
             return hashBatchInfoDTO;
+
         } catch (Exception e) {
-            throw new CustomException("Blockchain verification service is down", HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("Error : {}", e.getMessage());
+            throw new CustomException("Error getting batch info", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
