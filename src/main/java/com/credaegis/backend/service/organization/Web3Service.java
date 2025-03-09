@@ -2,10 +2,7 @@ package com.credaegis.backend.service.organization;
 
 
 import com.credaegis.backend.configuration.web3.HashStore;
-import com.credaegis.backend.dto.ContractStateDTO;
-import com.credaegis.backend.dto.FinalizeBatchDTO;
-import com.credaegis.backend.dto.HashBatchInfoDTO;
-import com.credaegis.backend.dto.Web3InfoDTO;
+import com.credaegis.backend.dto.*;
 import com.credaegis.backend.entity.BatchInfo;
 import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.entity.CertificateStatus;
@@ -17,6 +14,7 @@ import com.credaegis.backend.repository.CertificateRepository;
 import com.credaegis.backend.utility.HttpUtility;
 import com.credaegis.backend.utility.MerkleTreeUtility;
 import com.credaegis.backend.utility.Web3Utility;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
@@ -43,7 +41,7 @@ import java.util.Map;
 
 import static java.lang.Integer.parseInt;
 
-@Data
+
 @RequiredArgsConstructor
 @Service
 @Slf4j
@@ -55,6 +53,8 @@ public class Web3Service {
     private final BatchInfoRepository batchInfoRepository;
     private final CertificateRepository certificateRepository;
     private final RestTemplate restTemplate;
+
+
 
     @Value("${credaegis.web3.contract-address}")
     private String contractAddress;
@@ -86,6 +86,28 @@ public class Web3Service {
             throw new CustomException("Error fetching transaction receipt", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+
+    public Map<String,String> getMerkleRootByHashes(List<String> hashes)
+    {
+        Map<String,String> hashMerkleRootMap = new HashMap<>();
+        ResponseEntity<Object> response;
+        HttpEntity<Object> requestEntity = new HttpEntity<>(hashes,HttpUtility.getApiKeyHeader(apiKey));
+        try {
+            response = restTemplate.postForEntity(asyncEndPoint + "/hashes/merkle-root", requestEntity, Object.class);
+            List<HashMerkleRootDTO> hashMerkleRootDTOList = objectMapper.convertValue(
+                    response.getBody(), new TypeReference<List<HashMerkleRootDTO>>() {}
+            );
+
+            hashMerkleRootDTOList.forEach(hashMerkleRootDTO -> {
+                hashMerkleRootMap.put(hashMerkleRootDTO.getHash(), hashMerkleRootDTO.getMerkleRoot());
+            });
+            return hashMerkleRootMap;
+        } catch (Exception e) {
+            log.error("Error fetching merkle root from public blockchain: {}", e.getMessage());
+            throw new CustomException("Error fetching merkle root from public blockchain", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -139,9 +161,10 @@ public class Web3Service {
         }
     }
 
-    @Async
     @Transactional
     public void storeCurrentBatchMerkleRootToPublic()  {
+
+        //not will be in same transaction (invocation from same class) this is the required behaviour
         HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
 
         //all hash batch info changes after this since batch is finalized
@@ -170,6 +193,7 @@ public class Web3Service {
 
 
             batchInfoRepository.save(batchInfo);
+            log.info("Batch info hashes :{}", hashBatchInfoDTO.getHashes());
             certificateRepository.updateBatchInfo(parseInt(hashBatchInfoDTO.getBatchId()),
                     hashBatchInfoDTO.getHashes(), CertificateStatus.publicVerified);
 
