@@ -37,8 +37,8 @@ public class BatchInfo {
     @Column(name = "txn_fee",nullable = true)
     private String txnFee;
 
-    @Column(name = "push_status",nullable = true)
-    private Boolean pushStatus;
+    @Column(name = "push_status",nullable = false)
+    private Boolean pushStatus = false;
 
 
     @CreationTimestamp

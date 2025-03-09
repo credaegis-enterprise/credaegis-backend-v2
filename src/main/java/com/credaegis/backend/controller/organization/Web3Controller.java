@@ -36,7 +36,8 @@ public class Web3Controller {
         );
     }
     @PostMapping("/public/store/current/merkle-root")
-    public ResponseEntity<CustomApiResponse<Void>> storeCurrentMerkleRootToPublic(){
+    public ResponseEntity<CustomApiResponse<Void>> storeCurrentMerkleRootToPublic() throws Exception
+    {
         web3Service.storeCurrentBatchMerkleRootToPublic();
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null,"Request is being processed",true)

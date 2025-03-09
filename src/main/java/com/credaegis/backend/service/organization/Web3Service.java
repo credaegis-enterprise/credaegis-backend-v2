@@ -8,6 +8,7 @@ import com.credaegis.backend.dto.HashBatchInfoDTO;
 import com.credaegis.backend.dto.Web3InfoDTO;
 import com.credaegis.backend.entity.BatchInfo;
 import com.credaegis.backend.entity.Certificate;
+import com.credaegis.backend.entity.CertificateStatus;
 import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
 import com.credaegis.backend.http.response.custom.BlockchainInfoResponse;
@@ -105,6 +106,7 @@ public class Web3Service {
     }
 
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String finalizeBatch() {
         String merkleRoot = getCurrentBatchMerkleRoot();
         log.info("Merkle root for current batch calculated successfully: {}", merkleRoot);
@@ -115,23 +117,35 @@ public class Web3Service {
             Map<String, String> merkleRootMap = new HashMap<>();
             merkleRootMap.put("merkleRoot", merkleRoot);
             HttpEntity<Object> requestEntity = new HttpEntity<>(HttpUtility.getApiKeyHeader(apiKey));
-            response = restTemplate.postForEntity(asyncEndPoint + "/finalize/{merkleRoot}", requestEntity, String.class, merkleRootMap);
+
+            try {
+                response = restTemplate.
+                        postForEntity(asyncEndPoint + "/finalize/{merkleRoot}", requestEntity,
+                                String.class, merkleRootMap);
+            }
+            catch (Exception e){
+                throw new CustomException("Error in finalizing batch in private chain", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
             finalizeBatchDTO = objectMapper.readValue(response.getBody(), FinalizeBatchDTO.class);
             log.info("Batch finalized successfully in private chain: {}", finalizeBatchDTO);
             BatchInfo batchInfo = new BatchInfo();
             batchInfo.setId(parseInt(finalizeBatchDTO.getBatchId()));
+            batchInfo.setMerkleRoot(merkleRoot);
             batchInfoRepository.save(batchInfo);
             return merkleRoot;
         } catch (Exception e) {
             log.error("Error in finalizing Batch in private chain: {}", e.getMessage());
-            throw new CustomException("Error in finalizing batch", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void storeCurrentBatchMerkleRootToPublic() {
-        String merkleRoot = finalizeBatch();
+    @Async
+    @Transactional
+    public void storeCurrentBatchMerkleRootToPublic()  {
         HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
+
+        //all hash batch info changes after this since batch is finalized
+        String merkleRoot = finalizeBatch();
         log.info("finalized batch method finished..........");
         BatchInfo batchInfo = batchInfoRepository.findOneById(parseInt(hashBatchInfoDTO.getBatchId())).orElseThrow(
                 () -> new CustomException("Batch not found", HttpStatus.NOT_FOUND)
@@ -140,7 +154,6 @@ public class Web3Service {
         try {
 
             batchInfo.setId(parseInt(hashBatchInfoDTO.getBatchId()));
-            batchInfo.setMerkleRoot(merkleRoot);
             batchInfo.setPushTime(new java.sql.Timestamp(System.currentTimeMillis()));
             batchInfo.setHashCount(hashBatchInfoDTO.getHashes().size());
             try {
@@ -153,12 +166,12 @@ public class Web3Service {
             } catch (Exception e) {
                 log.error("Error occured in storing to public chain, {}", e.getMessage());
                 batchInfo.setPushStatus(false);
-                batchInfoRepository.save(batchInfo);
             }
 
 
             batchInfoRepository.save(batchInfo);
-            certificateRepository.updateBatchInfo(parseInt(hashBatchInfoDTO.getBatchId()));
+            certificateRepository.updateBatchInfo(parseInt(hashBatchInfoDTO.getBatchId()),
+                    hashBatchInfoDTO.getHashes(), CertificateStatus.publicVerified);
 
 
         } catch (Exception e) {

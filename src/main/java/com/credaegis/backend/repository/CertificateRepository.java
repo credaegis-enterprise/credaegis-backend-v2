@@ -2,6 +2,7 @@ package com.credaegis.backend.repository;
 
 import com.credaegis.backend.dto.projection.CertificateInfoProjection;
 import com.credaegis.backend.entity.Certificate;
+import com.credaegis.backend.entity.CertificateStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,8 +28,9 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
 
 
     @Modifying
-    @Query("UPDATE Certificate c SET c.batchInfo.id = :batchId")
-    void updateBatchInfo(@Param("batchId") Integer batchId);
+    @Query("UPDATE Certificate c SET c.batchInfo.id = :batchId,c.status =:status WHERE c.certificateHash IN :ids")
+    void updateBatchInfo(@Param("batchId") Integer batchId, @Param("ids") List<String> certificateHashes,
+                         @Param("status")CertificateStatus status);
 
     @Modifying
     @Query("UPDATE Certificate c SET c.revoked = true, c.revokedDate = CURRENT_DATE WHERE c.id IN :ids AND c.event.cluster.organization.id = :organizationId")
