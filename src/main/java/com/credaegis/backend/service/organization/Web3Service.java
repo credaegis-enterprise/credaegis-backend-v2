@@ -150,6 +150,7 @@ public class Web3Service {
             BatchInfo batchInfo = new BatchInfo();
             batchInfo.setId(parseInt(finalizeBatchDTO.getBatchId()));
             batchInfo.setMerkleRoot(merkleRoot);
+            log.info("finilized finish");
             batchInfoRepository.save(batchInfo);
             return merkleRoot;
         } catch (Exception e) {
@@ -158,7 +159,7 @@ public class Web3Service {
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void storeCurrentBatchMerkleRootToPublic()  {
 
         //not will be in same transaction (invocation from same class) this is the required behaviour
@@ -300,6 +301,11 @@ public class Web3Service {
             log.info("Current batch info: {}", response.getBody());
             HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
             hashBatchInfoDTO.setBatchId(getContractState().getCurrentBatchIndex());
+            Optional<BatchInfo> batchInfo = batchInfoRepository.findOneById(parseInt(hashBatchInfoDTO.getBatchId()));
+            if(batchInfo.isPresent()){
+                hashBatchInfoDTO.setBatchInfo(batchInfo.get());
+            }
+
             return hashBatchInfoDTO;
         } catch (Exception e) {
             throw new CustomException("Blockchain verification service is down", HttpStatus.INTERNAL_SERVER_ERROR);
