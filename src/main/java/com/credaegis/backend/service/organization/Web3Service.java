@@ -4,7 +4,6 @@ package com.credaegis.backend.service.organization;
 import com.credaegis.backend.configuration.web3.HashStore;
 import com.credaegis.backend.dto.*;
 import com.credaegis.backend.entity.BatchInfo;
-import com.credaegis.backend.entity.Certificate;
 import com.credaegis.backend.entity.CertificateStatus;
 import com.credaegis.backend.exception.custom.CustomException;
 import com.credaegis.backend.exception.custom.ExceptionFactory;
@@ -15,14 +14,11 @@ import com.credaegis.backend.utility.HttpUtility;
 import com.credaegis.backend.utility.MerkleTreeUtility;
 import com.credaegis.backend.utility.Web3Utility;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +27,7 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.*;
 import org.web3j.utils.Convert;
-
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 
 import static java.lang.Integer.parseInt;
@@ -143,15 +137,16 @@ public class Web3Service {
                                 String.class, merkleRootMap);
             }
             catch (Exception e){
-                throw new CustomException("Error in finalizing batch in private chain", HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new CustomException("Error in finalizing batch in private chain, try again later", HttpStatus.INTERNAL_SERVER_ERROR);
             }
             finalizeBatchDTO = objectMapper.readValue(response.getBody(), FinalizeBatchDTO.class);
-            log.info("Batch finalized successfully in private chain: {}", finalizeBatchDTO);
+            log.info("Batch finalized successfully in private chain : {}", finalizeBatchDTO);
             BatchInfo batchInfo = new BatchInfo();
-            batchInfo.setId(parseInt(finalizeBatchDTO.getBatchId()));
+            batchInfo.setId(parseInt(finalizeBatchDTO.getBatchId())-1);
             batchInfo.setMerkleRoot(merkleRoot);
             log.info("finilized finish");
             batchInfoRepository.save(batchInfo);
+            log.info("batch info saved to repository");
             return merkleRoot;
         } catch (Exception e) {
             log.error("Error in finalizing Batch in private chain: {}", e.getMessage());
@@ -164,7 +159,7 @@ public class Web3Service {
 
         //not will be in same transaction (invocation from same class) this is the required behaviour
         HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
-
+        log.info("Current batch info successfully fetched: {}", hashBatchInfoDTO);
         //all hash batch info changes after this since batch is finalized
         String merkleRoot = finalizeBatch();
         log.info("finalized batch method finished..........");
@@ -185,7 +180,7 @@ public class Web3Service {
                 batchInfo.setTxnHash(transactionReceipt.getTransactionHash());
                 batchInfo.setPushStatus(true);
             } catch (Exception e) {
-                log.error("Error occured in storing to public chain, {}", e.getMessage());
+                log.error("Error occured in storing to public chain {}", e.getMessage());
                 batchInfo.setPushStatus(false);
             }
 
@@ -198,7 +193,7 @@ public class Web3Service {
 
         } catch (Exception e) {
             log.error("Error storing merkle root to public blockchain: {}", e.getMessage());
-            throw new CustomException("Error storing merkle root to public blockchain", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("Error storing merkle root to public blockchain, try again later", HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
 
@@ -280,6 +275,12 @@ public class Web3Service {
             HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
             hashBatchInfoDTO.setBatchId(id);
             Optional<BatchInfo> batchInfo = batchInfoRepository.findOneById(parseInt(id));
+            System.out.println(contractStateDTO.getCurrentBatchIndex());
+            System.out.println(id);
+            if(contractStateDTO.getCurrentBatchIndex().equals(id))
+                hashBatchInfoDTO.setIsCurrentBatch(true);
+            else
+                hashBatchInfoDTO.setIsCurrentBatch(false);
             if(batchInfo.isPresent()){
                 hashBatchInfoDTO.setBatchInfo(batchInfo.get());
             }
@@ -301,9 +302,11 @@ public class Web3Service {
             log.info("Current batch info: {}", response.getBody());
             HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
             hashBatchInfoDTO.setBatchId(getContractState().getCurrentBatchIndex());
+            hashBatchInfoDTO.setIsCurrentBatch(true);
             Optional<BatchInfo> batchInfo = batchInfoRepository.findOneById(parseInt(hashBatchInfoDTO.getBatchId()));
             if(batchInfo.isPresent()){
                 hashBatchInfoDTO.setBatchInfo(batchInfo.get());
+
             }
 
             return hashBatchInfoDTO;

@@ -19,5 +19,6 @@ public class HashBatchInfoDTO {
     private List<String> hashes;
     private String merkleRoot;
     private BatchInfo batchInfo;
+    private Boolean isCurrentBatch;
 
 }
