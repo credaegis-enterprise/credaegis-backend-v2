@@ -60,8 +60,11 @@ public class Web3Service {
     @Value("${credaegis.web3.chain-id}")
     private String chainId;
 
-    @Value("${credaegis.web3.txn.url}")
-    private String snowTraceTxnUrl;
+    @Value("${credaegis.web3.txn-url-base}")
+    private String txnUrl;
+
+    @Value("${credaegis.web3.chain-name}")
+    private String chainName;
 
     @Value("${credaegis.async-blockchain.service.api-key}")
     private String apiKey;
@@ -71,7 +74,7 @@ public class Web3Service {
         try {
             System.out.println("hash: " + hash);
             TransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(hash).send().getTransactionReceipt().get();
-            return snowTraceTxnUrl + hash + "?" + "chainid=" + chainId;
+            return txnUrl + hash + "?" + "chainid=" + chainId;
         } catch (Exception e) {
             log.error("Error fetching transaction receipt: {}", e.getMessage());
             throw new CustomException("Error fetching transaction receipt", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -179,6 +182,9 @@ public class Web3Service {
                 batchInfo.setTxnFee(Web3Utility.covertToAVAX(transactionReceipt).toPlainString());
                 batchInfo.setTxnHash(transactionReceipt.getTransactionHash());
                 batchInfo.setPushStatus(true);
+                batchInfo.setPublicChainId(chainId);
+                batchInfo.setPublicChainName(chainName);
+                batchInfo.setTxnUrl(txnUrl + transactionReceipt.getTransactionHash() + "?" + "chainid=" + chainId);
             } catch (Exception e) {
                 log.error("Error occured in storing to public chain {}", e.getMessage());
                 batchInfo.setPushStatus(false);

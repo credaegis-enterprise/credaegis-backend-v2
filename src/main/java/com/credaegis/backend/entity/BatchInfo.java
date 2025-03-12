@@ -24,6 +24,12 @@ public class BatchInfo {
     @Column(name = "merkle_root", nullable = true)
     private String merkleRoot;
 
+    @Column(name = "public_chain_id", nullable = true)
+    private String publicChainId;
+
+    @Column(name = "public_chain_name",nullable = true)
+    private String publicChainName;
+
     @Column(name = "hash_count", nullable = true)
     private Integer hashCount;
 
@@ -44,6 +50,10 @@ public class BatchInfo {
     private Boolean pushStatus = false;
 
 
+    @Column(name = "txn_url",nullable = true)
+    private String txnUrl;
+
+
     @CreationTimestamp
     @Column(name = "created_on", nullable = false)
     private Timestamp createdOn;
@@ -51,6 +61,9 @@ public class BatchInfo {
     @UpdateTimestamp
     @Column(name = "updated_on", nullable = false)
     private Timestamp updatedOn;
+
+
+
 
 
     @OneToMany(mappedBy = "batchInfo")
