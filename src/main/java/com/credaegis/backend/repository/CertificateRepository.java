@@ -28,6 +28,21 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
     Long countByEvent_IdAndEvent_Cluster_Id(String eventId, String userClusterId);
 
 
+
+
+    @Query(
+            "SELECT c.id AS id,c.recipientName AS recipientName,c.recipientEmail AS recipientEmail," +
+                    "c.certificateName AS certificateName,c.issuedDate AS issuedDate," +
+                    "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
+                    "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail,c.persisted AS persisted,c.status AS status," +
+                    "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName" +
+                    "  FROM Certificate c WHERE c.event.cluster.organization.id = :organizationId AND c.status != 'buffered' AND c.certificateHash = :hash")
+    CertificateInfoProjection getCertificateByHash(@Param("organizationId") String organizationId, @Param("hash") String hash);
+
+
+
+
+
     @Modifying
     @Query("UPDATE Certificate c SET c.batchInfo.id = :batchId,c.status =:status WHERE c.certificateHash IN :ids")
     void updateBatchInfo(@Param("batchId") Integer batchId, @Param("ids") List<String> certificateHashes,
@@ -42,7 +57,7 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
                     "c.certificateName AS certificateName,c.issuedDate AS issuedDate," +
                     "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
                     "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail," +
-                    "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName,c.persisted AS persisted" +
+                    "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName,c.persisted AS persisted,c.status AS status" +
                     "  FROM Certificate c WHERE c.event.cluster.id = :id AND c.status != 'buffered'")
     Page<CertificateInfoProjection> getLatestCertificateInfoForMember(Pageable pageable, @Param("id") String clusterId);
 
@@ -53,7 +68,7 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
                     "c.certificateName AS certificateName,c.issuedDate AS issuedDate," +
                     "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
                     "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail," +
-                    "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName, c.persisted AS persisted" +
+                    "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName, c.persisted AS persisted,c.status AS status" +
                     "  FROM Certificate c WHERE c.event.id = :eventId AND c.event.cluster.id = :clusterId AND c.status != 'buffered'")
     Page<CertificateInfoProjection> getLatestCertificateInfoByEventForMember(Pageable pageable, String eventId, String clusterId);
 
@@ -63,7 +78,7 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
             "SELECT c.id AS id,c.recipientName AS recipientName,c.recipientEmail AS recipientEmail," +
                     "c.certificateName AS certificateName,c.issuedDate AS issuedDate," +
                     "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
-                    "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail,c.persisted AS persisted," +
+                    "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail,c.persisted AS persisted ,c.status AS status," +
                     "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName" +
                     "  FROM Certificate c WHERE c.event.cluster.organization.id = :organizationId AND c.status != 'buffered'")
     Page<CertificateInfoProjection> getLatestCertificateInfo(Pageable pageable, @Param("organizationId") String organizationId);
@@ -73,7 +88,7 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
             "SELECT c.id AS id,c.recipientName AS recipientName,c.recipientEmail AS recipientEmail," +
                     "c.certificateName AS certificateName,c.issuedDate AS issuedDate," +
                     "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
-                    "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail, c.persisted AS persisted," +
+                    "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail, c.persisted AS persisted, c.status AS status," +
                     "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName" +
                     "  FROM Certificate c WHERE c.event.cluster.id = :clusterId AND c.event.cluster.organization.id = :organizationId AND c.status != 'buffered'")
     Page<CertificateInfoProjection> getLatestCertificateInfoByCluster(Pageable pageable, String clusterId, String organizationId);
@@ -84,7 +99,7 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
             "SELECT c.id AS id,c.recipientName AS recipientName,c.recipientEmail AS recipientEmail," +
                     "c.certificateName AS certificateName,c.issuedDate AS issuedDate," +
                     "c.expiryDate AS expiryDate,c.revoked AS revoked,c.revokedDate as revokedDate," +
-                    "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail,c.persisted AS persisted," +
+                    "c.issuedByUser.username AS issuerName,c.issuedByUser.email AS issuerEmail,c.persisted AS persisted, c.status AS status," +
                     "c.comments AS comment,c.event.name AS eventName,c.event.cluster.name AS clusterName" +
                     "  FROM Certificate c WHERE c.event.id = :eventId AND c.event.cluster.organization.id = :organizationId AND c.status != 'buffered'")
     Page<CertificateInfoProjection> getLatestCertificateInfoByEvent(Pageable pageable, String eventId, String organizationId);

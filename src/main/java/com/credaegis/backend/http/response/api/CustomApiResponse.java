@@ -8,12 +8,16 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+
 public class CustomApiResponse <T> {
 
 
     private T responseData;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String message;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Boolean success;
 
 

@@ -37,6 +37,11 @@ public class CertificateService {
 
 
 
+    public CertificateInfoProjection getInfoByHash(String hash,String organizationId)
+    {
+        return certificateRepository.getCertificateByHash(organizationId,hash);
+    }
+
     public ViewCertificateDTO viewCertificate(String certificateId, String userOrganizationId) {
        Certificate certificate = certificateRepository.findById(certificateId).orElseThrow(ExceptionFactory::resourceNotFound);
         if (!certificate.getEvent().getCluster().getOrganization().getId().equals(userOrganizationId))
@@ -111,7 +116,7 @@ public class CertificateService {
     }
 
     public List<CertificateInfoProjection> getLatestCertificates(int page, int size, String userOrganizationId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate")));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate"), Sort.Order.asc("id")));
 
         return certificateRepository.getLatestCertificateInfo(pageable, userOrganizationId).getContent();
     }
@@ -129,12 +134,12 @@ public class CertificateService {
     }
 
     public List<CertificateInfoProjection> getLatestCertificatesCluster(int page, int size, String userOrganizationId, String clusterId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate")));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate"), Sort.Order.asc("id")));
         return certificateRepository.getLatestCertificateInfoByCluster(pageable, clusterId, userOrganizationId).getContent();
     }
 
     public List<CertificateInfoProjection> getLatestCertificatesEvent(int page, int size, String userOrganizationId, String eventId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate")));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("issuedDate"), Sort.Order.asc("id")));
         return certificateRepository.getLatestCertificateInfoByEvent(pageable, eventId, userOrganizationId).getContent();
     }
 }

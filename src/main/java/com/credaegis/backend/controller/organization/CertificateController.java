@@ -4,6 +4,7 @@ package com.credaegis.backend.controller.organization;
 import com.credaegis.backend.configuration.security.principal.CustomUser;
 import com.credaegis.backend.constant.Constants;
 import com.credaegis.backend.dto.ViewCertificateDTO;
+import com.credaegis.backend.dto.projection.CertificateInfoProjection;
 import com.credaegis.backend.http.request.CertificateRevokeRequest;
 import com.credaegis.backend.http.response.api.CustomApiResponse;
 import com.credaegis.backend.http.response.custom.CertificateListResponse;
@@ -28,6 +29,19 @@ public class CertificateController {
 
     private final CertificateService certificateService;
 
+
+
+    @GetMapping("/{hash}")
+    public ResponseEntity<CustomApiResponse<CertificateInfoProjection>> getDetailsByHash(@PathVariable String hash,
+                                                                                         @AuthenticationPrincipal CustomUser customUser)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(
+                        certificateService.getInfoByHash(hash,customUser.getOrganizationId()),
+                        null,true
+                )
+        );
+    }
 
 
     @GetMapping(path = "/view/{id}")

@@ -35,7 +35,7 @@ public class BatchInfo {
 
 
     @Column(name = "push_time", nullable = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss",timezone = "Asia/Kolkata")
     private Timestamp pushTime;
 
 

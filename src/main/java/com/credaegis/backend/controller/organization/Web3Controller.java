@@ -28,6 +28,8 @@ public class Web3Controller {
 
 
 
+
+
     @GetMapping("/public/txn/{hash}")
     public ResponseEntity<CustomApiResponse<String>> getTransactionReceipt(@PathVariable String hash){
         return ResponseEntity.status(HttpStatus.OK).body(
