@@ -30,12 +30,23 @@ public class Web3Controller {
 
 
 
+
     @GetMapping("/public/txn/{hash}")
     public ResponseEntity<CustomApiResponse<String>> getTransactionReceipt(@PathVariable String hash){
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(web3Service.getTxnDetails(hash),"Transaction receipt fetched",true)
         );
     }
+
+    @PostMapping("/public/store/{merkleRoot}")
+    public ResponseEntity<CustomApiResponse<Void>> storeMerkleRootToPublic(@PathVariable String merkleRoot) throws Exception
+    {
+        web3Service.retryPublicPush(merkleRoot);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new CustomApiResponse<>(null,"Merkle root stored to public chain successful",true)
+        );
+    }
+
     @PostMapping("/public/store/current/merkle-root")
     public ResponseEntity<CustomApiResponse<Void>> storeCurrentMerkleRootToPublic() throws Exception
     {

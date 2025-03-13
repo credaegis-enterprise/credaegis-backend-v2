@@ -83,6 +83,51 @@ public class Web3Service {
     }
 
 
+    @Transactional
+    public void retryPublicPush(String merkleRoot)
+    {
+        BatchInfo batchInfo = batchInfoRepository.findOneByMerkleRoot(merkleRoot).orElseThrow(
+                () -> new CustomException("Batch not found", HttpStatus.NOT_FOUND)
+        );
+
+        HashBatchInfoDTO hashBatchInfoDTO = getBatchInfo(batchInfo.getId().toString());
+        TransactionReceipt transactionReceipt;
+        try {
+
+            batchInfo.setPushTime(new java.sql.Timestamp(System.currentTimeMillis()));
+            try {
+
+                transactionReceipt = hashStore.storeHash(new ArrayList<>(List.of(merkleRoot))).send();
+                log.info("Successfully stored to public chain");
+                batchInfo.setTxnFee(Web3Utility.covertToAVAX(transactionReceipt).toPlainString());
+                batchInfo.setTxnHash(transactionReceipt.getTransactionHash());
+                batchInfo.setPushStatus(true);
+                batchInfo.setPublicChainId(chainId);
+                batchInfo.setHashCount(hashBatchInfoDTO.getHashes().size());
+                batchInfo.setPublicChainName(chainName);
+                batchInfo.setTxnUrl(txnUrl + transactionReceipt.getTransactionHash() + "?" + "chainid=" + chainId);
+            } catch (Exception e) {
+                log.error("Error occured in storing to public chain {}", e.getMessage());
+                batchInfo.setPushStatus(false);
+            }
+
+
+            batchInfoRepository.save(batchInfo);
+            log.info("Batch info hashes :{}", hashBatchInfoDTO.getHashes());
+            certificateRepository.updateBatchInfo(parseInt(hashBatchInfoDTO.getBatchId()),
+                    hashBatchInfoDTO.getHashes(), CertificateStatus.publicVerified);
+            log.error("Yeah finished with no exps");
+
+
+        } catch (Exception e) {
+            log.error("Error (retry) storing merkle root to public blockchain: {}", e.getMessage());
+            throw new CustomException("Error storing merkle root to public blockchain, try again later", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
+
+    }
+
+
 
     public Map<String,String> getMerkleRootByHashes(List<String> hashes)
     {
@@ -123,7 +168,7 @@ public class Web3Service {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(noRollbackFor = CustomException.class)
     public String finalizeBatch() {
         String merkleRoot = getCurrentBatchMerkleRoot();
         log.info("Merkle root for current batch calculated successfully: {}", merkleRoot);
@@ -149,7 +194,7 @@ public class Web3Service {
             batchInfo.setId(parseInt(finalizeBatchDTO.getBatchId())-1);
             batchInfo.setMerkleRoot(merkleRoot);
             log.info("finilized finish");
-            batchInfoRepository.save(batchInfo);
+            batchInfoRepository.saveAndFlush(batchInfo);
             log.info("batch info saved to repository");
             return merkleRoot;
         } catch (Exception e) {
@@ -158,7 +203,7 @@ public class Web3Service {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, noRollbackFor = CustomException.class)
     public void storeCurrentBatchMerkleRootToPublic()  {
 
         //not will be in same transaction (invocation from same class) this is the required behaviour
@@ -282,8 +327,8 @@ public class Web3Service {
             HashBatchInfoDTO hashBatchInfoDTO = objectMapper.readValue(response.getBody(), HashBatchInfoDTO.class);
             hashBatchInfoDTO.setBatchId(id);
             Optional<BatchInfo> batchInfo = batchInfoRepository.findOneById(parseInt(id));
-            System.out.println(contractStateDTO.getCurrentBatchIndex());
-            System.out.println(id);
+            if(batchInfo.isEmpty() && !contractStateDTO.getCurrentBatchIndex().equals(id))
+                throw new CustomException("Information not found", HttpStatus.NOT_FOUND);
             if(contractStateDTO.getCurrentBatchIndex().equals(id))
                 hashBatchInfoDTO.setIsCurrentBatch(true);
             else
@@ -295,7 +340,7 @@ public class Web3Service {
 
         } catch (Exception e) {
             log.error("Error : {}", e.getMessage());
-            throw new CustomException("Error getting batch info", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("Batch information not available", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

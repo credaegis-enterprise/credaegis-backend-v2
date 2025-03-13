@@ -8,6 +8,9 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface BatchInfoRepository extends JpaRepository<BatchInfo, Integer> {
+public interface
+BatchInfoRepository extends JpaRepository<BatchInfo, Integer> {
+
+   Optional<BatchInfo> findOneByMerkleRoot(String merkleRoot);
    Optional<BatchInfo> findOneById(int i);
 }
