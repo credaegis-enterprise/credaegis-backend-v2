@@ -115,6 +115,7 @@ public class ClusterService {
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
             clusterRepository.deactivateCluster(clusterId);
             userRepository.deactivateUser(userRepository.findAllUserIdByClusterId(clusterId));
+            eventRepository.deactivateEventsByClusterId(clusterId);
 
         } else throw ExceptionFactory.insufficientPermission();
     }
@@ -128,6 +129,7 @@ public class ClusterService {
         if (cluster.getOrganization().getId().equals(userOrganizationId)) {
             clusterRepository.activateCluster(clusterId);
             userRepository.activateUser(userRepository.findAllUserIdByClusterId(clusterId));
+            eventRepository.activateEventsByClusterId(clusterId);
 
         } else throw ExceptionFactory.insufficientPermission();
     }

@@ -70,6 +70,8 @@ public class EventService {
            if(!event.getCluster().getOrganization().getId().equals(userOrganizationId))
                throw ExceptionFactory.insufficientPermission();
            if(!event.getDeactivated()) throw ExceptionFactory.customValidationError("Event is already active");
+           if(event.getCluster().getDeactivated())
+                throw ExceptionFactory.customValidationError("Cluster is deactivated, activate the cluster first");
 
            eventRepository.activateEvent(eventId);
        }

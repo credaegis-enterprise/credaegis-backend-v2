@@ -24,6 +24,16 @@ public interface EventRepository extends JpaRepository<Event, String> {
     List<EventSearchProjection> searchEvents(@Param("name") String eventName,@Param("id") String clusterId);
 
 
+    @Modifying
+    @Query("UPDATE Event e SET e.deactivated = true WHERE e.cluster.id = :clusterId")
+    void deactivateEventsByClusterId(String clusterId);
+
+
+    @Modifying
+    @Query("UPDATE Event e SET e.deactivated = false WHERE e.cluster.id = :clusterId")
+    void activateEventsByClusterId(String clusterId);
+
+
 
 
     Optional<Event> findByIdAndDeactivated(String id, boolean deactivated);
