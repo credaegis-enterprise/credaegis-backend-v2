@@ -1,0 +1,100 @@
+services:
+  mysql:
+    container_name: credaegis-mysql
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: daiveekam
+      MYSQL_DATABASE: credaegis_v2
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - credaegis-network
+
+
+  rabbitmq:
+    container_name: credaegis-rabbitmq
+    image: rabbitmq:4.0-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    volumes:
+      - ./rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - credaegis-network
+
+  redis:
+    container_name: credaegis-redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - credaegis-network
+
+  minio:
+    image: minio/minio
+    container_name: credaegis-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio-data:/data
+    environment:
+      MINIO_ROOT_USER: credaegis
+      MINIO_ROOT_PASSWORD: daiveekam
+    command: server /data --console-address :9001
+    networks:
+      - credaegis-network
+
+
+  organization-service:
+    env_file:
+      - backend.env
+    build:
+      context: ./credaegis-backend-v2
+      dockerfile: Dockerfile
+    container_name: credaegis-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+      - mysql
+      - redis
+      - minio
+    networks:
+      - credaegis-network
+
+
+
+  async-service:
+    build:
+      context: ./credaegis-async-service
+      dockerfile: Dockerfile
+    container_name: credaegis-async-service
+    depends_on:
+      - rabbitmq
+      - organization-service
+    networks:
+      - credaegis-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build:
+      context: ./credaegis-frontend
+      dockerfile: Dockerfile
+    container_name: credaegis-frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - credaegis-network
+
+
+
+
+
+networks:
+  credaegis-network:
+    driver: bridge
