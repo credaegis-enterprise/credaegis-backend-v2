@@ -30,7 +30,7 @@ public interface EventRepository extends JpaRepository<Event, String> {
 
     @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName FROM Event e WHERE e.name " +
             "LIKE %:eventName% AND (:clusterId IS NULL OR e.cluster.id = :clusterId) AND e.deactivated = false AND e.cluster.organization.id = :organizationId")
-    List<EventSearchProjection> searchByNameAndClusterId(String eventName, String clusterId, String userOrganizationId);
+    List<EventSearchProjection> searchByNameAndClusterId(String eventName, String clusterId, String organizationId);
 
 
     @Query("SELECT e.id AS id ,e.name AS name,e.cluster.id AS clusterId,e.cluster.name AS clusterName FROM Event e WHERE e.name " +

@@ -30,7 +30,9 @@ public class EventController {
     @GetMapping(path = "/event/cluster/search")
     public ResponseEntity<CustomApiResponse<List<EventSearchProjection>>> searchByNameAndClusterId(@RequestParam String name,
                                                                                                    @RequestParam String clusterId,
-                                                                                                   @AuthenticationPrincipal CustomUser customUser) {
+                                                                                                      @AuthenticationPrincipal CustomUser customUser) {
+
+        System.out.println(customUser.getOrganizationId());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(eventService.searchByNameAndClusterId(name, clusterId, customUser.getOrganizationId()), "Events fetched", true)
         );
