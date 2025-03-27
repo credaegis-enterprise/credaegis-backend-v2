@@ -19,6 +19,8 @@ public interface  CertificateRepository extends JpaRepository<Certificate,String
     //count can potentially cause problem if "buffered not excluded"
 
 
+    List<Certificate> findAllByBatchInfo_Id(Integer batchInfoId);
+
     Optional<Certificate> findByCertificateHash(String hashedValue);
 
     boolean existsByCertificateHash(String certificateHash);

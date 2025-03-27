@@ -1,6 +1,7 @@
 package com.credaegis.backend.service.organization;
 
 
+import com.credaegis.backend.async.EmailAsyncService;
 import com.credaegis.backend.configuration.web3.HashStore;
 import com.credaegis.backend.dto.*;
 import com.credaegis.backend.entity.BatchInfo;
@@ -44,6 +45,7 @@ public class Web3Service {
     private final BatchInfoRepository batchInfoRepository;
     private final CertificateRepository certificateRepository;
     private final RestTemplate restTemplate;
+    private final EmailAsyncService emailAsyncService;
 
 
 
@@ -241,6 +243,10 @@ public class Web3Service {
             log.info("Batch info hashes :{}", hashBatchInfoDTO.getHashes());
             certificateRepository.updateBatchInfo(parseInt(hashBatchInfoDTO.getBatchId()),
                     hashBatchInfoDTO.getHashes(), CertificateStatus.publicVerified);
+
+
+
+            emailAsyncService.sendCertificateVerifiedEmail(parseInt(hashBatchInfoDTO.getBatchId()));
 
 
         } catch (Exception e) {
