@@ -32,9 +32,10 @@ public class EmailAsyncService {
 
     @Async
     public void sendCertificateVerifiedEmail(Integer batchId) {
-
-
+        log.info("In Email Sending Async Service");
+        log.info("BatchId to send email {}", batchId);
         List<Certificate> certificates = certificateRepository.findAllByBatchInfo_Id(batchId);
+        log.info("Certificate count in email async {}", certificates.size());
         certificates.forEach(certificate -> {
 
             try {
