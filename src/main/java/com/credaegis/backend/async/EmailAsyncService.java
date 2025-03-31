@@ -96,6 +96,7 @@ public class EmailAsyncService {
                 }
 
             } catch (Exception e) {
+                log.error(e.getMessage());
                 log.error("Error while sending email for certificate verification", e);
             }
 
