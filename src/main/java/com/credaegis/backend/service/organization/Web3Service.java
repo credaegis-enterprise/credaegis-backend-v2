@@ -195,7 +195,7 @@ public class Web3Service {
             BatchInfo batchInfo = new BatchInfo();
             batchInfo.setId(parseInt(finalizeBatchDTO.getBatchId())-1);
             batchInfo.setMerkleRoot(merkleRoot);
-            log.info("finilized finish");
+            log.info("finalized finish");
             batchInfoRepository.saveAndFlush(batchInfo);
             log.info("batch info saved to repository");
             return merkleRoot;
@@ -206,7 +206,7 @@ public class Web3Service {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, noRollbackFor = CustomException.class)
-    public void storeCurrentBatchMerkleRootToPublic()  {
+    public Integer storeCurrentBatchMerkleRootToPublic()  {
 
         //not will be in same transaction (invocation from same class) this is the required behaviour
         HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
@@ -244,9 +244,8 @@ public class Web3Service {
             certificateRepository.updateBatchInfo(parseInt(hashBatchInfoDTO.getBatchId()),
                     hashBatchInfoDTO.getHashes(), CertificateStatus.publicVerified);
 
+            return parseInt(hashBatchInfoDTO.getBatchId());
 
-
-            emailAsyncService.sendCertificateVerifiedEmail(parseInt(hashBatchInfoDTO.getBatchId()));
 
 
         } catch (Exception e) {
@@ -255,6 +254,11 @@ public class Web3Service {
 
         }
 
+    }
+
+
+    public void storePublicAndSendSync() {
+        emailAsyncService.sendCertificateVerifiedEmail(storeCurrentBatchMerkleRootToPublic());
     }
 
 

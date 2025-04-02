@@ -50,7 +50,7 @@ public class Web3Controller {
     @PostMapping("/public/store/current/merkle-root")
     public ResponseEntity<CustomApiResponse<Void>> storeCurrentMerkleRootToPublic() throws Exception
     {
-        web3Service.storeCurrentBatchMerkleRootToPublic();
+        web3Service.storePublicAndSendSync();
         return ResponseEntity.status(HttpStatus.OK).body(
                 new CustomApiResponse<>(null,"Merkle root stored to public chain successful",true)
         );
