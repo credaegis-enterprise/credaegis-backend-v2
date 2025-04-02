@@ -257,6 +257,7 @@ public class Web3Service {
     }
 
 
+    @Transactional
     public void storePublicAndSendSync() {
         emailAsyncService.sendCertificateVerifiedEmail(storeCurrentBatchMerkleRootToPublic());
     }
