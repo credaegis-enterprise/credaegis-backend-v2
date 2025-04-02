@@ -170,7 +170,7 @@ public class Web3Service {
     }
 
 
-    @Transactional(noRollbackFor = CustomException.class)
+    @Transactional
     public String finalizeBatch() {
         String merkleRoot = getCurrentBatchMerkleRoot();
         log.info("Merkle root for current batch calculated successfully: {}", merkleRoot);
