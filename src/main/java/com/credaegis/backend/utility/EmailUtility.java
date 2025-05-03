@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -32,13 +33,14 @@ public class EmailUtility {
     public  void sendEmail(String to, String subject, String html, InputStream stream, String fileName) {
         try{
 
-            log.info("password: {}", credaegisEmailPassword);
+
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(credaegisEmail);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(html, true);
+            helper.addInline("logo", new ClassPathResource("static/credaegis-logo.png"));
             if (stream != null)
                  helper.addAttachment(fileName, new ByteArrayResource(stream.readAllBytes()));
             javaMailSender.send(message);

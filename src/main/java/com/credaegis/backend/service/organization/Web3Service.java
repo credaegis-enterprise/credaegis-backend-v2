@@ -23,6 +23,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.client.RestTemplate;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
@@ -170,7 +172,7 @@ public class Web3Service {
     }
 
 
-    @Transactional
+
     public String finalizeBatch() {
         String merkleRoot = getCurrentBatchMerkleRoot();
         log.info("Merkle root for current batch calculated successfully: {}", merkleRoot);
@@ -205,8 +207,11 @@ public class Web3Service {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, noRollbackFor = CustomException.class)
-    public Integer storeCurrentBatchMerkleRootToPublic()  {
+
+    //todo Must be improved this method since it can / may have data integrity and consistency issues due to transactions between multiple systems
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void storeCurrentBatchMerkleRootToPublic()  {
 
         //not will be in same transaction (invocation from same class) this is the required behaviour
         HashBatchInfoDTO hashBatchInfoDTO = getCurrentBatchInfo();
@@ -244,9 +249,12 @@ public class Web3Service {
             certificateRepository.updateBatchInfo(parseInt(hashBatchInfoDTO.getBatchId()),
                     hashBatchInfoDTO.getHashes(), CertificateStatus.publicVerified);
 
-            return parseInt(hashBatchInfoDTO.getBatchId());
-
-
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCommit() {
+                    emailAsyncService.sendCertificateVerifiedEmail(parseInt(hashBatchInfoDTO.getBatchId()));
+                }
+            });
 
         } catch (Exception e) {
             log.error("Error storing merkle root to public blockchain: {}", e.getMessage());
@@ -256,11 +264,6 @@ public class Web3Service {
 
     }
 
-
-    @Transactional
-    public void storePublicAndSendSync() {
-        emailAsyncService.sendCertificateVerifiedEmail(storeCurrentBatchMerkleRootToPublic());
-    }
 
 
     public String getCurrentBatchMerkleRoot() {
